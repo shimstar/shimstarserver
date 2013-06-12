@@ -1,0 +1,5 @@
+syntax: glob
+shimstar/*.pyc
+*.pyc
+syntax: regexp
+shimstar/*.pyc
