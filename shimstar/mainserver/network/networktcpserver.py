@@ -114,7 +114,7 @@ class NetworkTCPServer():
 		myIterator=PyDatagramIterator(netDatagram)
 		connexion=netDatagram.getConnection()
 		msgTab=[]
-		msgID=myIterator.getUint8()		
+		msgID=myIterator.getUint32()		
 		print msgID
 		if msgID==C_NETWORK_CONNECT:
 			name=myIterator.getString()

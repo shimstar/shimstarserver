@@ -14,7 +14,7 @@ class ZoneMainServer:
 		return None
 		
 	def getConfig(self):
-		return ip,port
+		return self.ip,self.port
 		
 	def getConnexion(self):
 		return self.connexion
