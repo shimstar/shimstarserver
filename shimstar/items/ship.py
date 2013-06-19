@@ -15,6 +15,12 @@ class Ship(ShimItem):
 		self.slots=[]
 		self.itemInInventory=[]
 		self.loadShipFromBDD()
+		self.lastSentTicks=0
+		self.state=0
+		self.bodyNP=None
+		
+	def getState(self):
+		return self.state
 		
 	def getXml(self,docXml=None):
 		if docXml==None:
@@ -69,6 +75,19 @@ class Ship(ShimItem):
 			shipXml.appendChild(invXml)
 		return shipXml
 		
+	def mustSentPos(self,timer):
+		"""
+		 if the time elapsed between 2 messages sent to others players is over the sendticks, return true, otherwise return false
+		"""
+		dt=(timer-self.lastSentTicks)
+		if  dt > C_SENDTICKS:
+			self.lastSentTicks=timer
+			return True
+		else:
+			return False
+		
+	def getNode(self):
+		return self.bodyNP
 		
 	def loadShipFromBDD(self):
 		query="SELECT star007_fitted,star005_egg,star005_hull,star005_mass,star005_maniability,star005_img,star007_template_star005shiptemplate,star007_hull "
@@ -120,4 +139,26 @@ class Ship(ShimItem):
 			self.itemInInventory.append(itemTemp)
 		cursor.close()
 		
-		
+	def loadEgg(self,world,worldNP):
+		"""
+		don't create the node, geom and physics at connection start, but in the incoming of a zone.
+		It is why it is a loadEgg, and it is not load in loadXml
+		"""
+		world,worldNP=shimCollider.getInstance(self.zone.id).getWorld()
+		visNP = loader.loadModel(self.egg)
+		geom = visNP.findAllMatches('**/+GeomNode').getPath(0).node().getGeom(0)			
+		shape=BulletConvexHullShape()
+		shape.addGeom(geom)
+		body = BulletRigidBodyNode(self.name)
+		self.bodyNP = worldNP.attachNewNode(body)
+		self.bodyNP.node().addShape(shape)
+		self.bodyNP.node().setMass(1.0)
+		self.bodyNP.setPos(self.pos)
+		self.bodyNP.setHpr(self.hpr)
+		self.bodyNP.setCollideMask(BitMask32.allOn())
+		self.bodyNP.setPythonTag("obj",self)
+		self.bodyNP.setPythonTag("pnode",visNP)
+		world.attachRigidBody(self.bodyNP.node())
+
+		visNP.reparentTo(self.bodyNP)
+		self.state=1

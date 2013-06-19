@@ -29,6 +29,7 @@ class NetworkMainServer(threading.Thread):
 			nm.addInt(C_ID_ZONE)
 			nm.addString(C_IP_ZONE)
 			nm.addInt(C_PORT_ZONE)
+			nm.addInt(C_PORT_UDP_ZONE)
 			self.sendMessage(nm)
 		
 	@staticmethod

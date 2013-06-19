@@ -25,7 +25,7 @@ class NetworkTCPServer():
 		self.Connections = {}
 		self.activeConnections=[]                                                    # We'll want to keep track of these later
 
-		self.portAddressTCP=7777                                                       #No-other TCP/IP services are using this port
+		self.portAddressTCP=C_PORT_ZONE                               #No-other TCP/IP services are using this port
 		backlog=1000                                                            #If we ignore 1,000 connection attempts, something is wrong!
 		self.tcpSocket = self.cManager.openTCPServerRendezvous(self.portAddressTCP,backlog)
 
@@ -120,11 +120,16 @@ class NetworkTCPServer():
 		myIterator=PyDatagramIterator(netDatagram)
 		connexion=netDatagram.getConnection()
 		msgTab=[]
-		msgID=myIterator.getUint8()		
+		msgID=myIterator.getUint32()		
+		print msgID
 		if msgID==C_NETWORK_CONNECT:
 			id=myIterator.getUint32()
-			temp=User(id=id)
+			idchar=myIterator.getUint32()
+			tempUser=User(id=id)
+			tempUser.setIp(netDatagram.getAddress().getIpString())
+			tempUser.setCurrentCharacter(idchar)
 			print "user connected to zone"
+			
 				
 		
 	def sendMessage(self,idMessage,message,connexion):

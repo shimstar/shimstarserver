@@ -11,11 +11,18 @@ class User:
 		self.id=id
 		self.name=name
 		self.password=""
+		self.ip=""
 		self.listOfCharacter=[]
 		self.connexion=None
 		if new==False:
 			self.loadFromBdd()			
 		User.listOfUser[self.id]=self
+		
+	def setIp(self,ip):
+		self.ip=ip
+		
+	def getIp(self):
+		return self.ip
 		
 	def setConnexion(self,connexion):
 		self.connexion=connexion
@@ -32,9 +39,15 @@ class User:
 	def setCurrentCharacter(self,idchar):
 		for ch in self.listOfCharacter:
 			if ch.getId()==idchar:
-				ch.setCurrent(true)
+				ch.setCurrent(True)
 			else:
-				ch.setCurrent(false)
+				ch.setCurrent(False)
+				
+	def getCurrentCharacter(self):
+		for ch in self.listOfCharacter:
+			if ch.getIsCurrent()==True:
+				return ch
+		return None
 		
 	def destroy(self):
 		if User.listOfUser.has_key(self.id):

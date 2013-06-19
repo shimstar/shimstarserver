@@ -22,10 +22,28 @@ class Zone(threading.Thread):
 		
 		self.loadZoneFromBdd()
 		
-		
 	def run(self):
 		while not self.stopThread:
-			pass
+			for usr in User.listOfUser:
+				chr=User.listOfUser[usr].getCurrentCharacter()
+				if chr.ship!=None and chr.ship.getNode()==None and chr.ship.getState==0:
+					chr.ship.loadEgg(self.world,self.worldNP)
+				if chr.ship!=None and chr.ship.getNode()!=None and chr.ship.getNode().isEmpty()==False:
+					if chr.ship.mustSentPos(globalClock.getRealTime())==True:
+						for u in self.users:
+							vitesse=chr.ship.getVitesse()
+							nm=netMessage(C_UPDATE_POS_CHAR,u.getIP())
+							nm.addInt(usr.getId())
+							nm.addInt(chr.getId())
+							nm.addFloat(chr.ship.bodyNP.getQuat().getR())
+							nm.addFloat(chr.ship.bodyNP.getQuat().getI())
+							nm.addFloat(chr.ship.bodyNP.getQuat().getJ())
+							nm.addFloat(chr.ship.bodyNP.getQuat().getK())
+							nm.addFloat(chr.ship.getPos().getX())
+							nm.addFloat(chr.ship.getPos().getY())
+							nm.addFloat(chr.ship.getPos().getZ())
+							nm.addFloat(vitesse)
+							networkmessageUdp.instance.addMessage2(nm)
 			
 		print "thread zone is ending"
 			

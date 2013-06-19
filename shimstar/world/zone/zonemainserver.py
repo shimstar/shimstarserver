@@ -1,8 +1,9 @@
 class ZoneMainServer:
 	listOfZone={}
-	def __init__(self,id,ip,port,connexion):
+	def __init__(self,id,ip,port,portudp,connexion):
 		self.id=id
 		self.port=port
+		self.portudp=portudp
 		self.ip=ip
 		self.connexion=connexion
 		ZoneMainServer.listOfZone[self.id]=self
@@ -14,7 +15,7 @@ class ZoneMainServer:
 		return None
 		
 	def getConfig(self):
-		return self.ip,self.port
+		return self.ip,self.port,self.portudp
 		
 	def getConnexion(self):
 		return self.connexion

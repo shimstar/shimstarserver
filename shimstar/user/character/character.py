@@ -24,6 +24,10 @@ class character:
 		if self.id!=0:
 			self.loadFromBDD()
 			
+			
+	def getId(self):
+		return self.id
+			
 	def setUserId(self,userId):
 		self.userId=userId
 		
