@@ -1,4 +1,5 @@
 from pandac.PandaModules import *
+from panda3d.bullet import *
 
 from shimstar.items.item import *
 from shimstar.items.engine import *
@@ -89,6 +90,9 @@ class Ship(ShimItem):
 	def getNode(self):
 		return self.bodyNP
 		
+	def getPos(self):
+		return self.bodyNP.getPos()
+		
 	def loadShipFromBDD(self):
 		query="SELECT star007_fitted,star005_egg,star005_hull,star005_mass,star005_maniability,star005_img,star007_template_star005shiptemplate,star007_hull "
 		query+=" ,star007_posx,star007_posy,star007_posz "
@@ -144,7 +148,7 @@ class Ship(ShimItem):
 		don't create the node, geom and physics at connection start, but in the incoming of a zone.
 		It is why it is a loadEgg, and it is not load in loadXml
 		"""
-		world,worldNP=shimCollider.getInstance(self.zone.id).getWorld()
+
 		visNP = loader.loadModel(self.egg)
 		geom = visNP.findAllMatches('**/+GeomNode').getPath(0).node().getGeom(0)			
 		shape=BulletConvexHullShape()

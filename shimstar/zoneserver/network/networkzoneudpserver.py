@@ -9,6 +9,7 @@ from direct.distributed.PyDatagram import PyDatagram
 from direct.distributed.PyDatagramIterator import PyDatagramIterator 
 from shimstar.user.user import *
 from shimstar.zoneserver.network.networkmessageudp import *
+import warnings
 from shimstar.core.constantes import *
 from shimstar.world.zone.zone import *
 from shimstar.bdd.dbconnector import *
@@ -25,19 +26,20 @@ class NetworkZoneUDPServer(DirectObject,threading.Thread):
 		self.stopThread=False
 		self.listOfUser=[]
 		self.cManager = QueuedConnectionManager()
-		self.cListener = QueuedConnectionListener(self.cManager, 0)
+		#~ self.cListener = QueuedConnectionListener(self.cManager, 0)
 		self.cReader = QueuedConnectionReader(self.cManager, 0)
 		self.cReader.setRawMode(0)
 		self.cWriter = ConnectionWriter(self.cManager,0)
 		self.cReader.setRawMode(0)
-		self.Connections = {}
-		self.activeConnections=[]                                                    # We'll want to keep track of these later
+		#~ self.Connections = {}
+		#~ self.activeConnections=[]                                                    # We'll want to keep track of these later
 
 		self.port=C_PORT_UDP_ZONE                                                       #No-other TCP/IP services are using this port
 		self.udpSocket = self.cManager.openUDPConnection(self.port)
-		self.udpSocket.setReuseAddr(True) 
-
-		self.cListener.addConnection(self.udpSocket)
+		#~ self.udpSocket.setReuseAddr(True) 
+		if self.udpSocket:
+			self.cReader.addConnection(self.udpSocket) 
+		#~ self.cListener.addConnection(self.udpSocket)
 
 	@staticmethod
 	def getInstance():
@@ -54,12 +56,13 @@ class NetworkZoneUDPServer(DirectObject,threading.Thread):
 			if len(msgs)>0:
 				for msg in msgs:
 					clientAddr = NetAddress() 
-					clientAddr.setHost(msg.getConnexon(), self.port) 
+					clientAddr.setHost(msg.getIP(), self.port+1) 
 					ret=self.cWriter.send(msg.getMsg(),self.udpSocket,clientAddr)
 					
 					with warnings.catch_warnings(record=True) as w:
 						if len(w)>0:
 							print "networkUpdWarningInSending " + str(w)
+			
 			if self.cReader.dataAvailable():
 				datagram=NetDatagram()  
 				if self.cReader.getData(datagram):
@@ -74,13 +77,13 @@ class NetworkZoneUDPServer(DirectObject,threading.Thread):
 		myIterator=PyDatagramIterator(netDatagram)
 		connexion=netDatagram.getConnection()
 		msgID=myIterator.getUint32()
-		print msgID
+		#~ print msgID
 
 
 	def myNewPyDatagram(self,id,message):
 		# send a test message
 		myPyDatagram=PyDatagram()
-		myPyDatagram.addUint8(id)
+		myPyDatagram.addUint32(id)
 		myPyDatagram.addString(message)
 		return myPyDatagram
 		

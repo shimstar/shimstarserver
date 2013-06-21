@@ -1,6 +1,9 @@
 from direct.stdpy import threading
 from panda3d.bullet import*
 
+from shimstar.zoneserver.network.netmessageudp import *
+from shimstar.zoneserver.network.networkmessageudp import *
+from shimstar.core.constantes import *
 from shimstar.user.user import *
 from shimstar.core.constantes import *
 from shimstar.bdd.dbconnector import *
@@ -13,7 +16,6 @@ class Zone(threading.Thread):
 		threading.Thread.__init__(self)
 		self.stopThread=False
 		self.id=id
-		self.users=[]
 		self.listOfAsteroid=[]
 		self.listOfStation=[]
 		self.world = BulletWorld()
@@ -26,14 +28,14 @@ class Zone(threading.Thread):
 		while not self.stopThread:
 			for usr in User.listOfUser:
 				chr=User.listOfUser[usr].getCurrentCharacter()
-				if chr.ship!=None and chr.ship.getNode()==None and chr.ship.getState==0:
+				if chr.ship!=None and chr.ship.getNode()==None and chr.ship.getState()==0:
 					chr.ship.loadEgg(self.world,self.worldNP)
 				if chr.ship!=None and chr.ship.getNode()!=None and chr.ship.getNode().isEmpty()==False:
 					if chr.ship.mustSentPos(globalClock.getRealTime())==True:
-						for u in self.users:
-							vitesse=chr.ship.getVitesse()
-							nm=netMessage(C_UPDATE_POS_CHAR,u.getIP())
-							nm.addInt(usr.getId())
+						for u in User.listOfUser:
+							usrToSend=User.listOfUser[u]
+							nm=netMessageUDP(C_NETWORK_CHARACTER_UPDATE_POS,usrToSend.getIp())
+							nm.addInt(User.listOfUser[usr].getId())
 							nm.addInt(chr.getId())
 							nm.addFloat(chr.ship.bodyNP.getQuat().getR())
 							nm.addFloat(chr.ship.bodyNP.getQuat().getI())
@@ -42,8 +44,7 @@ class Zone(threading.Thread):
 							nm.addFloat(chr.ship.getPos().getX())
 							nm.addFloat(chr.ship.getPos().getY())
 							nm.addFloat(chr.ship.getPos().getZ())
-							nm.addFloat(vitesse)
-							networkmessageUdp.instance.addMessage2(nm)
+							NetworkMessageUdp.getInstance().addMessage(nm)
 			
 		print "thread zone is ending"
 			

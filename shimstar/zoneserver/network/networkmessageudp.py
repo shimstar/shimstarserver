@@ -1,4 +1,4 @@
-from shimstar.network.message import *
+from shimstar.zoneserver.network.message import *
 from shimstar.core.constantes import *
 
 class NetworkMessageUdp:
@@ -14,9 +14,8 @@ class NetworkMessageUdp:
 		self.listOfMessage=[]
 		return tmp
 		
-	def addMessage(self,msgID,msg,netAdr):
-		temp=message(msgID,msg,netAdr)
-		self.listOfMessage.append(temp)
+	def addMessage(self,msg):
+		self.listOfMessage.append(msg)
 	
 	@staticmethod
 	def getInstance():
