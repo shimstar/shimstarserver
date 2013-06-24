@@ -78,7 +78,17 @@ class NetworkZoneUDPServer(DirectObject,threading.Thread):
 		connexion=netDatagram.getConnection()
 		msgID=myIterator.getUint32()
 		#~ print msgID
-
+		if msgID==C_NETWORK_CHARACTER_KEYBOARD:
+			idUser=myIterator.getUint32()
+			usr=User.getUserById(idUser)
+			if usr!=None:
+				nbKeys=myIterator.getUint32()
+				for i in range(nbKeys):
+					key=myIterator.getString()
+					val=myIterator.getUint32()
+					usr.getCurrentCharacter().getShip().modifyPYR(key,val)
+			
+			
 
 	def myNewPyDatagram(self,id,message):
 		# send a test message

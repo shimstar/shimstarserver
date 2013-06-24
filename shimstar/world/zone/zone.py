@@ -10,6 +10,8 @@ from shimstar.bdd.dbconnector import *
 from shimstar.world.zone.asteroid import *
 from shimstar.world.zone.station import *
 
+C_STEP_SIZE=1.0/60.0
+
 class Zone(threading.Thread):
 	instance=None
 	def __init__(self,id):
@@ -18,6 +20,7 @@ class Zone(threading.Thread):
 		self.id=id
 		self.listOfAsteroid=[]
 		self.listOfStation=[]
+		self.lastGlobalTicks=0
 		self.world = BulletWorld()
 		self.world.setGravity(Vec3(0, 0, 0))
 		self.worldNP = render.attachNewNode(self.name)
@@ -46,7 +49,43 @@ class Zone(threading.Thread):
 							nm.addFloat(chr.ship.getPos().getZ())
 							NetworkMessageUdp.getInstance().addMessage(nm)
 			
+			self.runPhysics()
 		print "thread zone is ending"
+		
+	def runPhysics(self):
+		"""
+			run bullet Physics
+		"""
+		
+		for usr in User.listOfUser:
+			User.listOfUser[usr].getCurrentCharacter().getShip().runPhysics()	
+		actualTime=globalClock.getRealTime()
+		if self.lastGlobalTicks==0:
+			self.lastGlobalTicks=actualTime
+		dt=actualTime-self.lastGlobalTicks
+		self.lastGlobalTicks=actualTime
+		self.world.doPhysics(dt)
+		#~ accumulator=C_STEP_SIZE
+		#~ actualTime=globalClock.getRealTime()
+		#~ if self.lastGlobalTicks==0:
+			#~ self.lastGlobalTicks=actualTime
+		#~ dt=actualTime-self.lastGlobalTicks
+		#~ self.lastGlobalTicks=actualTime
+		#~ accumulator += dt 
+		#~ i=0
+		
+		#~ while accumulator >= C_STEP_SIZE: 
+			#~ for usr in self.users:
+				#~ usr.getCurrentCharacter().runPhysics()	
+			#~ for n in self.npc:
+				#~ n.runPhysics()
+			
+			#~ self.world.doPhysics(C_STEP_SIZE)
+			#~ accumulator -= C_STEP_SIZE
+			#~ i+=1
+			
+			#~ for usr in self.users:
+				#~ usr.getCurrentCharacter().ship.calcVitesse()
 			
 	@staticmethod
 	def getInstance(id):

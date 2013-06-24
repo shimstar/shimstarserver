@@ -76,7 +76,7 @@ class User:
 	def getUserById(id):
 		for usr in User.listOfUser:
 			if User.listOfUser[usr].getId()==id:
-				return usr
+				return User.listOfUser[usr]
 		return None
 	
 	

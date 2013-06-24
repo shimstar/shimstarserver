@@ -21,10 +21,14 @@ class character:
 		self.zoneId=0
 		self.current=False
 		self.lastStation=1
+		self.ship=None
 		if self.id!=0:
 			self.loadFromBDD()
 			
 			
+	def getShip(self):
+		return self.ship
+	
 	def getId(self):
 		return self.id
 			

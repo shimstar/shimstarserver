@@ -7,6 +7,8 @@ from shimstar.items.weapon import *
 from shimstar.items.slot import *
 from shimstar.core.constantes import *
 
+C_FACTOR_TORQUE=5
+
 class Ship(ShimItem):
 	className="ship"
 	def __init__(self,id=0,template=0):
@@ -18,6 +20,11 @@ class Ship(ShimItem):
 		self.loadShipFromBDD()
 		self.lastSentTicks=0
 		self.state=0
+		self.world=None
+		self.worldNP=None
+		self.poussee=0
+		self.engine=None
+		self.pyr={'p':0,'y':0,'r':0,'a':0,'w':0}
 		self.bodyNP=None
 		
 	def getState(self):
@@ -89,9 +96,29 @@ class Ship(ShimItem):
 		
 	def getNode(self):
 		return self.bodyNP
-		
+	
 	def getPos(self):
-		return self.bodyNP.getPos()
+		if self.bodyNP!=None and self.bodyNP.isEmpty()==False:
+			return self.bodyNP.getPos()
+		else:
+			return None
+		
+	def modifyPYR(self,key,value):
+		"""
+			save in self.pyr, the keypressed by a player in the aim to use it in movement.
+		"""
+		if key=='d':
+			self.pyr['p']=-int(value)
+		elif key=='z':
+			self.pyr['y']=-int(value)
+		elif key=='s':
+			self.pyr['y']=int(value)
+		elif key=='q':
+			self.pyr['p']=int(value)
+		elif key=='a':
+			self.pyr['a']=int(value)
+		elif key=='w':
+			self.pyr['w']=int(value)
 		
 	def loadShipFromBDD(self):
 		query="SELECT star007_fitted,star005_egg,star005_hull,star005_mass,star005_maniability,star005_img,star007_template_star005shiptemplate,star007_hull "
@@ -143,12 +170,40 @@ class Ship(ShimItem):
 			self.itemInInventory.append(itemTemp)
 		cursor.close()
 		
+	def runPhysics(self):
+		"""
+			on each step, add torque and forces to ship node.
+			It uses the self.pyr saved keypressed
+		"""
+		#~ print "SHip::runPhysics"
+		if self.bodyNP!=None and self.bodyNP.isEmpty()==False:			
+			if self.worldNP!=None:
+				self.bodyNP.node().setActive(True)		
+				forwardVec=self.bodyNP.getQuat().getForward()
+				v=Vec3(self.pyr['y']*C_FACTOR_TORQUE,0.0,self.pyr['p']*C_FACTOR_TORQUE)
+				v= self.worldNP.getRelativeVector(self.bodyNP,v) 
+				self.bodyNP.node().applyTorque(v)
+				if self.engine!=None:
+					if self.pyr['a']==1:
+						if self.poussee<self.engine.getSpeedMax():
+							self.poussee+=self.engine.getAcceleration()
+					if self.pyr['w']==1:
+						if self.poussee>0:
+							self.poussee-=self.engine.getAcceleration()
+				
+				self.bodyNP.node().applyCentralForce(Vec3(forwardVec.getX()*self.poussee,forwardVec.getY()*self.poussee,forwardVec.getZ()*self.poussee))
+
+				self.bodyNP.node().setLinearVelocity((self.bodyNP.node().getLinearVelocity().getX()*0.98,self.bodyNP.node().getLinearVelocity().getY()*0.98,self.bodyNP.node().getLinearVelocity().getZ()*0.98))
+				self.bodyNP.node().setAngularVelocity((self.bodyNP.node().getAngularVelocity().getX()*0.98,self.bodyNP.node().getAngularVelocity().getY()*0.98,self.bodyNP.node().getAngularVelocity().getZ()*0.98))
+	
+		
 	def loadEgg(self,world,worldNP):
 		"""
 		don't create the node, geom and physics at connection start, but in the incoming of a zone.
 		It is why it is a loadEgg, and it is not load in loadXml
 		"""
-
+		self.world=world
+		self.worldNP=worldNP
 		visNP = loader.loadModel(self.egg)
 		geom = visNP.findAllMatches('**/+GeomNode').getPath(0).node().getGeom(0)			
 		shape=BulletConvexHullShape()
