@@ -10,6 +10,7 @@ class Engine(ShimItem):
 		self.speedMax=0
 		self.acceleration=0
 		super(Engine,self).__init__(id,template)	
+		super(Engine,self).loadFromBdd()
 		self.loadFromTemplate()
 			
 		

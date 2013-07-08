@@ -56,37 +56,17 @@ class Zone(threading.Thread):
 		"""
 			run bullet Physics
 		"""
-		
-		for usr in User.listOfUser:
-			User.listOfUser[usr].getCurrentCharacter().getShip().runPhysics()	
 		actualTime=globalClock.getRealTime()
 		if self.lastGlobalTicks==0:
 			self.lastGlobalTicks=actualTime
 		dt=actualTime-self.lastGlobalTicks
-		self.lastGlobalTicks=actualTime
-		self.world.doPhysics(dt)
-		#~ accumulator=C_STEP_SIZE
-		#~ actualTime=globalClock.getRealTime()
-		#~ if self.lastGlobalTicks==0:
-			#~ self.lastGlobalTicks=actualTime
-		#~ dt=actualTime-self.lastGlobalTicks
-		#~ self.lastGlobalTicks=actualTime
-		#~ accumulator += dt 
-		#~ i=0
 		
-		#~ while accumulator >= C_STEP_SIZE: 
-			#~ for usr in self.users:
-				#~ usr.getCurrentCharacter().runPhysics()	
-			#~ for n in self.npc:
-				#~ n.runPhysics()
-			
-			#~ self.world.doPhysics(C_STEP_SIZE)
-			#~ accumulator -= C_STEP_SIZE
-			#~ i+=1
-			
-			#~ for usr in self.users:
-				#~ usr.getCurrentCharacter().ship.calcVitesse()
-			
+		if dt>C_STEP_SIZE:
+			self.lastGlobalTicks=actualTime	
+			for usr in User.listOfUser:
+				User.listOfUser[usr].getCurrentCharacter().getShip().runPhysics()	
+				self.world.doPhysics(dt,10)
+
 	@staticmethod
 	def getInstance(id):
 		if Zone.instance==None:

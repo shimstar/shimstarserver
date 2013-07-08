@@ -7,7 +7,7 @@ from shimstar.items.weapon import *
 from shimstar.items.slot import *
 from shimstar.core.constantes import *
 
-C_FACTOR_TORQUE=5
+C_FACTOR_TORQUE=30
 
 class Ship(ShimItem):
 	className="ship"
@@ -17,13 +17,15 @@ class Ship(ShimItem):
 		self.hpr=Point3(0,0,0)
 		self.slots=[]
 		self.itemInInventory=[]
+		self.engine=None
+		self.weapon=None
 		self.loadShipFromBDD()
 		self.lastSentTicks=0
 		self.state=0
 		self.world=None
 		self.worldNP=None
 		self.poussee=0
-		self.engine=None
+		
 		self.pyr={'p':0,'y':0,'r':0,'a':0,'w':0}
 		self.bodyNP=None
 		
@@ -144,19 +146,21 @@ class Ship(ShimItem):
 		cursor=instanceDbConnector.getConnection().cursor()
 		query="SELECT star009_id FROM star009_slot WHERE star009_ship_star007='" + str(self.id) + "'"
 		cursor.execute(query)
+		#~ print query
 		result_set = cursor.fetchall ()
 		for row in result_set:
 			tempSlot=Slot(row[0])
 			self.slots.append(tempSlot)
-			if tempSlot.getItem()!=None and tempSlot.getItem().getTypeItem()==C_ITEM_ENGINE:
+
+			if tempSlot.getItem()!=None and isinstance(tempSlot.getItem(),Engine):
 				self.engine=tempSlot.getItem()
-			if tempSlot.getItem()!=None and tempSlot.getItem().getTypeItem()==C_ITEM_WEAPON:
+			if tempSlot.getItem()!=None and isinstance(tempSlot.getItem(),Weapon):
 				self.weapon=tempSlot.getItem()
+
 		cursor.close()
 		
 		cursor=instanceDbConnector.getConnection().cursor()
 		query="SELECT star004_type_star003,star006_id FROM star006_item item JOIN star004_item_template itemTemplate ON item.star006_template_star004 = itemTemplate.star004_id WHERE star006_containertype ='star007_ship' and star006_container_starnnn='" + str(self.id) + "'"
-		
 		cursor.execute(query)
 		result_set = cursor.fetchall ()
 		for row in result_set:
@@ -183,6 +187,7 @@ class Ship(ShimItem):
 				v=Vec3(self.pyr['y']*C_FACTOR_TORQUE,0.0,self.pyr['p']*C_FACTOR_TORQUE)
 				v= self.worldNP.getRelativeVector(self.bodyNP,v) 
 				self.bodyNP.node().applyTorque(v)
+
 				if self.engine!=None:
 					if self.pyr['a']==1:
 						if self.poussee<self.engine.getSpeedMax():
@@ -190,7 +195,7 @@ class Ship(ShimItem):
 					if self.pyr['w']==1:
 						if self.poussee>0:
 							self.poussee-=self.engine.getAcceleration()
-				
+							
 				self.bodyNP.node().applyCentralForce(Vec3(forwardVec.getX()*self.poussee,forwardVec.getY()*self.poussee,forwardVec.getZ()*self.poussee))
 
 				self.bodyNP.node().setLinearVelocity((self.bodyNP.node().getLinearVelocity().getX()*0.98,self.bodyNP.node().getLinearVelocity().getY()*0.98,self.bodyNP.node().getLinearVelocity().getZ()*0.98))
