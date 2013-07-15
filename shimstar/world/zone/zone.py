@@ -3,12 +3,15 @@ from panda3d.bullet import*
 
 from shimstar.zoneserver.network.netmessageudp import *
 from shimstar.zoneserver.network.networkmessageudp import *
+from shimstar.zoneserver.network.netmessage import *
+from shimstar.zoneserver.network.networkzonetcpserver import *
 from shimstar.core.constantes import *
 from shimstar.user.user import *
 from shimstar.core.constantes import *
 from shimstar.bdd.dbconnector import *
 from shimstar.world.zone.asteroid import *
 from shimstar.world.zone.station import *
+from shimstar.npc.npc import *
 
 C_STEP_SIZE=1.0/60.0
 
@@ -20,6 +23,7 @@ class Zone(threading.Thread):
 		self.id=id
 		self.listOfAsteroid=[]
 		self.listOfStation=[]
+		self.npc=[]
 		self.lastGlobalTicks=0
 		self.world = BulletWorld()
 		self.world.setGravity(Vec3(0, 0, 0))
@@ -27,10 +31,28 @@ class Zone(threading.Thread):
 		
 		self.loadZoneFromBdd()
 		
+	def newToZone(self,usr):
+		for temp in self.npc:
+			nm=netMessage(C_NETWORK_NPC_INCOMING,usr.getConnexion())
+			nm.addString(temp.getXml().toxml())
+			nm.addFloat(temp.getPos().getX())
+			nm.addFloat(temp.getPos().getY())
+			nm.addFloat(temp.getPos().getZ())
+			nm.addFloat(temp.getQuat().getR())
+			nm.addFloat(temp.getQuat().getI())
+			nm.addFloat(temp.getQuat().getJ())
+			nm.addFloat(temp.getQuat().getK())
+			NetworkMessage.getInstance().addMessage(nm)
+			usr.setNewToZone(False)
+		
 	def run(self):
 		while not self.stopThread:
+			User.lock.acquire()
 			for usr in User.listOfUser:
-				chr=User.listOfUser[usr].getCurrentCharacter()
+				usrObj=User.listOfUser[usr]
+				if usrObj.isNewToZone():
+					self.newToZone(usrObj)
+				chr=usrObj.getCurrentCharacter()
 				if chr.ship!=None and chr.ship.getNode()==None and chr.ship.getState()==0:
 					chr.ship.loadEgg(self.world,self.worldNP)
 				if chr.ship!=None and chr.ship.getNode()!=None and chr.ship.getNode().isEmpty()==False:
@@ -38,7 +60,7 @@ class Zone(threading.Thread):
 						for u in User.listOfUser:
 							usrToSend=User.listOfUser[u]
 							nm=netMessageUDP(C_NETWORK_CHARACTER_UPDATE_POS,usrToSend.getIp())
-							nm.addInt(User.listOfUser[usr].getId())
+							nm.addInt(usrObj.getId())
 							nm.addInt(chr.getId())
 							nm.addFloat(chr.ship.bodyNP.getQuat().getR())
 							nm.addFloat(chr.ship.bodyNP.getQuat().getI())
@@ -49,6 +71,22 @@ class Zone(threading.Thread):
 							nm.addFloat(chr.ship.getPos().getZ())
 							NetworkMessageUdp.getInstance().addMessage(nm)
 			
+			
+			for n in self.npc:
+				if n.ship.mustSentPos(globalClock.getRealTime())==True:
+					for u in User.listOfUser:
+						nm=netMessageUDP(C_NETWORK_NPC_UPDATE_POS,User.listOfUser[u].getIp())
+						nm.addInt(n.getId())
+						nm.addFloat(n.ship.bodyNP.getQuat().getR())
+						nm.addFloat(n.ship.bodyNP.getQuat().getI())
+						nm.addFloat(n.ship.bodyNP.getQuat().getJ())
+						nm.addFloat(n.ship.bodyNP.getQuat().getK())
+						nm.addFloat(n.ship.getPos().getX())
+						nm.addFloat(n.ship.getPos().getY())
+						nm.addFloat(n.ship.getPos().getZ())
+						NetworkMessageUdp.getInstance().addMessage(nm)
+						
+			User.lock.release()
 			self.runPhysics()
 		print "thread zone is ending"
 		
@@ -63,9 +101,14 @@ class Zone(threading.Thread):
 		
 		if dt>C_STEP_SIZE:
 			self.lastGlobalTicks=actualTime	
+			User.lock.acquire()
 			for usr in User.listOfUser:
 				User.listOfUser[usr].getCurrentCharacter().getShip().runPhysics()	
-				self.world.doPhysics(dt,10)
+			User.lock.release()	
+			for npc in self.npc:
+				npc.runPhysics()
+				
+			self.world.doPhysics(dt,10)
 
 	@staticmethod
 	def getInstance(id):
@@ -89,6 +132,20 @@ class Zone(threading.Thread):
 		
 		self.loadZoneAsteroidFromBdd()
 		self.loadZoneStationFromBdd()
+		self.loadZoneNPCFromBDD()
+		
+	def loadZoneNPCFromBDD(self):
+		query="SELECT star034_id FROM star034_npc WHERE star034_zone_star011zone ='" + str(self.id) + "'"
+		instanceDbConnector=shimDbConnector.getInstance()
+		cursor=instanceDbConnector.getConnection().cursor()
+		cursor.execute(query)
+		result_set = cursor.fetchall ()
+		for row in result_set:
+			temp=NPC(int(row[0]),0,self)
+			
+			self.npc.append(temp)
+			temp.ship.loadEgg(self.world,self.worldNP)
+			temp.loadXml()
 		
 	def loadZoneAsteroidFromBdd(self):
 		query="SELECT star014_id FROM star014_asteroid WHERE star014_zone_star011 ='" + str(self.id) + "'"

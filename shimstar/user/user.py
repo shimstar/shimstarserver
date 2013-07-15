@@ -2,21 +2,31 @@ import os, sys
 import xml.dom.minidom
 from shimstar.bdd.dbconnector import *
 from shimstar.user.character.character import *
+from direct.stdpy import threading
 
-class User:
+class User(threading.Thread):
 	listOfUser={}
+	lock=threading.Lock()
 
 	def __init__(self,name="",id=0,new=False):
 		#~ print "user::init " + str(usr)
+		threading.Thread.__init__(self)
 		self.id=id
 		self.name=name
 		self.password=""
 		self.ip=""
+		self.newToZone=1
 		self.listOfCharacter=[]
 		self.connexion=None
 		if new==False:
 			self.loadFromBdd()			
 		User.listOfUser[self.id]=self
+		
+	def isNewToZone(self):
+		return self.newToZone
+		
+	def setNewToZone(self,val):
+		self.newToZone=val
 		
 	def setIp(self,ip):
 		self.ip=ip
@@ -50,8 +60,11 @@ class User:
 		return None
 		
 	def destroy(self):
+		User.lock.acquire()
 		if User.listOfUser.has_key(self.id):
 			del User.listOfUser[self.id]
+			
+		User.lock.release()
 		
 	def getXml(self):
 		doc = xml.dom.minidom.Document()

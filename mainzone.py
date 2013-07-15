@@ -13,7 +13,6 @@ from shimstar.world.zone.zone import *
 
 class ShimStarServerZone():
 	def __init__(self):
-		
 		if NetworkMainServer.getInstance().isConnected()==True:
 			NetworkMainServer.getInstance().start()
 		else:

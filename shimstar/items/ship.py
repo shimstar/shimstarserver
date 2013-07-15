@@ -7,8 +7,6 @@ from shimstar.items.weapon import *
 from shimstar.items.slot import *
 from shimstar.core.constantes import *
 
-C_FACTOR_TORQUE=30
-
 class Ship(ShimItem):
 	className="ship"
 	def __init__(self,id=0,template=0):
@@ -25,7 +23,6 @@ class Ship(ShimItem):
 		self.world=None
 		self.worldNP=None
 		self.poussee=0
-		
 		self.pyr={'p':0,'y':0,'r':0,'a':0,'w':0}
 		self.bodyNP=None
 		
@@ -102,6 +99,12 @@ class Ship(ShimItem):
 	def getPos(self):
 		if self.bodyNP!=None and self.bodyNP.isEmpty()==False:
 			return self.bodyNP.getPos()
+		else:
+			return None
+			
+	def getQuat(self):
+		if self.bodyNP!=None and self.bodyNP.isEmpty()==False:
+			return self.bodyNP.getQuat()
 		else:
 			return None
 		

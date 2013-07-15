@@ -81,17 +81,14 @@ class NetworkTCPServer():
 				usrToDelete=None
 				for usr in User.listOfUser:
 					if  User.listOfUser[usr].getConnexion()==c:
-						usrToDelete=User.listOfUse[usr]
+						usrToDelete=User.listOfUser[usr]
 				if usrToDelete!=None:
 					#~ usrToDelete.saveToBDD()
 					usrToDelete.destroy()
 					for usr in User.listOfUser:
 						if User.listOfUser[usr]!=usrToDelete:
 							NetworkMessage.getInstance().addMessage(C_USER_OUTGOING,str(usrToDelete.getId()),User.listOfUser[usr].getConnexion())
-				if usrToDelete!=None:
-					#~ if User.listOfUser.index(usrToDelete.getId())>=0:
-						#~ User.listOfUser.remove(usrToDelete)		
-					userToDelete.destroy()
+				
 			if self.Connections.has_key(str(c)):
 				del self.Connections[str(c)]
 			self.cReader.removeConnection(c)
@@ -121,12 +118,12 @@ class NetworkTCPServer():
 		connexion=netDatagram.getConnection()
 		msgTab=[]
 		msgID=myIterator.getUint32()		
-		print msgID
 		if msgID==C_NETWORK_CONNECT:
 			id=myIterator.getUint32()
 			idchar=myIterator.getUint32()
 			tempUser=User(id=id)
 			tempUser.setIp(netDatagram.getAddress().getIpString())
+			tempUser.setConnexion(connexion)
 			tempUser.setCurrentCharacter(idchar)
 			print "user connected to zone"
 			

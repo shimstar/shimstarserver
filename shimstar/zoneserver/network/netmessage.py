@@ -1,11 +1,12 @@
 from direct.distributed.PyDatagram import PyDatagram 
 
 class netMessage:
-	def __init__(self,msgID):
+	def __init__(self,msgID,connexion=None):
 		self.msg=self.myNewPyDatagram(msgID)
+		self.connexion=connexion
 		
-	def getNumero(self):
-		return self.numero
+	def getConnexion(self):
+		return self.connexion
 			
 	def getMsg(self):
 		return self.msg
