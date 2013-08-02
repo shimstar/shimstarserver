@@ -135,6 +135,10 @@ class Zone(threading.Thread):
 		self.loadZoneNPCFromBDD()
 		
 	def loadZoneNPCFromBDD(self):
+		#~ temp=NPC(0,1,self)
+		#~ temp.saveToBDD()
+		#~ temp=NPC(0,1,self)
+		#~ temp.saveToBDD()
 		query="SELECT star034_id FROM star034_npc WHERE star034_zone_star011zone ='" + str(self.id) + "'"
 		instanceDbConnector=shimDbConnector.getInstance()
 		cursor=instanceDbConnector.getConnection().cursor()

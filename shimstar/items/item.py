@@ -21,11 +21,12 @@ class ShimItem(object):
 		self.id=id
 		self.container=0
 		self.stackable=0
-		self.typeContainer=""
+		self.containertype=""
 		if self.id>0:
 			self.loadFromBdd()
 		else:
 			self.loadFromTemplate()
+		
 			
 	def getXml(self,docXml=None):
 		if docXml==None:
@@ -78,7 +79,7 @@ class ShimItem(object):
 		instanceDbConnector=shimDbConnector.getInstance()
 		cursor=instanceDbConnector.getConnection().cursor()
 		cursor.execute(query)
-		#~ print "item::LoadFromBdd " + query
+		
 		result_set = cursor.fetchall ()
 		for row in result_set:
 			self.template=int(row[0])
@@ -87,14 +88,12 @@ class ShimItem(object):
 			self.owner=int(row[3])
 			self.location=int(row[4])
 		cursor.close()
-		
 		self.loadFromTemplate()
 		
 	def loadFromTemplate(self):
 		query="SELECT star004_name, star004_type_star003, star004_energy, star004_img,star004_cost,star004_sell,star004_space,star004_mass,star004_stackable "
 		query+=" FROM star004_item_template "
 		query+=" WHERE star004_id = '" + str(self.template) + "'"
-		#~ print "item::loadFromtempalte " + query
 		instanceDbConnector=shimDbConnector.getInstance()
 		cursor=instanceDbConnector.getConnection().cursor()
 		cursor.execute(query)
@@ -129,7 +128,6 @@ class ShimItem(object):
 			query="UPDATE STAR006_ITEM SET star006_container_starnnn='"+ str(self.container)+ "', star006_containertype='"+ self.containertype+"', star006_location='" + str(self.location)+ "'"
 			query+=", star006_id_star036='" + str(self.mission) + "'"
 			query+=" WHERE STAR006_id='"+ str(self.id)+"'"
-		#~ print query
 		instanceDbConnector=shimDbConnector.getInstance()
 		cursor=instanceDbConnector.getConnection().cursor()
 		cursor.execute(query)
@@ -150,7 +148,7 @@ class ShimItem(object):
 		
 	def setContainerType(self,tc):
 		self.typeContainer=tc
-		#~ print "shimstaritem::setContainer " + str(self.id) + "//" + str(tc)
+		
 		
 	def getContainer(self):
 		return self.container

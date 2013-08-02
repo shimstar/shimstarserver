@@ -13,6 +13,7 @@ class NPC:
 		self.ship=None
 		self.template=idtemplate
 		self.id=id
+		self.idEvent=0
 		self.faction=0
 		self.attitude=Attitude(self)
 		
@@ -79,7 +80,7 @@ class NPC:
 		cursor.execute(query)
 		result_set = cursor.fetchall ()
 		for row in result_set:
-			self.ship=ship(0,int(row[0]))
+			self.ship=Ship(0,int(row[0]))
 			self.name=row[1]
 		cursor.close()
 		
@@ -123,7 +124,7 @@ class NPC:
 				pos=p.firstChild.data
 				tabpos=pos.split(",")
 				beh.addPatrolPoint(Vec3(float(tabpos[0]),float(tabpos[1]),float(tabpos[2])))
-			self.faction=int(dom.getElementsByTagName('faction')[0].firstChild.data)
+			#~ self.faction=int(dom.getElementsByTagName('faction')[0].firstChild.data)
 			atti=dom.getElementsByTagName('attitude')
 			for a in atti:
 				typeAtti=int(a.getElementsByTagName('typeattitude')[0].firstChild.data)

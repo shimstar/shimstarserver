@@ -43,6 +43,8 @@ class Engine(ShimItem):
 			self.speedMax=int(row[1])
 			self.acceleration=int(row[0])
 		cursor.close()
+		
+		super(Engine,self).loadFromTemplate()	
 				
 	def getSpeedMax(self):
 		return self.speedMax

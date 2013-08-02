@@ -19,6 +19,7 @@ class Weapon(ShimItem):
 		self.zone=0		
 		self.loadFromTemplate()
 		
+		
 	def getBullets(self):
 		return self.bullets
 		
@@ -73,6 +74,8 @@ class Weapon(ShimItem):
 			self.cadence=float(row[3])
 			self.speed=int(row[4])
 		cursor.close()
+		
+		super(Weapon,self).loadFromTemplate()	
 		
 	def getRange(self):
 		return self.range
