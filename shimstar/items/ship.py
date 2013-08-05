@@ -16,6 +16,7 @@ class Ship(ShimItem):
 		self.slots=[]
 		self.itemInInventory=[]
 		self.engine=None
+		self.owner=None
 		self.weapon=None
 		self.loadShipFromBDD()
 		self.lastSentTicks=0
@@ -28,6 +29,9 @@ class Ship(ShimItem):
 		
 	def getState(self):
 		return self.state
+		
+	def getWorld(self):
+		return self.world,self.worldNP
 		
 	def getXml(self,docXml=None):
 		if docXml==None:
@@ -159,6 +163,7 @@ class Ship(ShimItem):
 				self.engine=tempSlot.getItem()
 			if tempSlot.getItem()!=None and isinstance(tempSlot.getItem(),Weapon):
 				self.weapon=tempSlot.getItem()
+				self.weapon.setShip(self)
 
 		cursor.close()
 		
@@ -229,3 +234,6 @@ class Ship(ShimItem):
 
 		visNP.reparentTo(self.bodyNP)
 		self.state=1
+		
+	def getWeapon(self):
+		return self.weapon

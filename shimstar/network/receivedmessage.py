@@ -1,4 +1,4 @@
-class message:
+class ReceivedMessage:
 
   def __init__(self,id,message):
     self.id=id

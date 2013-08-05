@@ -1,6 +1,6 @@
 import os, sys
 import xml.dom.minidom
-#~ from shimstar.items.bullet import *
+from shimstar.items.bullet import *
 from shimstar.core.constantes import *
 from shimstar.bdd.dbconnector import *
 from shimstar.items.item import *
@@ -15,11 +15,18 @@ class Weapon(ShimItem):
 		self.lastShot=0
 		self.speed=0
 		self.place=0
+		self.egg=None
 		self.mission=0
 		self.zone=0		
+		self.ship=None
 		self.loadFromTemplate()
 		
+	def setShip(self,ship):
+		self.ship=ship
 		
+	def getShip(self):
+		return self.ship
+	
 	def getBullets(self):
 		return self.bullets
 		
@@ -58,6 +65,11 @@ class Weapon(ShimItem):
 	def setZone(self,zone):
 		self.zone=zone
 		
+	def addBullet(self,pos,quat):
+		bul=Bullet(pos,quat,self.egg,self.range,self.speed,self)
+		self.bullets.append(bul)
+		return bul
+		
 	def loadFromTemplate(self):
 		query="SELECT star018_damage,star018_range,star018_egg,star018_cadence,star018_speed"
 		query+=" FROM star004_item_template IT join star018_weapon w on w.star018_id = IT.star004_specific_starxxx "
@@ -71,6 +83,7 @@ class Weapon(ShimItem):
 		for row in result_set:
 			self.range=int(row[1])
 			self.damage=int(row[0])
+			self.egg=str(row[2])
 			self.cadence=float(row[3])
 			self.speed=int(row[4])
 		cursor.close()

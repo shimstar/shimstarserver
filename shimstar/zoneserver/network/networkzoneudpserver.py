@@ -9,10 +9,9 @@ from direct.distributed.PyDatagram import PyDatagram
 from direct.distributed.PyDatagramIterator import PyDatagramIterator 
 from shimstar.user.user import *
 from shimstar.zoneserver.network.networkmessageudp import *
+from shimstar.network.receivedmessage import *
 import warnings
 from shimstar.core.constantes import *
-from shimstar.world.zone.zone import *
-from shimstar.bdd.dbconnector import *
 from direct.stdpy import threading
 
 
@@ -25,21 +24,20 @@ class NetworkZoneUDPServer(DirectObject,threading.Thread):
 		self.Terminated = False
 		self.stopThread=False
 		self.listOfUser=[]
+		self.listOfMessage=[]
 		self.cManager = QueuedConnectionManager()
 		#~ self.cListener = QueuedConnectionListener(self.cManager, 0)
 		self.cReader = QueuedConnectionReader(self.cManager, 0)
 		self.cReader.setRawMode(0)
 		self.cWriter = ConnectionWriter(self.cManager,0)
 		self.cReader.setRawMode(0)
-		#~ self.Connections = {}
-		#~ self.activeConnections=[]                                                    # We'll want to keep track of these later
+
 
 		self.port=C_PORT_UDP_ZONE                                                       #No-other TCP/IP services are using this port
 		self.udpSocket = self.cManager.openUDPConnection(self.port)
 		#~ self.udpSocket.setReuseAddr(True) 
 		if self.udpSocket:
 			self.cReader.addConnection(self.udpSocket) 
-		#~ self.cListener.addConnection(self.udpSocket)
 
 	@staticmethod
 	def getInstance():
@@ -87,6 +85,19 @@ class NetworkZoneUDPServer(DirectObject,threading.Thread):
 					key=myIterator.getString()
 					val=myIterator.getUint32()
 					usr.getCurrentCharacter().getShip().modifyPYR(key,val)
+		elif msgID==C_NETWORK_CHAR_SHOT:
+			msgTab=[]
+			msgTab.append(myIterator.getUint32())
+			msgTab.append(myIterator.getUint32())
+			msgTab.append(myIterator.getStdfloat())
+			msgTab.append(myIterator.getStdfloat())
+			msgTab.append(myIterator.getStdfloat())
+			msgTab.append(myIterator.getStdfloat())
+			msgTab.append(myIterator.getStdfloat())
+			msgTab.append(myIterator.getStdfloat())
+			msgTab.append(myIterator.getStdfloat())
+			temp=ReceivedMessage(msgID,msgTab)
+			self.listOfMessage.append(temp)
 			
 			
 
@@ -96,5 +107,17 @@ class NetworkZoneUDPServer(DirectObject,threading.Thread):
 		myPyDatagram.addUint32(id)
 		myPyDatagram.addString(message)
 		return myPyDatagram
+		
+	def getListOfMessageById(self,id):
+		msgToReturn=[]
+		for msg in self.listOfMessage:
+			iop=msg.getId()
+			if(msg.getId()==id):
+				msgToReturn.append(msg)
+			
+		return msgToReturn
+		
+	def removeMessage(self,msg):
+		self.listOfMessage.remove(msg)
 		
 		

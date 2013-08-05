@@ -3,11 +3,6 @@ from pandac.PandaModules import *
 from shimstar.bdd.dbconnector import *
 from shimstar.items.ship import *
 
-
-
-C_TYPEZONE_ZONE=1
-C_TYPEZONE_STATION=2
-
 class character:
 	className="character"
 

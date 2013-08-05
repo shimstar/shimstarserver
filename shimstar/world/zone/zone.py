@@ -5,6 +5,7 @@ from shimstar.zoneserver.network.netmessageudp import *
 from shimstar.zoneserver.network.networkmessageudp import *
 from shimstar.zoneserver.network.netmessage import *
 from shimstar.zoneserver.network.networkzonetcpserver import *
+from shimstar.zoneserver.network.networkzoneudpserver import *
 from shimstar.core.constantes import *
 from shimstar.user.user import *
 from shimstar.core.constantes import *
@@ -88,7 +89,36 @@ class Zone(threading.Thread):
 						
 			User.lock.release()
 			self.runPhysics()
+			
+			self.runUpdateCharShot()
 		print "thread zone is ending"
+		
+		
+	def runUpdateCharShot(self):
+		tempMsg=NetworkZoneUDPServer.getInstance().getListOfMessageById(C_NETWORK_CHAR_SHOT)
+		if len(tempMsg)>0:
+			for msg in tempMsg:
+				netMsg=msg.getMessage()
+				usr=int(netMsg[0])
+				charact=int(netMsg[1])
+				pos=Point3(float(netMsg[2]),float(netMsg[3]),float(netMsg[4]))
+				quat=(float(netMsg[5]),float(netMsg[6]),float(netMsg[7]),float(netMsg[8]))
+				if User.listOfUser.has_key(usr):
+					ch=User.listOfUser[usr].getCurrentCharacter()
+					b=ch.getShip().getWeapon().addBullet(pos,quat)
+					
+					for u in User.listOfUser:
+						nm=netMessageUDP(C_NETWORK_CHAR_SHOT,User.listOfUser[u].getIp())
+						nm.addInt(b.getId())
+						nm.addFloat(float(netMsg[2]))
+						nm.addFloat(float(netMsg[3]))
+						nm.addFloat(float(netMsg[4]))
+						nm.addFloat(float(netMsg[5]))
+						nm.addFloat(float(netMsg[6]))
+						nm.addFloat(float(netMsg[7]))
+						nm.addFloat(float(netMsg[8]))
+						NetworkMessageUdp.getInstance().addMessage(nm)
+			NetworkZoneUDPServer.getInstance().removeMessage(msg)
 		
 	def runPhysics(self):
 		"""
