@@ -7,7 +7,7 @@ import os, sys
 from shimstar.bdd.dbconnector import *
 
 
-class asteroid(DirectObject):
+class Asteroid(DirectObject):
 		className="asteroid"
 		listOfAsteroid={}
 		def __init__(self,idasteroid,world,worldNP):
@@ -18,15 +18,15 @@ class asteroid(DirectObject):
 			self.minerals={}
 			self.idTemplate=0
 			self.loadAsteroidFromBdd(world,worldNP)
-			asteroid.listOfAsteroid[self.id]=self
+			Asteroid.listOfAsteroid[self.id]=self
 			
 		def getNode(self):
 			return self.node
 			
 		@staticmethod
 		def getAsteroid(id):
-			if asteroid.listOfAsteroid.has_key(id)==True:
-				return asteroid.listOfAsteroid[id]
+			if Asteroid.listOfAsteroid.has_key(id)==True:
+				return Asteroid.listOfAsteroid[id]
 			return None
 			
 		def getScale(self):

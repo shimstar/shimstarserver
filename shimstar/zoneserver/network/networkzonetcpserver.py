@@ -24,10 +24,14 @@ class NetworkTCPServer():
 		self.cWriter = ConnectionWriter(self.cManager,0)
 		self.Connections = {}
 		self.activeConnections=[]                                                    # We'll want to keep track of these later
-
+		
 		self.portAddressTCP=C_PORT_ZONE                               #No-other TCP/IP services are using this port
+		
 		backlog=1000                                                            #If we ignore 1,000 connection attempts, something is wrong!
-		self.tcpSocket = self.cManager.openTCPServerRendezvous(self.portAddressTCP,backlog)
+		try:
+			self.tcpSocket = self.cManager.openTCPServerRendezvous(self.portAddressTCP,backlog)
+		except:
+			print "Unexpected error:", sys.exc_info()[0]
 
 		self.cListener.addConnection(self.tcpSocket)
 		
@@ -52,6 +56,7 @@ class NetworkTCPServer():
 		
 		if len(msgs)>0:
 			for msg in msgs:
+				#~ print msg
 				ret=self.cWriter.send(msg.getMsg(),msg.getConnexion(),True)
 		
 		return Task.cont

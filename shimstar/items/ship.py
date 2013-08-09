@@ -7,6 +7,8 @@ from shimstar.items.weapon import *
 from shimstar.items.slot import *
 from shimstar.core.constantes import *
 
+C_FACTOR_SLOW_ANGULAR_VELOCITY=0.90
+
 class Ship(ShimItem):
 	className="ship"
 	def __init__(self,id=0,template=0):
@@ -24,6 +26,7 @@ class Ship(ShimItem):
 		self.world=None
 		self.worldNP=None
 		self.poussee=0
+		self.damageHistory={}
 		self.pyr={'p':0,'y':0,'r':0,'a':0,'w':0}
 		self.bodyNP=None
 		
@@ -128,6 +131,27 @@ class Ship(ShimItem):
 			self.pyr['a']=int(value)
 		elif key=='w':
 			self.pyr['w']=int(value)
+			
+	def getHullPoints(self):
+		return self.hullpoints
+		
+	def takeDamage(self,hp,who=None,character=False):
+		"""
+			params : 
+					hp : number of hitpoints received
+					who : who has fired
+			remove hitpoints from ship and save in the damageHistory
+			
+		"""
+		print "ship::takedamage"
+		self.hullpoints-=hp
+		
+		if who!=None:
+			if character==True:
+				if self.damageHistory.has_key(who.getId())==True:
+					self.damageHistory[who.getId()]+=hp
+				else:
+					self.damageHistory[who.getId()]=hp
 		
 	def loadShipFromBDD(self):
 		query="SELECT star007_fitted,star005_egg,star005_hull,star005_mass,star005_maniability,star005_img,star007_template_star005shiptemplate,star007_hull "
@@ -207,7 +231,7 @@ class Ship(ShimItem):
 				self.bodyNP.node().applyCentralForce(Vec3(forwardVec.getX()*self.poussee,forwardVec.getY()*self.poussee,forwardVec.getZ()*self.poussee))
 
 				self.bodyNP.node().setLinearVelocity((self.bodyNP.node().getLinearVelocity().getX()*0.98,self.bodyNP.node().getLinearVelocity().getY()*0.98,self.bodyNP.node().getLinearVelocity().getZ()*0.98))
-				self.bodyNP.node().setAngularVelocity((self.bodyNP.node().getAngularVelocity().getX()*0.98,self.bodyNP.node().getAngularVelocity().getY()*0.98,self.bodyNP.node().getAngularVelocity().getZ()*0.98))
+				self.bodyNP.node().setAngularVelocity((self.bodyNP.node().getAngularVelocity().getX()*C_FACTOR_SLOW_ANGULAR_VELOCITY,self.bodyNP.node().getAngularVelocity().getY()*C_FACTOR_SLOW_ANGULAR_VELOCITY,self.bodyNP.node().getAngularVelocity().getZ()*C_FACTOR_SLOW_ANGULAR_VELOCITY))
 	
 		
 	def loadEgg(self,world,worldNP):

@@ -5,7 +5,7 @@ from panda3d.core import BitMask32
 
 from shimstar.bdd.dbconnector import *
 
-class station:
+class Station:
 	def __init__(self,id,world,worldNP):
 		self.id=id
 		self.name=""

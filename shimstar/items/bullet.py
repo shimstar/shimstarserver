@@ -2,12 +2,15 @@ from pandac.PandaModules import Point3,Vec3,Vec4
 from pandac.PandaModules import *
 from panda3d.bullet import *
 from math import sqrt
+from direct.stdpy import threading
 
-class Bullet:
+class Bullet(threading.Thread):
 	nbBullet=0
 	listOfBullet={}
+	lock=threading.Lock()
 	def __init__(self,pos,quat,egg,range,speed,weapon):
 		#~ print "bullet::__init__"
+		threading.Thread.__init__(self)
 		self.id=Bullet.nbBullet
 		Bullet.nbBullet+=1
 		self.weapon=weapon
@@ -33,6 +36,12 @@ class Bullet:
 		forwardVec=self.bodyNP.getQuat().getForward()
 		self.bodyNP.node().setLinearVelocity(Vec3(forwardVec.getX()*self.speed,forwardVec.getY()*self.speed,forwardVec.getZ()*self.speed))
 		Bullet.listOfBullet[self.id]=self
+		
+	@staticmethod
+	def removeBullet(id):
+		if Bullet.listOfBullet.has_key(id)==True:
+			Bullet.listOfBullet[id].destroy()
+			del Bullet.listOfBullet[id]
 		
 	@staticmethod
 	def getBullet(id):
@@ -78,7 +87,9 @@ class Bullet:
 		return self.bodyNP.getHpr()
 		
 	def destroy(self):
-		del bullet.listOfBullet[self.name]
+		if self.bodyNP!=None:
+			self.bodyNP.detachNode()
+			self.bodyNP.removeNode()
 
 	def stateBullet(self,time):
 		"""

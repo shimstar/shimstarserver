@@ -91,8 +91,77 @@ class Zone(threading.Thread):
 			self.runPhysics()
 			
 			self.runUpdateCharShot()
+			self.runBulletCollision()
 		print "thread zone is ending"
 		
+		
+	def runBulletCollision(self):
+		Bullet.lock.acquire()
+		bulletToRemove=[]
+		for b in Bullet.listOfBullet:
+			if Bullet.listOfBullet[b].stateBullet==1:
+				bulletToRemove.append(b)
+				
+			result = self.world.contactTest(Bullet.listOfBullet[b].bodyNP.node())
+			for contact in result.getContacts():
+				node1=contact.getNode1()
+				objCollided=contact.getNode1().getPythonTag("obj")
+				
+				if isinstance(objCollided,Station)==True:
+					for u in User.listOfUser:
+						nm=netMessage(C_NETWORK_EXPLOSION,User.listOfUser[u].getConnexion())
+						pos=Bullet.listOfBullet[b].getPos()
+						nm.addFloat(pos.getX())
+						nm.addFloat(pos.getY())
+						nm.addFloat(pos.getZ())
+						NetworkMessage.getInstance().addMessage(nm)
+					bulletToRemove.append(b)
+				elif isinstance(objCollided,Asteroid)==True:
+					for u in User.listOfUser:
+						nm=netMessage(C_NETWORK_EXPLOSION,User.listOfUser[u].getConnexion())
+						pos=Bullet.listOfBullet[b].getPos()
+						nm.addFloat(pos.getX())
+						nm.addFloat(pos.getY())
+						nm.addFloat(pos.getZ())
+						NetworkMessage.getInstance().addMessage(nm)
+					bulletToRemove.append(b)
+				elif isinstance(objCollided,Ship)==True:
+					objCollided.takeDamage(Bullet.listOfBullet[b].getDamage(),Bullet.listOfBullet[b].getShipOwner(),isinstance(objCollided.getOwner(),Character))
+					if isinstance(objCollided.getOwner(),Character)==True:
+						pass
+					else:
+						for u in User.listOfUser:
+							nm=netMessage(C_NETWORK_TAKE_DAMAGE_NPC,User.listOfUser[u].getConnexion())
+							nm.addInt(objCollided.getOwner().getId())
+							nm.addInt(Bullet.listOfBullet[b].getDamage())
+							NetworkMessage.getInstance().addMessage(nm)
+					if objCollided.getHullPoints()==0:
+						for u in User.listOfUser:
+							nm=netMessage(C_NETWORK_REMOVE_NPC,User.listOfUser[u].getConnexion())
+							nm.addInt(objCollided.getOwner().getId())
+							NetworkMessage.getInstance().addMessage(nm)
+					for u in User.listOfUser:
+						nm=netMessage(C_NETWORK_REMOVE_SHOT,User.listOfUser[u].getConnexion())
+						nm.addInt(Bullet.listOfBullet[b].getId())
+						NetworkTCPServer.getInstance().addMessage(nm)
+						nm=netMessage(C_NETWORK_EXPLOSION,User.listOfUser[u].getConnexion())
+						pos=Bullet.listOfBullet[b].getPos()
+						nm.addFloat(pos.getX())
+						nm.addFloat(pos.getY())
+						nm.addFloat(pos.getZ())
+						NetworkMessage.getInstance().addMessage(nm)
+					
+					bulletToRemove.append(b)
+		
+		
+					
+		for b in bulletToRemove:
+			nm=netMessageUDP(C_NETWORK_REMOVE_SHOT,User.listOfUser[u].getIp())
+			nm.addInt(Bullet.listOfBullet[b].getId())
+			NetworkMessageUdp.getInstance().addMessage(nm)
+			Bullet.removeBullet(b)
+			
+		Bullet.lock.release()
 		
 	def runUpdateCharShot(self):
 		tempMsg=NetworkZoneUDPServer.getInstance().getListOfMessageById(C_NETWORK_CHAR_SHOT)
@@ -105,10 +174,12 @@ class Zone(threading.Thread):
 				quat=(float(netMsg[5]),float(netMsg[6]),float(netMsg[7]),float(netMsg[8]))
 				if User.listOfUser.has_key(usr):
 					ch=User.listOfUser[usr].getCurrentCharacter()
+					Bullet.lock.acquire()
 					b=ch.getShip().getWeapon().addBullet(pos,quat)
-					
+					Bullet.lock.release()
 					for u in User.listOfUser:
-						nm=netMessageUDP(C_NETWORK_CHAR_SHOT,User.listOfUser[u].getIp())
+						nm=netMessage(C_NETWORK_NEW_SHOT,User.listOfUser[u].getConnexion())
+						nm.addInt(usr)
 						nm.addInt(b.getId())
 						nm.addFloat(float(netMsg[2]))
 						nm.addFloat(float(netMsg[3]))
@@ -117,7 +188,7 @@ class Zone(threading.Thread):
 						nm.addFloat(float(netMsg[6]))
 						nm.addFloat(float(netMsg[7]))
 						nm.addFloat(float(netMsg[8]))
-						NetworkMessageUdp.getInstance().addMessage(nm)
+						NetworkMessage.getInstance().addMessage(nm)
 			NetworkZoneUDPServer.getInstance().removeMessage(msg)
 		
 	def runPhysics(self):
@@ -189,7 +260,7 @@ class Zone(threading.Thread):
 		cursor.execute(query)
 		result_set = cursor.fetchall ()
 		for row in result_set:
-			astLoaded=asteroid(row[0],self.world,self.worldNP)
+			astLoaded=Asteroid(row[0],self.world,self.worldNP)
 			self.listOfAsteroid.append(astLoaded)
 		cursor.close()
 		
@@ -201,6 +272,6 @@ class Zone(threading.Thread):
 		cursor.execute(query)
 		result_set = cursor.fetchall ()
 		for row in result_set:
-			stationLoaded=station(row[0],self.world,self.worldNP)
+			stationLoaded=Station(row[0],self.world,self.worldNP)
 			self.listOfStation.append(stationLoaded)
 		cursor.close()
