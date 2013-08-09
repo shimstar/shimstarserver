@@ -19,6 +19,9 @@ class Ship(ShimItem):
 		self.itemInInventory=[]
 		self.engine=None
 		self.owner=None
+		self.torque=0
+		self.frictionAngular=0
+		self.frictionVelocity=0
 		self.weapon=None
 		self.loadShipFromBDD()
 		self.lastSentTicks=0
@@ -44,8 +47,6 @@ class Ship(ShimItem):
 		idXml.appendChild(docXml.createTextNode(str(self.id)))
 		nameXml=docXml.createElement("name")
 		nameXml.appendChild(docXml.createTextNode(str(self.name)))
-		maniabilityXml=docXml.createElement("maniability")
-		maniabilityXml.appendChild(docXml.createTextNode(str(self.maniability)))
 		hullpointsXml=docXml.createElement("hullpoints")
 		hullpointsXml.appendChild(docXml.createTextNode(str(self.hullpoints)))
 		maxhullpointsXml=docXml.createElement("maxhullpoints")
@@ -56,7 +57,6 @@ class Ship(ShimItem):
 		imgXml.appendChild(docXml.createTextNode(self.img))
 		shipXml.appendChild(idXml)
 		shipXml.appendChild(nameXml)
-		shipXml.appendChild(maniabilityXml)
 		shipXml.appendChild(maxhullpointsXml)
 		shipXml.appendChild(hullpointsXml)
 		shipXml.appendChild(eggXml)
@@ -154,15 +154,15 @@ class Ship(ShimItem):
 					self.damageHistory[who.getId()]=hp
 		
 	def loadShipFromBDD(self):
-		query="SELECT star007_fitted,star005_egg,star005_hull,star005_mass,star005_maniability,star005_img,star007_template_star005shiptemplate,star007_hull "
-		query+=" ,star007_posx,star007_posy,star007_posz "
+		query="SELECT star007_fitted,star005_egg,star005_hull,star005_mass,star005_torque,,star005_img,star007_template_star005shiptemplate,star007_hull "
+		query+=" ,star007_posx,star007_posy,star007_posz,star005_friction_angular,star005_friction_velocity"
 		query+=" FROM star007_ship ship JOIN star005_ship_template shiptemplate ON ship.star007_template_star005shiptemplate = shiptemplate.star005_id  where star007_id ='" + str(self.id) + "'"
 		instanceDbConnector=shimDbConnector.getInstance()
 		cursor=instanceDbConnector.getConnection().cursor()
 		cursor.execute(query)
 		result_set = cursor.fetchall ()
 		for row in result_set:
-			self.maniability=int(row[4])
+			self.torque=int(row[4])
 			self.maxhullpoints=int(row[2])
 			self.egg=row[1]
 			self.fitted=int(row[0])
@@ -171,6 +171,8 @@ class Ship(ShimItem):
 			self.type=int(row[6])
 			self.hullpoints=int(row[7])
 			self.pos=Vec3(float(row[8]),float(row[9]),float(row[10]))
+			self.frictionAngular=float(row[11])
+			self.frictionVelocity=float(row[12])
 			
 		cursor.close()
 		
@@ -216,7 +218,7 @@ class Ship(ShimItem):
 			if self.worldNP!=None:
 				self.bodyNP.node().setActive(True)		
 				forwardVec=self.bodyNP.getQuat().getForward()
-				v=Vec3(self.pyr['y']*C_FACTOR_TORQUE,0.0,self.pyr['p']*C_FACTOR_TORQUE)
+				v=Vec3(self.pyr['y']*self.torque,0.0,self.pyr['p']*self.torque)
 				v= self.worldNP.getRelativeVector(self.bodyNP,v) 
 				self.bodyNP.node().applyTorque(v)
 
@@ -230,8 +232,8 @@ class Ship(ShimItem):
 							
 				self.bodyNP.node().applyCentralForce(Vec3(forwardVec.getX()*self.poussee,forwardVec.getY()*self.poussee,forwardVec.getZ()*self.poussee))
 
-				self.bodyNP.node().setLinearVelocity((self.bodyNP.node().getLinearVelocity().getX()*0.98,self.bodyNP.node().getLinearVelocity().getY()*0.98,self.bodyNP.node().getLinearVelocity().getZ()*0.98))
-				self.bodyNP.node().setAngularVelocity((self.bodyNP.node().getAngularVelocity().getX()*C_FACTOR_SLOW_ANGULAR_VELOCITY,self.bodyNP.node().getAngularVelocity().getY()*C_FACTOR_SLOW_ANGULAR_VELOCITY,self.bodyNP.node().getAngularVelocity().getZ()*C_FACTOR_SLOW_ANGULAR_VELOCITY))
+				self.bodyNP.node().setLinearVelocity((self.bodyNP.node().getLinearVelocity().getX()*self.frictionVelocity,self.bodyNP.node().getLinearVelocity().getY()*self.frictionVelocity,self.bodyNP.node().getLinearVelocity().getZ()*self.frictionVelocity))
+				self.bodyNP.node().setAngularVelocity((self.bodyNP.node().getAngularVelocity().getX()*self.frictionAngular,self.bodyNP.node().getAngularVelocity().getY()*self.frictionAngular,self.bodyNP.node().getAngularVelocity().getZ()*self.frictionAngular))
 	
 		
 	def loadEgg(self,world,worldNP):
