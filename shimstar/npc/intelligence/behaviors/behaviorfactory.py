@@ -1,6 +1,6 @@
 from shimstar.core.constantes import *
 from shimstar.npc.intelligence.behaviors.behaviorpatrol import *
-#~ from shimstar.intelligence.behaviors.behaviorattack import *
+from shimstar.npc.intelligence.behaviors.behaviorattack import *
 
 class behaviorFactory():
 	def __init__(self):

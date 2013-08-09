@@ -68,20 +68,20 @@ class behaviorPatrol(behavior):
 			y=-1
 		
 		forwardVec=self.ship.bodyNP.getQuat().getForward()
-		v=Vec3(y*C_FACTOR_TORQUE,0.0,p*C_FACTOR_TORQUE)
+		v=Vec3(y*self.ship.torque,0.0,p*self.ship.torque)
 		v= self.worldNP.getRelativeVector(self.ship.bodyNP,v) 
 		self.ship.bodyNP.node().applyTorqueImpulse(v)
 		av=self.ship.bodyNP.node().getAngularVelocity()
-		av2=av*0.92
+		av2=av*self.ship.frictionAngular
 		self.ship.bodyNP.node().setAngularVelocity(av2)
 		
 		if self.target!=None:
 			dist=self.calcDistance(self.target,self.ship.bodyNP)
 			if dist > 100:
 				if (self.ship.bodyNP.node().getLinearVelocity()==Vec3(0,0,0)):
-					f=Vec3(forwardVec.getX()*C_VELOCITY*2,forwardVec.getY()*C_VELOCITY*2,forwardVec.getZ()*C_VELOCITY*2)
+					f=Vec3(forwardVec.getX()*self.ship.engine.getSpeedMax(),forwardVec.getY()*self.ship.engine.getSpeedMax(),forwardVec.getZ()*self.ship.engine.getSpeedMax())
 				else:
-					f=Vec3(forwardVec.getX()*C_VELOCITY,forwardVec.getY()*C_VELOCITY,forwardVec.getZ()*C_VELOCITY)
+					f=Vec3(forwardVec.getX()*self.ship.engine.getSpeedMax()/2,forwardVec.getY()*self.ship.engine.getSpeedMax()/2,forwardVec.getZ()*self.ship.engine.getSpeedMax()/2)
 				self.ship.bodyNP.node().applyCentralForce(f)
 		if self.ship.bodyNP.node().getLinearVelocity()!=Vec3(0,0,0):
-			self.ship.bodyNP.node().setLinearVelocity((self.ship.bodyNP.node().getLinearVelocity().getX()*0.98,self.ship.bodyNP.node().getLinearVelocity().getY()*0.98,self.ship.bodyNP.node().getLinearVelocity().getZ()*0.98))
+			self.ship.bodyNP.node().setLinearVelocity((self.ship.bodyNP.node().getLinearVelocity().getX()*self.ship.frictionVelocity,self.ship.bodyNP.node().getLinearVelocity().getY()*self.ship.frictionVelocity,self.ship.bodyNP.node().getLinearVelocity().getZ()*self.ship.frictionVelocity))

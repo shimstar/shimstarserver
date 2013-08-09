@@ -7,7 +7,6 @@ from shimstar.items.weapon import *
 from shimstar.items.slot import *
 from shimstar.core.constantes import *
 
-C_FACTOR_SLOW_ANGULAR_VELOCITY=0.90
 
 class Ship(ShimItem):
 	className="ship"
@@ -154,7 +153,7 @@ class Ship(ShimItem):
 					self.damageHistory[who.getId()]=hp
 		
 	def loadShipFromBDD(self):
-		query="SELECT star007_fitted,star005_egg,star005_hull,star005_mass,star005_torque,,star005_img,star007_template_star005shiptemplate,star007_hull "
+		query="SELECT star007_fitted,star005_egg,star005_hull,star005_mass,star005_torque,star005_img,star007_template_star005shiptemplate,star007_hull "
 		query+=" ,star007_posx,star007_posy,star007_posz,star005_friction_angular,star005_friction_velocity"
 		query+=" FROM star007_ship ship JOIN star005_ship_template shiptemplate ON ship.star007_template_star005shiptemplate = shiptemplate.star005_id  where star007_id ='" + str(self.id) + "'"
 		instanceDbConnector=shimDbConnector.getInstance()
