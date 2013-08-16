@@ -74,7 +74,7 @@ class NetworkTCPServer():
 				self.activeConnections.remove(c)
 				usrToDelete=None
 				for usr in User.listOfUser:
-					if usr.getConnexion()==c:
+					if User.listOfUser[usr].getConnexion()==c:
 						usrToDelete=usr
 				if usrToDelete!=None:
 					#~ usrToDelete.saveToBDD()
@@ -166,6 +166,27 @@ class NetworkTCPServer():
 			tempUser=User.getUserById(iduser)
 			if tempUser!=None:
 				tempUser.setCurrent(idchar)
+		elif msgID==C_CREATE_USER:
+			user=myIterator.getString()
+			pwd=myIterator.getString()
+			self.createNewUser(user,pwd,connexion)
+			
+	def createNewUser(self,usr,pwd,connexion):
+		"""
+		create a new user(xml) if it doesn't exist
+		"""
+		alreadyExist=User.userExists(usr)
+		if alreadyExist==True:
+			nm=netMessage(C_CREATE_USER,connexion)
+			nm.addInt(0)
+			NetworkMessage.getInstance().addMessage(nm)
+		else:
+			tempUser=User(name=usr,new=True)
+			tempUser.setPwd(pwd)
+			tempUser.saveToBDD()
+			nm=netMessage(C_CREATE_USER,connexion)
+			nm.addInt(1)
+			NetworkMessage.getInstance().addMessage(nm)
 		
 		
 	def sendMessage(self,idMessage,message,connexion):

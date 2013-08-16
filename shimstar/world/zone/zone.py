@@ -71,6 +71,7 @@ class Zone(threading.Thread):
 							nm.addFloat(chr.ship.getPos().getY())
 							nm.addFloat(chr.ship.getPos().getZ())
 							NetworkMessageUdp.getInstance().addMessage(nm)
+							#~ print "zone::run " + str(chr.ship.getPos()) + " / " + str(chr.ship.bodyNP.getQuat())
 			
 			
 			for n in self.npc:
@@ -92,21 +93,32 @@ class Zone(threading.Thread):
 			
 			self.runUpdateCharShot()
 			self.runBulletCollision()
+			self.runBullet()
 		print "thread zone is ending"
 		
+	def runBullet(self):
+		for b in Bullet.listOfBullet:
+			if Bullet.listOfBullet[b].mustSentPos(globalClock.getRealTime())==True:
+				for u in User.listOfUser:
+						nm=netMessageUDP(C_NETWORK_POS_SHOT,User.listOfUser[u].getIp())
+						nm.addInt(b)
+						nm.addFloat(Bullet.listOfBullet[b].getPos().getX())
+						nm.addFloat(Bullet.listOfBullet[b].getPos().getY())
+						nm.addFloat(Bullet.listOfBullet[b].getPos().getZ())
+						NetworkMessageUdp.getInstance().addMessage(nm)
 		
 	def runBulletCollision(self):
 		Bullet.lock.acquire()
 		bulletToRemove=[]
 		for b in Bullet.listOfBullet:
-			if Bullet.listOfBullet[b].stateBullet==1:
+			if Bullet.listOfBullet[b].stateBullet()==1:
 				bulletToRemove.append(b)
 				
 			result = self.world.contactTest(Bullet.listOfBullet[b].bodyNP.node())
 			for contact in result.getContacts():
 				node1=contact.getNode1()
 				objCollided=contact.getNode1().getPythonTag("obj")
-				
+				print objCollided
 				if isinstance(objCollided,Station)==True:
 					for u in User.listOfUser:
 						nm=netMessage(C_NETWORK_EXPLOSION,User.listOfUser[u].getConnexion())
@@ -143,7 +155,7 @@ class Zone(threading.Thread):
 					for u in User.listOfUser:
 						nm=netMessage(C_NETWORK_REMOVE_SHOT,User.listOfUser[u].getConnexion())
 						nm.addInt(Bullet.listOfBullet[b].getId())
-						NetworkTCPServer.getInstance().addMessage(nm)
+						NetworkMessage.getInstance().addMessage(nm)
 						nm=netMessage(C_NETWORK_EXPLOSION,User.listOfUser[u].getConnexion())
 						pos=Bullet.listOfBullet[b].getPos()
 						nm.addFloat(pos.getX())
@@ -156,10 +168,11 @@ class Zone(threading.Thread):
 		
 					
 		for b in bulletToRemove:
-			nm=netMessageUDP(C_NETWORK_REMOVE_SHOT,User.listOfUser[u].getIp())
-			nm.addInt(Bullet.listOfBullet[b].getId())
-			NetworkMessageUdp.getInstance().addMessage(nm)
-			Bullet.removeBullet(b)
+			for u in User.listOfUser:
+				nm=netMessage(C_NETWORK_REMOVE_SHOT,User.listOfUser[u].getConnexion())
+				nm.addInt(Bullet.listOfBullet[b].getId())
+				NetworkMessage.getInstance().addMessage(nm)
+				Bullet.removeBullet(b)
 			
 		Bullet.lock.release()
 		
@@ -181,13 +194,13 @@ class Zone(threading.Thread):
 						nm=netMessage(C_NETWORK_NEW_SHOT,User.listOfUser[u].getConnexion())
 						nm.addInt(usr)
 						nm.addInt(b.getId())
-						nm.addFloat(float(netMsg[2]))
-						nm.addFloat(float(netMsg[3]))
-						nm.addFloat(float(netMsg[4]))
-						nm.addFloat(float(netMsg[5]))
-						nm.addFloat(float(netMsg[6]))
-						nm.addFloat(float(netMsg[7]))
-						nm.addFloat(float(netMsg[8]))
+						nm.addFloat(b.getPos().getX())
+						nm.addFloat(b.getPos().getY())
+						nm.addFloat(b.getPos().getZ())
+						nm.addFloat(b.getQuat().getR())
+						nm.addFloat(b.getQuat().getI())
+						nm.addFloat(b.getQuat().getJ())
+						nm.addFloat(b.getQuat().getK())
 						NetworkMessage.getInstance().addMessage(nm)
 			NetworkZoneUDPServer.getInstance().removeMessage(msg)
 		

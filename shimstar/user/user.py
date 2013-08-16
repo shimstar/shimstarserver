@@ -21,6 +21,25 @@ class User(threading.Thread):
 		if new==False:
 			self.loadFromBdd()			
 		User.listOfUser[self.id]=self
+	
+	@staticmethod
+	def userExists(name):
+		"""
+		return False if user doesn't exist for the moment
+		return True if user exists already
+		"""
+		id=0
+		query="SELECT star001_id FROM star001_user WHERE star001_name = '" + name + "'"
+		instanceDbConnector=shimDbConnector.getInstance()
+		cursor=instanceDbConnector.getConnection().cursor()
+		cursor.execute(query)
+		result_set = cursor.fetchall ()
+		for row in result_set:
+			id=int(row[0])
+		cursor.close()
+		if id>0:
+			return True
+		return False
 		
 	def isNewToZone(self):
 		return self.newToZone
@@ -30,6 +49,9 @@ class User(threading.Thread):
 		
 	def setIp(self,ip):
 		self.ip=ip
+		
+	def setPwd(self,pwd):
+		self.password=pwd
 		
 	def getIp(self):
 		return self.ip
@@ -128,6 +150,20 @@ class User(threading.Thread):
 			tempChar.setUserId(self.id)
 			self.listOfCharacter.append(tempChar)
 		cursor.close()
+		
+	def saveToBDD(self):
+		instanceDbConnector=shimDbConnector.getInstance()
+		if self.id==0:
+			query="insert into star001_user (star001_name,star001_passwd,star001_created) values('" + self.name + "','"+self.password+"',now())"
+			cursor=instanceDbConnector.getConnection().cursor()
+			cursor.execute(query)
+			self.id=int(cursor.lastrowid)
+			cursor.close()
+			
+		for ch in self.listOfCharacter:
+			ch.saveToBDD()
+		
+		instanceDbConnector.commit()
 		
 	@staticmethod
 	def userExists(name):

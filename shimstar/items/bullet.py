@@ -3,6 +3,7 @@ from pandac.PandaModules import *
 from panda3d.bullet import *
 from math import sqrt
 from direct.stdpy import threading
+from shimstar.core.constantes import *
 
 class Bullet(threading.Thread):
 	nbBullet=0
@@ -16,6 +17,7 @@ class Bullet(threading.Thread):
 		self.weapon=weapon
 		self.range=range
 		self.speed=speed
+		self.lastSentTicks=0
 		world,worldNP=self.weapon.getShip().getWorld()
 		visNP = loader.loadModel("models/" + egg)
 		geom = visNP.findAllMatches('**/+GeomNode').getPath(0).node().getGeom(0)			
@@ -36,6 +38,17 @@ class Bullet(threading.Thread):
 		forwardVec=self.bodyNP.getQuat().getForward()
 		self.bodyNP.node().setLinearVelocity(Vec3(forwardVec.getX()*self.speed,forwardVec.getY()*self.speed,forwardVec.getZ()*self.speed))
 		Bullet.listOfBullet[self.id]=self
+		
+	def mustSentPos(self,timer):
+		"""
+		 if the time elapsed between 2 messages sent to others players is over the sendticks, return true, otherwise return false
+		"""
+		dt=(timer-self.lastSentTicks)
+		if  dt > C_SENDTICKS:
+			self.lastSentTicks=timer
+			return True
+		else:
+			return False
 		
 	@staticmethod
 	def removeBullet(id):
@@ -91,12 +104,13 @@ class Bullet(threading.Thread):
 			self.bodyNP.detachNode()
 			self.bodyNP.removeNode()
 
-	def stateBullet(self,time):
+	def stateBullet(self):
 		"""
 		determines if a bullet is at end of life or not
 		return 1, if the bullet must be destroyed, 0 otherwise
 		"""
 		distance=self.calcDistance()
+		#~ print "bullet:state bullezqqqqqqt " + str(self.id) + "/" +  str(distance) + "/" + str(self.range)
 		if distance>self.range:
 		#~ if (time-self.startTime)>self.range:
 			return 1
