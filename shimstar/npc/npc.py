@@ -27,6 +27,9 @@ class NPC:
 	def getId(self):
 		return self.id
 		
+	def getClassName(self):
+		return "NPC"
+		
 	def runPhysics(self):
 		if self.attitude!=None:
 			self.attitude.run()

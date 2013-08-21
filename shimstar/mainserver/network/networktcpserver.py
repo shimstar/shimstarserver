@@ -68,14 +68,19 @@ class NetworkTCPServer():
 				self.Connections[str(newConnection.this)] = rendezvous 
 		if self.cManager.resetConnectionAvailable():
 			conn=PointerToConnection()
+
 			self.cManager.getResetConnection(conn)
 			c=conn.p()
+
 			if self.activeConnections.count(c)>0:
 				self.activeConnections.remove(c)
 				usrToDelete=None
 				for usr in User.listOfUser:
+					print User.listOfUser[usr].getConnexion()
 					if User.listOfUser[usr].getConnexion()==c:
-						usrToDelete=usr
+						usrToDelete=User.listOfUser[usr]
+						
+				
 				if usrToDelete!=None:
 					#~ usrToDelete.saveToBDD()
 					usrToDelete.destroy()
@@ -85,7 +90,7 @@ class NetworkTCPServer():
 				if usrToDelete!=None:
 					#~ if User.listOfUser.index(usrToDelete.getId())>=0:
 						#~ User.listOfUser.remove(usrToDelete)		
-					userToDelete.destroy()
+					usrToDelete.destroy()
 			if self.Connections.has_key(str(c)):
 				del self.Connections[str(c)]
 			self.cReader.removeConnection(c)
@@ -120,14 +125,16 @@ class NetworkTCPServer():
 			name=myIterator.getString()
 			password=myIterator.getString()
 			if User.userExists(name)==True:
-				if User.getUserInstantiatedByName(name)==False:
+				tempUser=User.getUserInstantiatedByName(name)
+				if tempUser==None:
 					tempUser=User(name=name)				
 					if(tempUser.getPwd()==password):					
 						nm=netMessage(C_NETWORK_CONNECT,connexion)
 						nm.addInt(C_CONNEXION_OK)
 						nm.addString(tempUser.getXml().toxml())
 						NetworkMessage.getInstance().addMessage(nm)
-						tempUser.destroy()
+						#~ tempUser.destroy()
+						tempUser.setConnexion(connexion)
 					else:
 						nm=netMessage(C_NETWORK_CONNECT,connexion)
 						nm.addInt(C_CONNEXION_WRONGPWD)
@@ -166,6 +173,20 @@ class NetworkTCPServer():
 			tempUser=User.getUserById(iduser)
 			if tempUser!=None:
 				tempUser.setCurrent(idchar)
+		elif msgID==C_USER_ADD_CHAR:
+			id=int(myIterator.getUint32())
+			name=myIterator.getString()
+			face=myIterator.getString()
+			userFound=None
+			for u in User.listOfUser:
+				if u==int(id):
+					userFound=User.listOfUser[u]
+					break
+			if userFound!=None:
+				tempChar=userFound.addCharacter(name,face)
+				nm=netMessage(C_USER_ADD_CHAR,connexion)
+				nm.addString(tempChar.getXml().toxml())
+				NetworkMessage.getInstance().addMessage(nm)
 		elif msgID==C_CREATE_USER:
 			user=myIterator.getString()
 			pwd=myIterator.getString()

@@ -22,6 +22,13 @@ class User(threading.Thread):
 			self.loadFromBdd()			
 		User.listOfUser[self.id]=self
 	
+	def getPos(self):
+		return self.getCurrentCharacter().getPos()
+		
+		
+	def getQuat(self):
+		return self.getCurrentCharacter().getQuat()
+	
 	@staticmethod
 	def userExists(name):
 		"""
@@ -46,6 +53,13 @@ class User(threading.Thread):
 		
 	def setNewToZone(self,val):
 		self.newToZone=val
+		
+	def setCurrent(self,id):
+		for charact in self.listOfCharacter:
+			if charact.getId()==id:
+				charact.setCurrent(True)
+			else:
+				charact.setCurrent(False)
 		
 	def setIp(self,ip):
 		self.ip=ip
@@ -85,7 +99,6 @@ class User(threading.Thread):
 		User.lock.acquire()
 		if User.listOfUser.has_key(self.id):
 			del User.listOfUser[self.id]
-			
 		User.lock.release()
 		
 	def getXml(self):
@@ -106,6 +119,44 @@ class User(threading.Thread):
 		doc.appendChild(usr)
 		
 		return doc
+		
+	def addCharacter(self,name,face):
+		"""
+			params:
+				name
+				face
+			create a new character with few starting skills (laser light, hunter light, pilotage, weapon)
+		"""
+		temp=character(0)
+		temp.setFace(face)
+		temp.setName(name)
+		temp.setUserId(self.id)
+		temp.addShip(1)
+		print temp
+		print temp.ship
+		temp.zoneId=C_STARTING_ZONE
+		self.listOfCharacter.append(temp)
+		self.saveToBDD()
+		return temp
+		
+	def getXmlForOtherPlayer(self):
+		doc = xml.dom.minidom.Document()
+		usr=doc.createElement("user")
+		idUser=doc.createElement("iduser")
+		idUser.appendChild(doc.createTextNode(str(self.id)))
+		uname=doc.createElement("name")
+		uname.appendChild(doc.createTextNode(self.user))
+		usr.appendChild(uname)
+		usr.appendChild(idUser)
+		if len(self.listOfCharacter)>0:
+			charactersXml=doc.createElement("characters")
+			for chara in self.listOfCharacter:
+				if chara.getIsCurrent()==True:
+					charaXml=chara.getXmlForOtherPlayer(doc)
+					charactersXml.appendChild(charaXml)
+			usr.appendChild(charactersXml)
+		doc.appendChild(usr)
+		return doc
 	
 	@staticmethod
 	def getUserById(id):
@@ -119,8 +170,8 @@ class User(threading.Thread):
 	def getUserInstantiatedByName(name):
 		for usr in User.listOfUser:
 			if User.listOfUser[usr].getName()==name:
-				return True
-		return False
+				return User.listOfUser[usr]
+		return None
 		
 	def getId(self):
 		return self.id

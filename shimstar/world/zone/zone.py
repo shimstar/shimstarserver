@@ -44,7 +44,20 @@ class Zone(threading.Thread):
 			nm.addFloat(temp.getQuat().getJ())
 			nm.addFloat(temp.getQuat().getK())
 			NetworkMessage.getInstance().addMessage(nm)
-			usr.setNewToZone(False)
+			
+		for u in User.listOfUser:
+			if User.listOfUser[u].getId()!=usr.getId():
+				nm=netMessage(C_NETWORK_CHAR_INCOMING,User.listOfUser[u].getConnexion())
+				nm.addString(usr.getXmlForOtherPlayer().toxml())
+				nm.addFloat(usr.getPos().getX())
+				nm.addFloat(usr.getPos().getY())
+				nm.addFloat(usr.getPos().getZ())
+				nm.addFloat(usr.getQuat().getR())
+				nm.addFloat(usr.getQuat().getI())
+				nm.addFloat(usr.getQuat().getJ())
+				nm.addFloat(usr.getQuat().getK())
+				NetworkMessage.getInstance().addMessage(nm)
+		usr.setNewToZone(False)
 		
 	def run(self):
 		while not self.stopThread:

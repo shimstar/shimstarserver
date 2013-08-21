@@ -22,15 +22,22 @@ class Ship(ShimItem):
 		self.frictionAngular=0
 		self.frictionVelocity=0
 		self.weapon=None
-		self.loadShipFromBDD()
 		self.lastSentTicks=0
 		self.state=0
+		self.maxhullpoints=0
+		self.hullpoints=0
+		self.egg=None
 		self.world=None
 		self.worldNP=None
 		self.poussee=0
+		self.name=""
 		self.damageHistory={}
 		self.pyr={'p':0,'y':0,'r':0,'a':0,'w':0}
 		self.bodyNP=None
+		if self.id!=0:
+			self.loadFromBDD()
+		elif self.template!=0:
+			self.loadFromTemplate()
 		
 	def getState(self):
 		return self.state
@@ -39,6 +46,7 @@ class Ship(ShimItem):
 		return self.world,self.worldNP
 		
 	def getXml(self,docXml=None):
+		
 		if docXml==None:
 			docXml = xml.dom.minidom.Document()
 		shipXml=docXml.createElement("ship")
@@ -151,11 +159,53 @@ class Ship(ShimItem):
 					self.damageHistory[who.getId()]+=hp
 				else:
 					self.damageHistory[who.getId()]=hp
+					
+	def loadFromTemplate(self):
+		"""
+			Load a ship from a template (the id of the template is given in the constructor)
+		"""
+		instanceDbConnector=shimDbConnector.getInstance()
+		query="SELECT star005_egg,star005_hull,star005_mass,star005_maniability,star005_img,star005_item_star004 "
+		query+=", star004_name"
+		query+=" FROM STAR005_SHIP_TEMPLATE join star004_item_template on star005_item_star004=star004_id"
+		query+=" WHERE STAR005_id ='" + str(self.template) + "'"
+		cursor=instanceDbConnector.getConnection().cursor()
+		cursor.execute(query)
+		result_set = cursor.fetchall ()
+		for row in result_set:
+			self.maniability=int(row[3])
+			self.maxhullpoints=int(row[1])
+			self.egg=row[0]
+			self.fitted=1
+			self.mass=float(row[2])
+			self.img=row[4]
+			self.type=self.template
+			self.hullpoints=int(row[1])
+			self.itemTemplate=int(row[5])
+			self.name=str(row[6])
+		cursor.close()
 		
-	def loadShipFromBDD(self):
+		cursor=instanceDbConnector.getConnection().cursor()
+		query="SELECT star009_id FROM star009_slot WHERE star009_ship_star005='" + str(self.template) + "'"
+		cursor.execute(query)
+		result_set = cursor.fetchall ()
+		self.slots=[]
+		for row in result_set:
+			tempSlot=Slot(0,row[0])
+			self.slots.append(tempSlot)
+			if tempSlot.getItem()!=None and tempSlot.getItem().getTypeItem()==C_ITEM_ENGINE:
+				self.engine=tempSlot.getItem()
+			if tempSlot.getItem()!=None and tempSlot.getItem().getTypeItem()==C_ITEM_WEAPON:
+				self.weapon=tempSlot.getItem()
+		cursor.close()
+		
+	def loadFromBDD(self):
 		query="SELECT star007_fitted,star005_egg,star005_hull,star005_mass,star005_torque,star005_img,star007_template_star005shiptemplate,star007_hull "
 		query+=" ,star007_posx,star007_posy,star007_posz,star005_friction_angular,star005_friction_velocity"
-		query+=" FROM star007_ship ship JOIN star005_ship_template shiptemplate ON ship.star007_template_star005shiptemplate = shiptemplate.star005_id  where star007_id ='" + str(self.id) + "'"
+		query+=",star004_name"
+		query+=" FROM star007_ship ship JOIN star005_ship_template shiptemplate ON ship.star007_template_star005shiptemplate = shiptemplate.star005_id  "
+		query+=" join star004_item_template on star005_item_star004=star004_id "
+		query+="where star007_id ='" + str(self.id) + "'"
 		instanceDbConnector=shimDbConnector.getInstance()
 		cursor=instanceDbConnector.getConnection().cursor()
 		cursor.execute(query)
@@ -172,6 +222,7 @@ class Ship(ShimItem):
 			self.pos=Vec3(float(row[8]),float(row[9]),float(row[10]))
 			self.frictionAngular=float(row[11])
 			self.frictionVelocity=float(row[12])
+			self.name=str(row[13])
 			
 		cursor.close()
 		
@@ -234,6 +285,56 @@ class Ship(ShimItem):
 				self.bodyNP.node().setLinearVelocity((self.bodyNP.node().getLinearVelocity().getX()*self.frictionVelocity,self.bodyNP.node().getLinearVelocity().getY()*self.frictionVelocity,self.bodyNP.node().getLinearVelocity().getZ()*self.frictionVelocity))
 				self.bodyNP.node().setAngularVelocity((self.bodyNP.node().getAngularVelocity().getX()*self.frictionAngular,self.bodyNP.node().getAngularVelocity().getY()*self.frictionAngular,self.bodyNP.node().getAngularVelocity().getZ()*self.frictionAngular))
 	
+	def saveToBDD(self):
+		instanceDbConnector=shimDbConnector.getInstance()
+		if self.id>0:
+			query="UPDATE STAR007_SHIP SET star007_hull='" + str(self.hullpoints) + "'"
+			if self.bodyNP!=None and self.bodyNP.isEmpty()==False:
+				query+=",star007_posx='" + str(self.bodyNP.getPos().getX()) + "'"
+				query+=",star007_posy='" + str(self.bodyNP.getPos().getY()) + "'"
+				query+=",star007_posZ='" + str(self.bodyNP.getPos().getZ()) + "'"
+			query+=" WHERE star007_id='" + str(self.id) + "'"
+			cursor=instanceDbConnector.getConnection().cursor()
+			cursor.execute(query)
+			cursor.close()
+		elif self.id==0:
+			query="INSERT INTO STAR006_ITEM (star006_template_star004,star006_container_starnnn,star006_containertype,star006_owner_star001,star006_location)"
+			query+=" values  ('" + str(self.template) + "','" + str(self.owner.id) + "',"
+			if self.owner.getClassName()=='character':
+				query+="'star002_character'"
+			elif self.owner.getClassName()=='NPC':
+				query+="'star034_npc'"
+			query+=",0,0)"
+			#~ print query
+			cursor=instanceDbConnector.getConnection().cursor()
+			cursor.execute(query)
+			self.itemId=int(cursor.lastrowid)
+			cursor.close()
+			query="INSERT INTO STAR007_ship (star007_item_star006,star007_fitted,star007_template_star005shiptemplate,star007_hull) "
+			query+=" values ('"+str(self.itemId)+"','1','"+str(self.template)+"','"+str(self.hullpoints)+"')"
+			cursor=instanceDbConnector.getConnection().cursor()
+			cursor.execute(query)
+			self.id=int(cursor.lastrowid)
+			cursor.close()
+
+		for it in self.itemInInventory:
+			if it.getId()>0:
+				#~ if it.getTypeItem()==C_ITEM_MINERAL:
+					#~ query="UPDATE STAR006_ITEM SET STAR006_location = '" + str(it.getLocation()) + "', star006_containertype='star007_ship', star006_container_starnnn='" + str(self.id) +"'"
+					#~ query+=" ,star006_nb='" + str(it.getNb()) + "'"
+					#~ query+=" WHERE star006_id='" + str(it.getId()) + "'"
+				#~ else:
+				query="UPDATE STAR006_ITEM SET STAR006_location = '" + str(it.getLocation()) + "', star006_containertype='star007_ship', star006_container_starnnn='" + str(self.id) +"'"
+				query+=" WHERE star006_id='" + str(it.getId()) + "'"
+				cursor=instanceDbConnector.getConnection().cursor()
+				cursor.execute(query)
+				cursor.close()
+				
+		for sl in self.slots:
+			sl.setShip(self.id)
+			sl.saveToBDD()
+		
+		instanceDbConnector.commit()
 		
 	def loadEgg(self,world,worldNP):
 		"""

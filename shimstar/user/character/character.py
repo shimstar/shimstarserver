@@ -106,6 +106,48 @@ class character:
 		charXml.appendChild(laststationXml)
 		
 		return charXml
+		
+	def getXmlForOtherPlayer(self,docXml=None):
+		if docXml==None:
+			docXml = xml.dom.minidom.Document()
+		charXml=docXml.createElement("character")
+		idXml=docXml.createElement("idchar")
+		idXml.appendChild(docXml.createTextNode(str(self.id)))
+		nameXml=docXml.createElement("name")
+		nameXml.appendChild(docXml.createTextNode(str(self.name)))
+		faceXml=docXml.createElement("face")
+		faceXml.appendChild(docXml.createTextNode(str(self.face)))
+		zoneXml=docXml.createElement("zone")
+		zoneXml.appendChild(docXml.createTextNode(str(self.zoneId)))
+		laststationXml=docXml.createElement("laststation")
+		laststationXml.appendChild(docXml.createTextNode(str(self.lastStation)))
+		shipXml=self.ship.getXml()
+			
+		charXml.appendChild(idXml)
+		charXml.appendChild(nameXml)
+		charXml.appendChild(faceXml)
+		charXml.appendChild(zoneXml)
+		charXml.appendChild(laststationXml)
+		charXml.appendChild(shipXml)
+		
+		return charXml
+		
+	def getPos(self):
+		return self.ship.getPos()
+	
+	def getQuat(self):
+		return self.ship.getQuat()
+		
+	def addShip(self,type):
+		"""
+			change ship of the character (ie : when the death is coming)
+		"""
+		self.ship=Ship(0,type)
+		self.ship.setOwner(self)
+		self.ship.saveToBDD()
+
+		instanceDbConnector=shimDbConnector.getInstance()
+		instanceDbConnector.commit()
 	
 	def saveToBDD(self):
 		"""
@@ -117,7 +159,7 @@ class character:
 		else:
 			query="insert into star002_character (star002_iduser_star001,star002_name,star002_face,star002_coin,star002_zone_star011zone,star002_laststation_star022station)"
 			query+=" values ('"+ str(self.userId) + "','"+self.name+"','"+self.face+"',0,"+str(C_STARTING_ZONE)+"," + str(C_STARTING_ZONE) +")"
-		#~ print query
+		
 		instanceDbConnector=shimDbConnector.getInstance()
 		cursor=instanceDbConnector.getConnection().cursor()
 		cursor.execute(query)
