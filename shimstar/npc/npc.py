@@ -173,7 +173,7 @@ class NPC:
 		
 	@staticmethod
 	def getNPC(id):
-		print str(npc.listOfNpc.keys()) + " searching for " + str(id)
+		#~ print str(npc.listOfNpc.keys()) + " searching for " + str(id)
 		if npc.listOfNpc.has_key(id)==True:
 			return npc.listOfNpc[id]
 		else:

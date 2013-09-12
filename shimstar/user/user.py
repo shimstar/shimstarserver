@@ -9,7 +9,7 @@ class User(threading.Thread):
 	lock=threading.Lock()
 
 	def __init__(self,name="",id=0,new=False):
-		#~ print "user::init " + str(usr)
+		print "user::init " + str(id) 
 		threading.Thread.__init__(self)
 		self.id=id
 		self.name=name
@@ -132,8 +132,6 @@ class User(threading.Thread):
 		temp.setName(name)
 		temp.setUserId(self.id)
 		temp.addShip(1)
-		print temp
-		print temp.ship
 		temp.zoneId=C_STARTING_ZONE
 		self.listOfCharacter.append(temp)
 		self.saveToBDD()
@@ -145,7 +143,7 @@ class User(threading.Thread):
 		idUser=doc.createElement("iduser")
 		idUser.appendChild(doc.createTextNode(str(self.id)))
 		uname=doc.createElement("name")
-		uname.appendChild(doc.createTextNode(self.user))
+		uname.appendChild(doc.createTextNode(self.name))
 		usr.appendChild(uname)
 		usr.appendChild(idUser)
 		if len(self.listOfCharacter)>0:
@@ -180,16 +178,18 @@ class User(threading.Thread):
 		if self.id==0:
 			query="SELECT star001_passwd,star001_id,star001_name FROM star001_user WHERE star001_name = '" + str(self.name) + "'"
 		else:
-			query="SELECT star001_passwd,star001_id,star001_name FROM star001_user WHERE star001_id = '" + str(self.name) + "'"
+			query="SELECT star001_passwd,star001_id,star001_name FROM star001_user WHERE star001_id = '" + str(self.id) + "'"
 		instanceDbConnector=shimDbConnector.getInstance()
 		cursor=instanceDbConnector.getConnection().cursor()
 		cursor.execute(query)
+		#~ print query
 		result_set = cursor.fetchall ()
 		for row in result_set:
 			self.name=row[2]
 			self.id=int(row[1])
 			self.password=row[0]
 		cursor.close()
+		#~ print "user::loadFromBdd 2 " + str(self.name)
 		
 		query="SELECT star002_id FROM star002_character WHERE star002_iduser_star001='" + str(self.id) + "'"
 		#~ print "user::loadFromBdd " + str(query)

@@ -76,17 +76,15 @@ class NetworkTCPServer():
 				self.activeConnections.remove(c)
 				usrToDelete=None
 				for usr in User.listOfUser:
-					print User.listOfUser[usr].getConnexion()
 					if User.listOfUser[usr].getConnexion()==c:
 						usrToDelete=User.listOfUser[usr]
 						
-				
 				if usrToDelete!=None:
 					#~ usrToDelete.saveToBDD()
 					usrToDelete.destroy()
-					for usr in User.listOfUser:
-						if usr!=usrToDelete:
-							NetworkMessage.getInstance().addMessage(C_USER_OUTGOING,str(usrToDelete.getId()),usr.getConnexion())
+					#~ for usr in User.listOfUser:
+						#~ if usr!=usrToDelete:
+							#~ NetworkMessage.getInstance().addMessage(C_USER_OUTGOING,str(usrToDelete.getId()),usr.getConnexion())
 				if usrToDelete!=None:
 					#~ if User.listOfUser.index(usrToDelete.getId())>=0:
 						#~ User.listOfUser.remove(usrToDelete)		

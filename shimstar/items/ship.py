@@ -1,6 +1,8 @@
 from pandac.PandaModules import *
 from panda3d.bullet import *
 
+from shimstar.zoneserver.network.netmessage import *
+from shimstar.zoneserver.network.networkzonetcpserver import *
 from shimstar.items.item import *
 from shimstar.items.engine import *
 from shimstar.items.weapon import *
@@ -44,6 +46,29 @@ class Ship(ShimItem):
 		
 	def getWorld(self):
 		return self.world,self.worldNP
+		
+	def shot(self):
+		if self.worldNP==None:
+			return None
+		else:
+			if self.weapon!=None:
+				bul= self.weapon.shot(self.bodyNP.getPos(),self.bodyNP.getQuat(),self)
+				#~ print "ship::shot" + str(bul)
+				if bul!=None:
+					nm=netMessage(C_NETWORK_NEW_NPC_SHOT,None)
+					nm.addInt(self.owner.id)
+					nm.addInt(bul.getId())
+					nm.addFloat(bul.getPos().getX())
+					nm.addFloat(bul.getPos().getY())
+					nm.addFloat(bul.getPos().getZ())
+					nm.addFloat(bul.getQuat().getR())
+					nm.addFloat(bul.getQuat().getI())
+					nm.addFloat(bul.getQuat().getJ())
+					nm.addFloat(bul.getQuat().getK())
+					NetworkMessage.getInstance().addMessageForAllUsers(nm)
+				return bul
+				
+		return None
 		
 	def getXml(self,docXml=None):
 		

@@ -33,6 +33,22 @@ class Weapon(ShimItem):
 	def getSpeed(self):
 		return self.speed
 		
+		
+	def shot(self,pos,quat,ship,name=None):
+		"""
+			receiving shot command. Test if the time elapsed is enough depending of the cadence of shot of the weapon.
+			Return the bullet created, otherwise None
+		"""
+		#~ print "weapon::shot" + str((globalClock.getRealTime()-self.lastShot))
+		if globalClock.getRealTime()-self.lastShot>self.cadence:
+			self.lastShot=globalClock.getRealTime()
+			bul=Bullet(pos,quat,self.egg,self.range,self.speed,self)
+			self.lastShot=globalClock.getRealTime()
+			self.bullets.append(bul)
+			return bul
+		else:
+			return None
+		
 	def getXml(self,docXml=None):
 		if docXml==None:
 			docXml = xml.dom.minidom.Document()

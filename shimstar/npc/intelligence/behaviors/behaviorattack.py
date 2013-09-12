@@ -82,10 +82,10 @@ class BehaviorAttack(behavior):
 			sol2T=0
 			if coefA!=0:
 				try:
-					sol1T = (-coefB + sqrt(coefDelta))/(2*coefA)
-					sol2T = (-coefB - sqrt(coefDelta))/(2*coefA)
+					sol1T = (-coefB + sqrt(abs(coefDelta)))/(2*coefA)
+					sol2T = (-coefB - sqrt(abs(coefDelta)))/(2*coefA)
 				except:
-					#~ print "behaviorAttack::runShotTo " + str(coefB) + "//" + str(coefA) + "//" + str(coefDelta)
+					print "behaviorAttack::runShotTo " + str(coefB) + "//" + str(coefA) + "//" + str(coefDelta)
 					print sys.exc_info()[0]
 			else:
 				sol1T=0

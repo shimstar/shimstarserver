@@ -56,8 +56,14 @@ class NetworkTCPServer():
 		
 		if len(msgs)>0:
 			for msg in msgs:
-				#~ print msg
 				ret=self.cWriter.send(msg.getMsg(),msg.getConnexion(),True)
+				
+		msgs=NetworkMessage.getInstance().getListOfMessageForAllUsers()
+		
+		if len(msgs)>0:
+			for msg in msgs:
+				for u in User.listOfUser:
+					ret=self.cWriter.send(msg.getMsg(),User.listOfUser[u].getConnexion(),True)
 		
 		return Task.cont
 		
@@ -89,10 +95,15 @@ class NetworkTCPServer():
 						usrToDelete=User.listOfUser[usr]
 				if usrToDelete!=None:
 					#~ usrToDelete.saveToBDD()
+					User.lock.acquire()
 					usrToDelete.destroy()
 					for usr in User.listOfUser:
 						if User.listOfUser[usr]!=usrToDelete:
-							NetworkMessage.getInstance().addMessage(C_USER_OUTGOING,str(usrToDelete.getId()),User.listOfUser[usr].getConnexion())
+							nm=netMessage(C_NETWORK_USER_OUTGOING,User.listOfUser[usr].getConnexion())
+							nm.addInt(usrToDelete.getId())
+							NetworkMessage.getInstance().addMessage(nm)
+							#~ NetworkMessage.getInstance().addMessage(C_NETWORK_USER_OUTGOING,str(usrToDelete.getId()),User.listOfUser[usr].getConnexion())
+					User.lock.release()
 				
 			if self.Connections.has_key(str(c)):
 				del self.Connections[str(c)]
@@ -123,14 +134,18 @@ class NetworkTCPServer():
 		connexion=netDatagram.getConnection()
 		msgTab=[]
 		msgID=myIterator.getUint32()		
+		print msgID
 		if msgID==C_NETWORK_CONNECT:
-			id=myIterator.getUint32()
-			idchar=myIterator.getUint32()
-			tempUser=User(id=id)
+			User.lock.acquire()
+			idusr=int(myIterator.getUint32())
+			idchar=int(myIterator.getUint32())
+			#~ print "networktcp:: id " + str(idusr) + "/" + str(idchar)
+			tempUser=User(id=idusr)
 			tempUser.setIp(netDatagram.getAddress().getIpString())
 			tempUser.setConnexion(connexion)
 			tempUser.setCurrentCharacter(idchar)
 			print "user connected to zone"
+			User.lock.release()
 			
 				
 		
