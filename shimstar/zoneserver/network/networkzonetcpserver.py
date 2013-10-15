@@ -8,6 +8,7 @@ from direct.distributed.PyDatagramIterator import PyDatagramIterator
 
 from shimstar.network.networkmessage import *
 from shimstar.network.netmessage import *
+from shimstar.network.message import *
 from shimstar.core.constantes import *
 from shimstar.user.user import *
 
@@ -23,7 +24,8 @@ class NetworkTCPServer():
 		self.cReader = QueuedConnectionReader(self.cManager, 0)
 		self.cWriter = ConnectionWriter(self.cManager,0)
 		self.Connections = {}
-		self.activeConnections=[]                                                    # We'll want to keep track of these later
+		self.activeConnections=[]          		# We'll want to keep track of these later
+		self.listOfMessage=[] 
 		
 		self.portAddressTCP=C_PORT_ZONE                               #No-other TCP/IP services are using this port
 		
@@ -146,6 +148,18 @@ class NetworkTCPServer():
 			tempUser.setCurrentCharacter(idchar)
 			print "user connected to zone"
 			User.lock.release()
+		elif msgID==C_NETWORK_ASKING_NPC:
+			iduser=int(myIterator.getUint32())
+			msgTab=[]
+			msgTab.append(iduser)
+			temp=message(msgID,msgTab)
+			self.listOfMessage.append(temp)
+		elif msgID==C_NETWORK_ASKING_CHAR:
+			iduser=int(myIterator.getUint32())
+			msgTab=[]
+			msgTab.append(iduser)
+			temp=message(msgID,msgTab)
+			self.listOfMessage.append(temp)
 			
 				
 		
@@ -171,3 +185,6 @@ class NetworkTCPServer():
 				msgToReturn.append(msg)
 			
 		return msgToReturn
+		
+	def removeMessage(self,msg):
+		self.listOfMessage.remove(msg)

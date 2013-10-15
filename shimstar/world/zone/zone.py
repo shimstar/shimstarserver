@@ -32,34 +32,65 @@ class Zone(threading.Thread):
 		
 		self.loadZoneFromBdd()
 		
+	def runNewUser(self):
+		tempMsg=NetworkTCPServer.getInstance().getListOfMessageById(C_NETWORK_ASKING_NPC)
+		if len(tempMsg)>0:
+			for msg in tempMsg:
+				netMsg=msg.getMessage()
+				usrId=int(netMsg[0])
+				usr=User.getUserById(usrId)
+				if usr!=None:
+					for temp in self.npc:
+						nm=netMessage(C_NETWORK_NPC_INCOMING,usr.getConnexion())
+						temp.sendInfo(nm)
+						NetworkMessage.getInstance().addMessage(nm)
+					nm=netMessage(C_NETWORK_NPC_SENT,usr.getConnexion())
+					NetworkMessage.getInstance().addMessage(nm)
+				NetworkTCPServer.getInstance().removeMessage(msg)
+				
+		tempMsg=NetworkTCPServer.getInstance().getListOfMessageById(C_NETWORK_ASKING_CHAR)
+		if len(tempMsg)>0:
+			for msg in tempMsg:
+				netMsg=msg.getMessage()
+				usrId=int(netMsg[0])
+				usr=User.getUserById(usrId)
+				print "runnewUser::C_NETWORK_ASKING_CHAR " + str(usr)
+				if usr!=None:
+					nm=netMessage(C_NETWORK_CURRENT_CHAR_INFO,usr.getConnexion())
+					usr.sendInfoChar(nm)
+					NetworkMessage.getInstance().addMessage(nm)
+					nm=netMessage(C_NETWORK_CHAR_SENT,usr.getConnexion())
+				NetworkTCPServer.getInstance().removeMessage(msg)
+		
 	def newToZone(self,usr):
-		for temp in self.npc:
-			nm=netMessage(C_NETWORK_NPC_INCOMING,usr.getConnexion())
-			nm.addString(temp.getXml().toxml())
-			nm.addFloat(temp.getPos().getX())
-			nm.addFloat(temp.getPos().getY())
-			nm.addFloat(temp.getPos().getZ())
-			nm.addFloat(temp.getQuat().getR())
-			nm.addFloat(temp.getQuat().getI())
-			nm.addFloat(temp.getQuat().getJ())
-			nm.addFloat(temp.getQuat().getK())
-			NetworkMessage.getInstance().addMessage(nm)
-		User.lock.acquire()	
-		for u in User.listOfUser:
-			if User.listOfUser[u].getId()!=usr.getId():
-				nm=netMessage(C_NETWORK_CHAR_INCOMING,User.listOfUser[u].getConnexion())
-				nm.addString(usr.getXmlForOtherPlayer().toxml())
-				nm.addInt(usr.getCurrentCharacter().getId())
-				nm.addFloat(usr.getPos().getX())
-				nm.addFloat(usr.getPos().getY())
-				nm.addFloat(usr.getPos().getZ())
-				nm.addFloat(usr.getQuat().getR())
-				nm.addFloat(usr.getQuat().getI())
-				nm.addFloat(usr.getQuat().getJ())
-				nm.addFloat(usr.getQuat().getK())
-				NetworkMessage.getInstance().addMessage(nm)
-		usr.setNewToZone(False)
-		User.lock.release()
+		#~ for temp in self.npc:
+			#~ nm=netMessage(C_NETWORK_NPC_INCOMING,usr.getConnexion())
+			#~ nm.addString(temp.getXml().toxml())
+			#~ nm.addFloat(temp.getPos().getX())
+			#~ nm.addFloat(temp.getPos().getY())
+			#~ nm.addFloat(temp.getPos().getZ())
+			#~ nm.addFloat(temp.getQuat().getR())
+			#~ nm.addFloat(temp.getQuat().getI())
+			#~ nm.addFloat(temp.getQuat().getJ())
+			#~ nm.addFloat(temp.getQuat().getK())
+			#~ NetworkMessage.getInstance().addMessage(nm)
+		#~ User.lock.acquire()	
+		#~ for u in User.listOfUser:
+			#~ if User.listOfUser[u].getId()!=usr.getId():
+				#~ nm=netMessage(C_NETWORK_CHAR_INCOMING,User.listOfUser[u].getConnexion())
+				#~ nm.addString(usr.getXmlForOtherPlayer().toxml())
+				#~ nm.addInt(usr.getCurrentCharacter().getId())
+				#~ nm.addFloat(usr.getPos().getX())
+				#~ nm.addFloat(usr.getPos().getY())
+				#~ nm.addFloat(usr.getPos().getZ())
+				#~ nm.addFloat(usr.getQuat().getR())
+				#~ nm.addFloat(usr.getQuat().getI())
+				#~ nm.addFloat(usr.getQuat().getJ())
+				#~ nm.addFloat(usr.getQuat().getK())
+				#~ NetworkMessage.getInstance().addMessage(nm)
+		#~ usr.setNewToZone(False)
+		#~ User.lock.release()
+		pass
 		
 	def run(self):
 		while not self.stopThread:
@@ -109,6 +140,7 @@ class Zone(threading.Thread):
 			
 			self.runUpdateCharShot()
 			self.runBulletCollision()
+			self.runNewUser()
 			#~ self.runBullet()
 		print "thread zone is ending"
 		

@@ -129,9 +129,8 @@ class NetworkTCPServer():
 					if(tempUser.getPwd()==password):					
 						nm=netMessage(C_NETWORK_CONNECT,connexion)
 						nm.addInt(C_CONNEXION_OK)
-						nm.addString(tempUser.getXml().toxml())
+						tempUser.sendInfo(nm)
 						NetworkMessage.getInstance().addMessage(nm)
-						#~ tempUser.destroy()
 						tempUser.setConnexion(connexion)
 					else:
 						nm=netMessage(C_NETWORK_CONNECT,connexion)
@@ -170,7 +169,9 @@ class NetworkTCPServer():
 			idchar=myIterator.getUint32()
 			tempUser=User.getUserById(iduser)
 			if tempUser!=None:
-				tempUser.setCurrent(idchar)
+				nm=netMessage(C_NETWORK_CHOOSE_CHAR,connexion)
+				tempUser.setCurrent(idchar,nm)
+				NetworkMessage.getInstance().addMessage(nm)
 		elif msgID==C_USER_ADD_CHAR:
 			id=int(myIterator.getUint32())
 			name=myIterator.getString()

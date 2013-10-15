@@ -107,6 +107,16 @@ class character:
 		
 		return charXml
 		
+	def sendInfo(self,nm):
+		nm.addInt(self.id)
+		nm.addString(self.name)
+		nm.addString(self.face)
+		nm.addInt(self.zoneId)
+		
+	def sendCompleteInfo(self,nm):
+		#~ self.ship.sendInfo(nm)
+		nm.addInt(self.ship.getTemplate())
+		
 	def getXmlForOtherPlayer(self,docXml=None):
 		if docXml==None:
 			docXml = xml.dom.minidom.Document()
@@ -131,6 +141,16 @@ class character:
 		charXml.appendChild(shipXml)
 		
 		return charXml
+		
+	def setCurrent(self,current,nm=None):
+		""" 
+			set character to current. It is the character choosen to play
+		"""
+		#~ print "character::setCurrent " + str(self.id) + "/" + str(current)
+		self.current=current
+		if current==True:
+			if nm!=None:
+				self.ship.sendInfo(nm)
 		
 	def getPos(self):
 		return self.ship.getPos()
@@ -178,12 +198,8 @@ class character:
 		cursor.close()
 		instanceDbConnector.commit()
 
-	def setCurrent(self,current):
-		""" 
-			set character to current. It is the character choosen to play
-		"""
-		#~ print "character::setCurrent " + str(self.id) + "/" + str(current)
-		self.current=current
+	
+			
 
 	def getIsCurrent(self):
 		return self.current

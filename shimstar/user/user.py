@@ -54,10 +54,10 @@ class User(threading.Thread):
 	def setNewToZone(self,val):
 		self.newToZone=val
 		
-	def setCurrent(self,id):
+	def setCurrent(self,id,nm):
 		for charact in self.listOfCharacter:
 			if charact.getId()==id:
-				charact.setCurrent(True)
+				charact.setCurrent(True,nm)
 			else:
 				charact.setCurrent(False)
 		
@@ -119,6 +119,19 @@ class User(threading.Thread):
 		doc.appendChild(usr)
 		
 		return doc
+		
+	def sendInfo(self,nm):
+		nm.addInt(self.id)
+		nm.addString(self.name)
+		nm.addInt(len(self.listOfCharacter))
+		if len(self.listOfCharacter)>0:
+			for chr in self.listOfCharacter:
+				chr.sendInfo(nm)
+				
+	def sendInfoChar(self,nm):
+		currentChar=self.getCurrentCharacter()
+		currentChar.sendCompleteInfo(nm)
+		
 		
 	def addCharacter(self,name,face):
 		"""

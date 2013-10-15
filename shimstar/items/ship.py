@@ -40,6 +40,9 @@ class Ship(ShimItem):
 			self.loadFromBDD()
 		elif self.template!=0:
 			self.loadFromTemplate()
+			
+	def getTemplate(self):
+		return self.template
 		
 	def getState(self):
 		return self.state
@@ -121,6 +124,16 @@ class Ship(ShimItem):
 			shipXml.appendChild(invXml)
 		return shipXml
 		
+	def sendInfo(self,nm):
+		#~ print "ship::sendInfo " + str(self.template)
+		nm.addInt(self.template)
+		nm.addInt(len(self.itemInInventory))
+		if len(self.itemInInventory)>0:
+			for i in self.itemInInventory:
+				nm.addInt(i.getTypeItem())
+				nm.addInt(i.getTemplate())
+				nm.addInt(i.getId())
+		
 	def mustSentPos(self,timer):
 		"""
 		 if the time elapsed between 2 messages sent to others players is over the sendticks, return true, otherwise return false
@@ -175,7 +188,7 @@ class Ship(ShimItem):
 			remove hitpoints from ship and save in the damageHistory
 			
 		"""
-		print "ship::takedamage"
+		#~ print "ship::takedamage"
 		self.hullpoints-=hp
 		
 		if who!=None:
@@ -231,6 +244,8 @@ class Ship(ShimItem):
 		query+=" FROM star007_ship ship JOIN star005_ship_template shiptemplate ON ship.star007_template_star005shiptemplate = shiptemplate.star005_id  "
 		query+=" join star004_item_template on star005_item_star004=star004_id "
 		query+="where star007_id ='" + str(self.id) + "'"
+		#~ print "ship::LoadFromBdd "
+		#~ print query
 		instanceDbConnector=shimDbConnector.getInstance()
 		cursor=instanceDbConnector.getConnection().cursor()
 		cursor.execute(query)
@@ -248,6 +263,7 @@ class Ship(ShimItem):
 			self.frictionAngular=float(row[11])
 			self.frictionVelocity=float(row[12])
 			self.name=str(row[13])
+			self.template=int(row[6])
 			
 		cursor.close()
 		

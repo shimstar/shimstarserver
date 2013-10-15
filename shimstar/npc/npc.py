@@ -27,6 +27,14 @@ class NPC:
 	def getId(self):
 		return self.id
 		
+	def sendInfo(self,nm):
+		#~ print "npc::sendinfo " + str(self.ship.getTemplate())
+		nm.addInt(self.id)
+		nm.addString(self.name)
+		nm.addInt(self.template)
+		nm.addInt(self.ship.getTemplate())
+		
+		
 	def getClassName(self):
 		return "NPC"
 		
