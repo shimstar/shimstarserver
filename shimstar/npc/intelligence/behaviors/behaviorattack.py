@@ -1,11 +1,13 @@
 from shimstar.npc.intelligence.behaviors.behavior import *
 from shimstar.core.constantes import *
 import os,sys
+import random
 
 class BehaviorAttack(behavior):
 	def __init__(self,npc):
 		super(BehaviorAttack,self).__init__(npc)
 		self.patrolsPoint=[]
+		self.nbA=0
 	
 	def setTarget(self,target):
 		self.target=target
@@ -18,18 +20,72 @@ class BehaviorAttack(behavior):
 			self.runPhysics()
 		
 	def runBehav(self):
+		#~ print "BehaviorAttack::runBehav " + str(self.npc.id) + " / " + str(self.patrolsPoint)
 		if self.target.isEmpty()!=True:
-			if self.avoidTarget==None:
+			if len(self.patrolsPoint)==0 and self.avoidTarget==None:
 				if self.target!=None:
 					self.runShotTo()
 			else:
-				self.pointerToGo.setPos(self.ship.bodyNP.getPos())
-				self.pointerToGo.lookAt(self.avoidTarget)
-				dist=self.calcDistance(self.avoidTarget,self.ship.bodyNP)
-				if dist<50:
-					self.avoidTarget=None
+				if self.avoidTarget!=None:
+					self.pointerToGo.setPos(self.ship.bodyNP.getPos())
+					self.pointerToGo.lookAt(self.avoidTarget)
+					dist=self.calcDistance(self.avoidTarget,self.ship.bodyNP)
+					if dist<50:
+						self.avoidTarget=None
+				else:
+					#~ if self.npc.id==8:
+					#~ print "here " + str(self.ship.bodyNP.getPos()) + " / " + str(self.patrolsPoint[0])
+					self.pointerToGo.setPos(self.ship.bodyNP.getPos())
+					self.pointerToGo.lookAt(self.patrolsPoint[0])
+					dist=self.calcDistance(self.patrolsPoint[0],self.ship.bodyNP)
+					#~ print "####" + str(dist)
+					if dist<300:
+						del self.patrolsPoint[0]
+					
+	def dodgeAround(self):
+		self.nbA+=1
+		x=random.randint(-1,1)
+		y=random.randint(-1,1)
+		if x==0:
+			x==1
+		if y==0:
+			y=-1
+		p1=NodePath('PatrolPoint' +str(self.npc.id) + "_" + str(self.nbA))
+		p1.setQuat(self.ship.bodyNP.getQuat())
+		p1.setPos(self.target.getPos())
+		p1.setPos(p1,(500*x,0,500*y))
+		x=random.randint(-1,1)
+		y=random.randint(-1,1)
+		if x==0:
+			x==-1
+		if y==0:
+			y=1
+		self.nbA+=1
+		p2=NodePath('PatrolPoint' +str(self.npc.id) + "_"+ str(self.nbA))
+		p2.setQuat(self.ship.bodyNP.getQuat())
+		p2.setPos(p1.getPos())
+		p2.setPos(p2,(500*x,0,500*y))
+		x=random.randint(-1,1)
+		y=random.randint(-1,1)
+		if x==0:
+			x==-1
+		if y==0:
+			y=-1
+		self.nbA+=1
+		p3=NodePath('PatrolPoint' +str(self.npc.id) + "_"+ str(self.nbA))
+		p3.setQuat(self.ship.bodyNP.getQuat())
+		p3.setPos(p2.getPos())
+		p3.setPos(p3,(500*x,0,500*y))
+		
+		self.patrolsPoint.append(p1)
+		self.patrolsPoint.append(p2)
+		self.patrolsPoint.append(p3)
+		
+		
+		
 				
 	def runShotTo(self):
+		#~ print "self.target = " + str(self.target)
 		shooterForward = self.ship.bodyNP.getQuat().getForward()
 		shooterForward.normalize()
 		posShooter = self.ship.bodyNP.getPos() + shooterForward*100
@@ -111,9 +167,9 @@ class BehaviorAttack(behavior):
 					
 	def runPhysics(self):
 		#~ print self.ship.getPos()
-		result = self.world.contactTest(self.bodyNP.node())
-		for contact in result.getContacts():
-			pass
+		#~ result = self.world.contactTest(self.bodyNP.node())
+		#~ for contact in result.getContacts():
+			#~ pass
 			#~ self.avoidObstacle(contact.getNode0().getPythonTag("pnode"),contact.getNode1().getPythonTag("obj"),contact.getNode1().getPythonTag("pnode"))
 		
 		y=0
@@ -150,19 +206,41 @@ class BehaviorAttack(behavior):
 		self.ship.bodyNP.node().setAngularVelocity(av2)
 		
 		if self.target!=None and self.target.isEmpty()!=True:
-			dist=self.calcDistance(self.target,self.ship.bodyNP)
+			tgt=None
+			if len(self.patrolsPoint)>0:
+				tgt=self.patrolsPoint[0]
+			else:
+				tgt=self.target
+			dist=self.calcDistance(tgt,self.ship.bodyNP)
+			#~ print "behaviorattack::runphysics " + str(dist)
 			if dist <300:
-				self.avoidTargeted()
+				#~ self.avoidTargeted()
+				pass
 			else:
 				if dist<self.ship.weapon.getRange():
 					if (HDif+PDif)<50:
 						self.ship.shot()
-			if dist > 100:
-				if (self.ship.bodyNP.node().getLinearVelocity()==Vec3(0,0,0)):
-					f=Vec3(forwardVec.getX()**self.ship.engine.getSpeedMax()/2,forwardVec.getY()**self.ship.engine.getSpeedMax()/2,forwardVec.getZ()**self.ship.engine.getSpeedMax()/2)
-				else:
-					f=Vec3(forwardVec.getX()**self.ship.engine.getSpeedMax()/2,forwardVec.getY()**self.ship.engine.getSpeedMax()/2,forwardVec.getZ()**self.ship.engine.getSpeedMax()/2)
+			#~ if dist > 100:
+				#~ if (self.ship.bodyNP.node().getLinearVelocity()==Vec3(0,0,0)):
+					#~ f=Vec3(forwardVec.getX()**self.ship.engine.getSpeedMax()/2,forwardVec.getY()**self.ship.engine.getSpeedMax()/2,forwardVec.getZ()**self.ship.engine.getSpeedMax()/2)
+				#~ else:
+					#~ f=Vec3(forwardVec.getX()**self.ship.engine.getSpeedMax()/2,forwardVec.getY()**self.ship.engine.getSpeedMax()/2,forwardVec.getZ()**self.ship.engine.getSpeedMax()/2)
+				#~ self.ship.bodyNP.node().applyCentralForce(f)
+			#~ if self.ship.bodyNP.node().getLinearVelocity()!=Vec3(0,0,0):
+				#~ self.ship.bodyNP.node().setLinearVelocity((self.ship.bodyNP.node().getLinearVelocity().getX()*self.ship.frictionVelocity,self.ship.bodyNP.node().getLinearVelocity().getY()*self.ship.frictionVelocity,self.ship.bodyNP.node().getLinearVelocity().getZ()*self.ship.frictionVelocity))
+			if dist > 300:
+				f=Vec3(forwardVec.getX()*self.ship.engine.getSpeedMax(),forwardVec.getY()*self.ship.engine.getSpeedMax(),forwardVec.getZ()*self.ship.engine.getSpeedMax())
+				#~ if (self.ship.bodyNP.node().getLinearVelocity()==Vec3(0,0,0)):
+					#~ f=Vec3(forwardVec.getX()*self.ship.engine.getSpeedMax(),forwardVec.getY()*self.ship.engine.getSpeedMax(),forwardVec.getZ()*self.ship.engine.getSpeedMax())
+				#~ else:
+					#~ f=Vec3(forwardVec.getX()*self.ship.engine.getSpeedMax()/2,forwardVec.getY()*self.ship.engine.getSpeedMax()/2,forwardVec.getZ()*self.ship.engine.getSpeedMax()/2)
 				self.ship.bodyNP.node().applyCentralForce(f)
+			else:
+				#~ print len(self.patrolsPoint)
+				if len(self.patrolsPoint)==0:
+					self.dodgeAround()
+				
 			if self.ship.bodyNP.node().getLinearVelocity()!=Vec3(0,0,0):
 				self.ship.bodyNP.node().setLinearVelocity((self.ship.bodyNP.node().getLinearVelocity().getX()*self.ship.frictionVelocity,self.ship.bodyNP.node().getLinearVelocity().getY()*self.ship.frictionVelocity,self.ship.bodyNP.node().getLinearVelocity().getZ()*self.ship.frictionVelocity))
+
 

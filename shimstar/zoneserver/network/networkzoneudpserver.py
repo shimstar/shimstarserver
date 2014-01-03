@@ -74,6 +74,7 @@ class NetworkZoneUDPServer(DirectObject,threading.Thread):
 		"""
 		myIterator=PyDatagramIterator(netDatagram)
 		connexion=netDatagram.getConnection()
+		
 		msgID=myIterator.getUint32()
 		#~ print msgID
 		if msgID==C_NETWORK_CHARACTER_KEYBOARD:

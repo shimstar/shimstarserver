@@ -33,6 +33,8 @@ class Attitude:
 				self.currentBehavior=0
 		
 		if self.attitude.has_key(C_ATTITUDE_AGGRESSIVITE):
+		#~ if False:
+			#~ print "attitude::run " + str(self.npc.id) +  " / " + " has aggressive attitude"
 			if self.attitude[C_ATTITUDE_AGGRESSIVITE]>2:
 				alreadyAttack=False
 				for behav in self.behavior:

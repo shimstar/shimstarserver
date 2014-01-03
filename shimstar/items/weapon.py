@@ -39,7 +39,6 @@ class Weapon(ShimItem):
 			receiving shot command. Test if the time elapsed is enough depending of the cadence of shot of the weapon.
 			Return the bullet created, otherwise None
 		"""
-		#~ print "weapon::shot" + str((globalClock.getRealTime()-self.lastShot))
 		if globalClock.getRealTime()-self.lastShot>self.cadence:
 			self.lastShot=globalClock.getRealTime()
 			bul=Bullet(pos,quat,self.egg,self.range,self.speed,self)
@@ -90,7 +89,6 @@ class Weapon(ShimItem):
 		query="SELECT star018_damage,star018_range,star018_egg,star018_cadence,star018_speed"
 		query+=" FROM star004_item_template IT join star018_weapon w on w.star018_id = IT.star004_specific_starxxx "
 		query+="WHERE IT.star004_id = '" +str(self.template) + "'"
-		#~ print "weapon::loadFRomTempalte " + query
 		instanceDbConnector=shimDbConnector.getInstance()
 
 		cursor=instanceDbConnector.getConnection().cursor()
