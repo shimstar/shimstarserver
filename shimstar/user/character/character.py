@@ -199,8 +199,6 @@ class character:
 		instanceDbConnector.commit()
 
 	
-			
-
 	def getIsCurrent(self):
 		return self.current
 
@@ -219,3 +217,6 @@ class character:
 	def getFace(self):
 		return self.face
 	
+	def destroy(self):
+		pass
+		

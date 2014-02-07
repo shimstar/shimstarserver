@@ -81,6 +81,7 @@ class NetworkTCPServer():
 						
 				if usrToDelete!=None:
 					#~ usrToDelete.saveToBDD()
+					#~ print "aaaaaaaaaaaaaaaaa"
 					usrToDelete.destroy()
 					#~ for usr in User.listOfUser:
 						#~ if usr!=usrToDelete:
@@ -125,13 +126,15 @@ class NetworkTCPServer():
 			if User.userExists(name)==True:
 				tempUser=User.getUserInstantiatedByName(name)
 				if tempUser==None:
-					tempUser=User(name=name)				
+					tempUser=User(name=name)			
+					#~ print User.listOfUser
 					if(tempUser.getPwd()==password):					
 						nm=netMessage(C_NETWORK_CONNECT,connexion)
 						nm.addInt(C_CONNEXION_OK)
 						tempUser.sendInfo(nm)
 						NetworkMessage.getInstance().addMessage(nm)
 						tempUser.setConnexion(connexion)
+						User.listOfUser
 					else:
 						nm=netMessage(C_NETWORK_CONNECT,connexion)
 						nm.addInt(C_CONNEXION_WRONGPWD)
@@ -141,7 +144,7 @@ class NetworkTCPServer():
 					nm=netMessage(C_NETWORK_CONNECT,connexion)
 					nm.addInt(C_CONNEXION_ALREADYCONNECTED)
 					NetworkMessage.getInstance().addMessage(nm)
-					tempUser.destroy()
+					#~ tempUser.destroy()
 			else:
 				nm=netMessage(C_NETWORK_CONNECT,connexion)
 				nm.addInt(C_CONNEXION_NOACCOUNT)
@@ -151,19 +154,22 @@ class NetworkTCPServer():
 			ip=myIterator.getString()
 			port=myIterator.getUint32()
 			portudp=myIterator.getUint32()
+			portudp2=myIterator.getUint32()
 			pp=ZoneMainServer.getZone(id)
-			temp=ZoneMainServer(id,ip,port,portudp,connexion)
+			temp=ZoneMainServer(id,ip,port,portudp,portudp2,connexion)
 			nm=netMessage(C_NETWORK_ACKNOWLEDGEMENT,connexion)
 			NetworkMessage.getInstance().addMessage(nm)
 		elif msgID==C_NETWORK_INFO_ZONE:
 			id=myIterator.getUint32()
 			zm=ZoneMainServer.getZone(id)
-			ip,port,portUdp=zm.getConfig()
-			nm=netMessage(C_NETWORK_INFO_ZONE,connexion)
-			nm.addString(ip)
-			nm.addInt(port)
-			nm.addInt(portUdp)
-			NetworkMessage.getInstance().addMessage(nm)
+			if zm!=None:
+				ip,port,portUdp,portUdp2=zm.getConfig()
+				nm=netMessage(C_NETWORK_INFO_ZONE,connexion)
+				nm.addString(ip)
+				nm.addInt(port)
+				nm.addInt(portUdp)
+				nm.addInt(portUdp2)
+				NetworkMessage.getInstance().addMessage(nm)
 		elif msgID==C_NETWORK_USER_CHOOSE_HERO:
 			iduser=myIterator.getUint32()
 			idchar=myIterator.getUint32()
@@ -173,6 +179,7 @@ class NetworkTCPServer():
 				tempUser.setCurrent(idchar,nm)
 				NetworkMessage.getInstance().addMessage(nm)
 		elif msgID==C_USER_ADD_CHAR:
+			
 			id=int(myIterator.getUint32())
 			name=myIterator.getString()
 			face=myIterator.getString()
@@ -184,8 +191,22 @@ class NetworkTCPServer():
 			if userFound!=None:
 				tempChar=userFound.addCharacter(name,face)
 				nm=netMessage(C_USER_ADD_CHAR,connexion)
-				nm.addString(tempChar.getXml().toxml())
+				tempChar.sendInfo(nm)
 				NetworkMessage.getInstance().addMessage(nm)
+		elif msgID==C_USER_DELETE_CHAR:
+			idUser=int(myIterator.getUint32())
+			idChar=int(myIterator.getUint32())
+			userFound=None
+			for u in User.listOfUser:
+				if u==int(idUser):
+					userFound=User.listOfUser[u]
+					break
+			if userFound!=None:
+				userFound.deleteCharacter(idChar)
+				nm=netMessage(C_USER_DELETE_CHAR,connexion)
+				nm.addInt(idChar)
+				NetworkMessage.getInstance().addMessage(nm)
+					
 		elif msgID==C_CREATE_USER:
 			user=myIterator.getString()
 			pwd=myIterator.getString()

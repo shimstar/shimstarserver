@@ -50,23 +50,26 @@ class BehaviorAttack(behavior):
 			x==1
 		if y==0:
 			y=-1
+		dist=random.randint(200,500)
 		p1=NodePath('PatrolPoint' +str(self.npc.id) + "_" + str(self.nbA))
 		p1.setQuat(self.ship.bodyNP.getQuat())
 		p1.setPos(self.target.getPos())
-		p1.setPos(p1,(500*x,0,500*y))
+		p1.setPos(p1,(dist*x,0,dist*y))
 		x=random.randint(-1,1)
 		y=random.randint(-1,1)
 		if x==0:
 			x==-1
 		if y==0:
 			y=1
+		dist=random.randint(200,500)
 		self.nbA+=1
 		p2=NodePath('PatrolPoint' +str(self.npc.id) + "_"+ str(self.nbA))
 		p2.setQuat(self.ship.bodyNP.getQuat())
 		p2.setPos(p1.getPos())
-		p2.setPos(p2,(500*x,0,500*y))
+		p2.setPos(p2,(dist*x,0,dist*y))
 		x=random.randint(-1,1)
 		y=random.randint(-1,1)
+		dist=random.randint(200,500)
 		if x==0:
 			x==-1
 		if y==0:
@@ -75,7 +78,7 @@ class BehaviorAttack(behavior):
 		p3=NodePath('PatrolPoint' +str(self.npc.id) + "_"+ str(self.nbA))
 		p3.setQuat(self.ship.bodyNP.getQuat())
 		p3.setPos(p2.getPos())
-		p3.setPos(p3,(500*x,0,500*y))
+		p3.setPos(p3,(dist*x,0,dist*y))
 		
 		self.patrolsPoint.append(p1)
 		self.patrolsPoint.append(p2)

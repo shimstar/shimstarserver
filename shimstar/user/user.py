@@ -9,17 +9,19 @@ class User(threading.Thread):
 	lock=threading.Lock()
 
 	def __init__(self,name="",id=0,new=False):
-		print "user::init " + str(id) 
+		
 		threading.Thread.__init__(self)
 		self.id=id
 		self.name=name
 		self.password=""
 		self.ip=""
+		self.portUdp=0
 		self.newToZone=1
 		self.listOfCharacter=[]
 		self.connexion=None
 		if new==False:
 			self.loadFromBdd()			
+		print "user::init " + str(self.id) 
 		User.listOfUser[self.id]=self
 	
 	def getPos(self):
@@ -64,6 +66,12 @@ class User(threading.Thread):
 	def setIp(self,ip):
 		self.ip=ip
 		
+	def setUdpPort(self,port):
+		self.portUdp=port
+		
+	def getUdpPort(self):
+		return self.portUdp
+		
 	def setPwd(self,pwd):
 		self.password=pwd
 		
@@ -96,6 +104,7 @@ class User(threading.Thread):
 		return None
 		
 	def destroy(self):
+		print "user::destroy " + str(self.id)
 		User.lock.acquire()
 		if User.listOfUser.has_key(self.id):
 			del User.listOfUser[self.id]
@@ -132,7 +141,12 @@ class User(threading.Thread):
 		currentChar=self.getCurrentCharacter()
 		currentChar.sendCompleteInfo(nm)
 		
-		
+	def deleteCharacter(self,id):
+		for ch in self.listOfCharacter:
+			if ch.getId()==id:
+				ch.destroy()
+				ch.delete()
+	
 	def addCharacter(self,name,face):
 		"""
 			params:

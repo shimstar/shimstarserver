@@ -4,6 +4,7 @@ from shimstar.npc.intelligence.behaviors.behavior import *
 from shimstar.npc.intelligence.behaviors.behaviorpatrol import *
 from shimstar.npc.intelligence.behaviors.behaviorattack import *
 from shimstar.npc.intelligence.behaviors.behaviorfactory import *
+from shimstar.user.user import *
 #~ from shimstar.core.function import *
 
 class Attitude:
@@ -41,16 +42,18 @@ class Attitude:
 					if isinstance(self.behavior[behav],BehaviorAttack)==True:
 						alreadyAttack=True
 						break
+				#~ print User.listOfUser
 				if alreadyAttack==False:
 					nearer=None
 					nearerDist=100000000
 					ships=[]
 					nnn=[]
-					#~ users=self.npc.zone.users
-					#~ for u in users:
-						#~ ship=u.getCurrentCharacter().ship
-						#~ ships.append(ship)
-						#~ nnn.append(u)
+					
+					for u in User.listOfUser:
+						ship=User.listOfUser[u].getCurrentCharacter().ship
+						ships.append(ship)
+						nnn.append(u)
+					
 					for n in self.npc.zone.npc:
 						if n!=self.npc:
 							ship=n.ship

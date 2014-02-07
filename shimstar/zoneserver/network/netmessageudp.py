@@ -1,12 +1,16 @@
 from direct.distributed.PyDatagram import PyDatagram 
 
 class netMessageUDP:
-	def __init__(self,msgID,IP):
+	def __init__(self,msgID,IP,port):
 		self.msg=self.myNewPyDatagram(msgID)
 		self.ip=IP
+		self.port=port
 		
 	def getIP(self):
 		return self.ip
+		
+	def getPort(self):
+		return self.port
 		
 	def getNumero(self):
 		return self.numero

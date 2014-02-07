@@ -44,9 +44,12 @@ class Slot:
 			self.nb=int(row[1])
 			idItem=int(row[2])
 		cursor.close()		
-		
+		#~ print "slot::loadFromBDD" + str(idItem)
 		if idItem>0:
-			query="SELECT star004_type_star003,star004_id FROM star006_item item JOIN star004_item_template itemTemplate ON item.star006_template_star004 = itemTemplate.star004_id WHERE star006_id = '" + str(idItem) + "'"
+			query="SELECT star004_type_star003,star004_id "
+			query +=" FROM star006_item item JOIN star004_item_template itemTemplate ON item.star006_template_star004 = itemTemplate.star004_id "
+			query+=" WHERE star006_id = '" + str(idItem) + "'"
+			#~ print "### " + str(query)
 			cursor=instanceDbConnector.getConnection().cursor()
 			cursor.execute(query)
 			result_set = cursor.fetchall ()

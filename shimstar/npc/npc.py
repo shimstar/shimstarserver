@@ -40,6 +40,7 @@ class NPC:
 		
 	def runPhysics(self):
 		if self.attitude!=None:
+			#~ print "NPC::runPhysics " + str(self.ship) + "/" + str(self.ship.engine)
 			self.attitude.run()
 			self.attitude.runPhysics()
 		
@@ -97,6 +98,7 @@ class NPC:
 		
 	def loadShipFromBDD(self):
 		query="SELECT star007_id FROM star007_ship ship JOIN  star006_item item ON item.star006_id=ship.star007_item_star006 WHERE star007_fitted=1 and  star006_container_starnnn='" + str(self.id) + "' AND star006_containertype='star034_npc'"
+		print query
 		instanceDbConnector=shimDbConnector.getInstance()
 		cursor=instanceDbConnector.getConnection().cursor()
 		cursor.execute(query)

@@ -270,7 +270,7 @@ class Ship(ShimItem):
 		cursor=instanceDbConnector.getConnection().cursor()
 		query="SELECT star009_id FROM star009_slot WHERE star009_ship_star007='" + str(self.id) + "'"
 		cursor.execute(query)
-		#~ print query
+		print query
 		result_set = cursor.fetchall ()
 		for row in result_set:
 			tempSlot=Slot(row[0])
@@ -304,7 +304,7 @@ class Ship(ShimItem):
 			on each step, add torque and forces to ship node.
 			It uses the self.pyr saved keypressed
 		"""
-		#~ print "SHip::runPhysics"
+		#~ print "SHip::runPhysics " + str(self.id) + " " + str(self.engine)
 		if self.bodyNP!=None and self.bodyNP.isEmpty()==False:			
 			if self.worldNP!=None:
 				self.bodyNP.node().setActive(True)		

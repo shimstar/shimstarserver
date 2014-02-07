@@ -144,10 +144,10 @@ class ShimItem(object):
 		self.mission=idMission
 		
 	def getContainerType(self):
-		return self.typeContainer
+		return self.containertype
 		
 	def setContainerType(self,tc):
-		self.typeContainer=tc
+		self.containertype=tc
 		
 		
 	def getContainer(self):
