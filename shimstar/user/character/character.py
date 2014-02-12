@@ -19,7 +19,7 @@ class character:
 		self.ship=None
 		if self.id!=0:
 			self.loadFromBDD()
-			
+		#~ print self.ship
 			
 	def getShip(self):
 		return self.ship
@@ -78,35 +78,6 @@ class character:
 		self.ship.setOwner(self)
 		cursor.close()
 		
-	def getXml(self,docXml=None):
-		if docXml==None:
-			docXml = xml.dom.minidom.Document()
-		charXml=docXml.createElement("character")
-		idXml=docXml.createElement("idchar")
-		idXml.appendChild(docXml.createTextNode(str(self.id)))
-		nameXml=docXml.createElement("name")
-		nameXml.appendChild(docXml.createTextNode(str(self.name)))
-		faceXml=docXml.createElement("face")
-		faceXml.appendChild(docXml.createTextNode(str(self.face)))
-		coinXml=docXml.createElement("coin")
-		coinXml.appendChild(docXml.createTextNode(str(self.coin)))
-		zoneXml=docXml.createElement("zone")
-		zoneXml.appendChild(docXml.createTextNode(str(self.zoneId)))
-		laststationXml=docXml.createElement("laststation")
-		laststationXml.appendChild(docXml.createTextNode(str(self.lastStation)))
-		
-		shipXml=self.ship.getXml()
-		
-		charXml.appendChild(idXml)
-		charXml.appendChild(nameXml)
-		charXml.appendChild(faceXml)
-		charXml.appendChild(coinXml)
-		charXml.appendChild(zoneXml)
-		charXml.appendChild(shipXml)
-		charXml.appendChild(laststationXml)
-		
-		return charXml
-		
 	def sendInfo(self,nm):
 		nm.addInt(self.id)
 		nm.addString(self.name)
@@ -114,33 +85,8 @@ class character:
 		nm.addInt(self.zoneId)
 		
 	def sendCompleteInfo(self,nm):
-		#~ self.ship.sendInfo(nm)
-		nm.addInt(self.ship.getTemplate())
-		
-	def getXmlForOtherPlayer(self,docXml=None):
-		if docXml==None:
-			docXml = xml.dom.minidom.Document()
-		charXml=docXml.createElement("character")
-		idXml=docXml.createElement("idchar")
-		idXml.appendChild(docXml.createTextNode(str(self.id)))
-		nameXml=docXml.createElement("name")
-		nameXml.appendChild(docXml.createTextNode(str(self.name)))
-		faceXml=docXml.createElement("face")
-		faceXml.appendChild(docXml.createTextNode(str(self.face)))
-		zoneXml=docXml.createElement("zone")
-		zoneXml.appendChild(docXml.createTextNode(str(self.zoneId)))
-		laststationXml=docXml.createElement("laststation")
-		laststationXml.appendChild(docXml.createTextNode(str(self.lastStation)))
-		shipXml=self.ship.getXml()
-			
-		charXml.appendChild(idXml)
-		charXml.appendChild(nameXml)
-		charXml.appendChild(faceXml)
-		charXml.appendChild(zoneXml)
-		charXml.appendChild(laststationXml)
-		charXml.appendChild(shipXml)
-		
-		return charXml
+		self.ship.sendInfo(nm)
+		#~ nm.addInt(self.ship.getTemplate())
 		
 	def setCurrent(self,current,nm=None):
 		""" 

@@ -32,7 +32,7 @@ class NPC:
 		nm.addInt(self.id)
 		nm.addString(self.name)
 		nm.addInt(self.template)
-		nm.addInt(self.ship.getTemplate())
+		self.ship.sendInfo(nm)
 		
 		
 	def getClassName(self):

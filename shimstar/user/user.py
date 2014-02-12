@@ -110,25 +110,6 @@ class User(threading.Thread):
 			del User.listOfUser[self.id]
 		User.lock.release()
 		
-	def getXml(self):
-		doc = xml.dom.minidom.Document()
-		usr=doc.createElement("user")
-		uname=doc.createElement("name")
-		uname.appendChild(doc.createTextNode(self.name))
-		idUser=doc.createElement("iduser")
-		idUser.appendChild(doc.createTextNode(str(self.id)))
-		usr.appendChild(uname)
-		usr.appendChild(idUser)
-		if len(self.listOfCharacter)>0:
-			chars=doc.createElement("characters")
-			for chr in self.listOfCharacter:
-				chars.appendChild(chr.getXml())
-			usr.appendChild(chars)
-				
-		doc.appendChild(usr)
-		
-		return doc
-		
 	def sendInfo(self,nm):
 		nm.addInt(self.id)
 		nm.addString(self.name)
@@ -154,34 +135,16 @@ class User(threading.Thread):
 				face
 			create a new character with few starting skills (laser light, hunter light, pilotage, weapon)
 		"""
+		print "user::addcharacter "
 		temp=character(0)
 		temp.setFace(face)
 		temp.setName(name)
 		temp.setUserId(self.id)
-		temp.addShip(1)
 		temp.zoneId=C_STARTING_ZONE
 		self.listOfCharacter.append(temp)
 		self.saveToBDD()
+		temp.addShip(1)
 		return temp
-		
-	def getXmlForOtherPlayer(self):
-		doc = xml.dom.minidom.Document()
-		usr=doc.createElement("user")
-		idUser=doc.createElement("iduser")
-		idUser.appendChild(doc.createTextNode(str(self.id)))
-		uname=doc.createElement("name")
-		uname.appendChild(doc.createTextNode(self.name))
-		usr.appendChild(uname)
-		usr.appendChild(idUser)
-		if len(self.listOfCharacter)>0:
-			charactersXml=doc.createElement("characters")
-			for chara in self.listOfCharacter:
-				if chara.getIsCurrent()==True:
-					charaXml=chara.getXmlForOtherPlayer(doc)
-					charactersXml.appendChild(charaXml)
-			usr.appendChild(charactersXml)
-		doc.appendChild(usr)
-		return doc
 	
 	@staticmethod
 	def getUserById(id):

@@ -60,7 +60,8 @@ class Zone(threading.Thread):
 					nm=netMessage(C_NETWORK_CURRENT_CHAR_INFO,usr.getConnexion())
 					usr.sendInfoChar(nm)
 					NetworkMessage.getInstance().addMessage(nm)
-					nm=netMessage(C_NETWORK_CHAR_SENT,usr.getConnexion())
+					#~ nm=netMessage(C_NETWORK_CHAR_SENT,usr.getConnexion())
+					#~ NetworkMessage.getInstance().addMessage(nm)
 				NetworkTCPServer.getInstance().removeMessage(msg)
 		
 	def run(self):
@@ -200,10 +201,11 @@ class Zone(threading.Thread):
 		for b in bulletToRemove:
 			User.lock.acquire()
 			for u in User.listOfUser:
-				nm=netMessage(C_NETWORK_REMOVE_SHOT,User.listOfUser[u].getConnexion())
-				nm.addInt(Bullet.listOfBullet[b].getId())
-				NetworkMessage.getInstance().addMessage(nm)
-				Bullet.removeBullet(b)
+				if Bullet.listOfBullet.has_key(b):
+					nm=netMessage(C_NETWORK_REMOVE_SHOT,User.listOfUser[u].getConnexion())
+					nm.addInt(Bullet.listOfBullet[b].getId())
+					NetworkMessage.getInstance().addMessage(nm)
+					Bullet.removeBullet(b)
 			User.lock.release()
 		Bullet.lock.release()
 		
@@ -250,7 +252,8 @@ class Zone(threading.Thread):
 			self.lastGlobalTicks=actualTime	
 			User.lock.acquire()
 			for usr in User.listOfUser:
-				User.listOfUser[usr].getCurrentCharacter().getShip().runPhysics()	
+				if User.listOfUser[usr].getCurrentCharacter()!=None:
+					User.listOfUser[usr].getCurrentCharacter().getShip().runPhysics()	
 			User.lock.release()	
 			for npc in self.npc:
 				npc.runPhysics()

@@ -41,6 +41,8 @@ class Ship(ShimItem):
 		elif self.template!=0:
 			self.loadFromTemplate()
 			
+		print "ship::__init__" + str(self.id)
+			
 	def getTemplate(self):
 		return self.template
 		
@@ -73,59 +75,9 @@ class Ship(ShimItem):
 				
 		return None
 		
-	def getXml(self,docXml=None):
-		
-		if docXml==None:
-			docXml = xml.dom.minidom.Document()
-		shipXml=docXml.createElement("ship")
-		idXml=docXml.createElement("idship")
-		idXml.appendChild(docXml.createTextNode(str(self.id)))
-		nameXml=docXml.createElement("name")
-		nameXml.appendChild(docXml.createTextNode(str(self.name)))
-		hullpointsXml=docXml.createElement("hullpoints")
-		hullpointsXml.appendChild(docXml.createTextNode(str(self.hullpoints)))
-		maxhullpointsXml=docXml.createElement("maxhullpoints")
-		maxhullpointsXml.appendChild(docXml.createTextNode(str(self.maxhullpoints)))
-		eggXml=docXml.createElement("egg")
-		eggXml.appendChild(docXml.createTextNode(self.egg))
-		imgXml=docXml.createElement("img")
-		imgXml.appendChild(docXml.createTextNode(self.img))
-		shipXml.appendChild(idXml)
-		shipXml.appendChild(nameXml)
-		shipXml.appendChild(maxhullpointsXml)
-		shipXml.appendChild(hullpointsXml)
-		shipXml.appendChild(eggXml)
-		shipXml.appendChild(imgXml)
-		if len(self.slots)>0:
-			slotsXml=docXml.createElement("slots")
-			for s in self.slots:
-				slotXml=s.getXml(docXml)
-				slotsXml.appendChild(slotXml)
-			shipXml.appendChild(slotsXml)
-			
-		if len(self.itemInInventory)>0:
-			invXml=docXml.createElement("inventory")
-			for i in self.itemInInventory:
-				itemXml=docXml.createElement("item")
-				idXml=docXml.createElement("iditem")
-				idXml.appendChild(docXml.createTextNode(str(i.getId())))
-				typeitemXml=docXml.createElement("typeitem")
-				typeitemXml.appendChild(docXml.createTextNode(str(i.getTypeItem())))
-				templateXml=docXml.createElement("template")
-				templateXml.appendChild(docXml.createTextNode(str(i.getTemplate())))
-				if i.getTypeItem()==C_ITEM_MINERAL:
-					qtyXml=docXml.createElement("quantity")
-					qtyXml.appendChild(docXml.createTextNode(str(i.getNb())))
-					itemXml.appendChild(qtyXml)
-				itemXml.appendChild(idXml)
-				itemXml.appendChild(typeitemXml)
-				itemXml.appendChild(templateXml)
-				invXml.appendChild(itemXml)
-			shipXml.appendChild(invXml)
-		return shipXml
-		
 	def sendInfo(self,nm):
 		#~ print "ship::sendInfo " + str(self.template)
+		nm.addInt(self.id)
 		nm.addInt(self.template)
 		nm.addInt(len(self.itemInInventory))
 		if len(self.itemInInventory)>0:
@@ -235,6 +187,7 @@ class Ship(ShimItem):
 				self.engine=tempSlot.getItem()
 			if tempSlot.getItem()!=None and tempSlot.getItem().getTypeItem()==C_ITEM_WEAPON:
 				self.weapon=tempSlot.getItem()
+			
 		cursor.close()
 		
 	def loadFromBDD(self):
@@ -270,7 +223,7 @@ class Ship(ShimItem):
 		cursor=instanceDbConnector.getConnection().cursor()
 		query="SELECT star009_id FROM star009_slot WHERE star009_ship_star007='" + str(self.id) + "'"
 		cursor.execute(query)
-		print query
+		#~ print query
 		result_set = cursor.fetchall ()
 		for row in result_set:
 			tempSlot=Slot(row[0])
@@ -281,7 +234,6 @@ class Ship(ShimItem):
 			if tempSlot.getItem()!=None and isinstance(tempSlot.getItem(),Weapon):
 				self.weapon=tempSlot.getItem()
 				self.weapon.setShip(self)
-
 		cursor.close()
 		
 		cursor=instanceDbConnector.getConnection().cursor()
@@ -312,7 +264,7 @@ class Ship(ShimItem):
 				v=Vec3(self.pyr['y']*self.torque,0.0,self.pyr['p']*self.torque)
 				v= self.worldNP.getRelativeVector(self.bodyNP,v) 
 				self.bodyNP.node().applyTorque(v)
-
+				
 				if self.engine!=None:
 					if self.pyr['a']==1:
 						if self.poussee<self.engine.getSpeedMax():

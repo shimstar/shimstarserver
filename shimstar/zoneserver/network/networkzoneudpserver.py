@@ -37,7 +37,7 @@ class NetworkZoneUDPServer(DirectObject,threading.Thread):
 		self.port2=C_PORT_UDP_ZONE2
 		self.udpSocket = self.cManager.openUDPConnection(self.port)
 		self.udpSocket2 = self.cManager.openUDPConnection(self.port2)
-		#~ self.udpSocket.setReuseAddr(True) 
+		self.udpSocket.setReuseAddr(True) 
 		if self.udpSocket:
 			self.cReader.addConnection(self.udpSocket) 
 		if self.udpSocket2:
@@ -58,7 +58,8 @@ class NetworkZoneUDPServer(DirectObject,threading.Thread):
 			if len(msgs)>0:
 				for msg in msgs:
 					clientAddr = NetAddress() 
-					clientAddr.setHost(msg.getIP(), msg.getPort()) 
+					clientAddr.setHost(msg.getIP(), msg.getPort()+1) 
+					#~ print "networkUdp::run " + str(msg.getIP()) + "/" + str(msg.getPort())
 					ret=self.cWriter.send(msg.getMsg(),self.udpSocket,clientAddr)
 					
 					with warnings.catch_warnings(record=True) as w:
