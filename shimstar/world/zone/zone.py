@@ -60,13 +60,9 @@ class Zone(threading.Thread):
 					nm=netMessage(C_NETWORK_CURRENT_CHAR_INFO,usr.getConnexion())
 					usr.sendInfoChar(nm)
 					NetworkMessage.getInstance().addMessage(nm)
-					#~ nm=netMessage(C_NETWORK_CHAR_SENT,usr.getConnexion())
-					#~ NetworkMessage.getInstance().addMessage(nm)
 					
-					print "zone::runNewUser " + str(User.listOfUser)
 					for othrUsr in User.listOfUser:
 						if othrUsr!=usrId:
-							print "zone::runNewUser (2) "
 							nm=netMessage(C_NETWORK_CHAR_INCOMING,usr.getConnexion())
 							User.listOfUser[othrUsr].sendInfoOtherPlayer(nm)
 							NetworkMessage.getInstance().addMessage(nm)
@@ -103,7 +99,6 @@ class Zone(threading.Thread):
 								nm.addFloat(chr.ship.getPos().getY())
 								nm.addFloat(chr.ship.getPos().getZ())
 								NetworkMessageUdp.getInstance().addMessage(nm)
-								#~ print "zone::run " + str(chr.ship.getPos()) + " / " + str(chr.ship.bodyNP.getQuat())
 			
 			if globalClock.getRealTime()-self.lastNpcSendTicks>C_SENDTICKS:
 				self.lastNpcSendTicks=globalClock.getRealTime()
@@ -120,7 +115,6 @@ class Zone(threading.Thread):
 							nm.addFloat(n.ship.getPos().getX())
 							nm.addFloat(n.ship.getPos().getY())
 							nm.addFloat(n.ship.getPos().getZ())
-							#~ print "zone::run npc pos " + str(n.getId()) + " :: " + str(n.ship.getPos())
 						NetworkMessageUdp.getInstance().addMessage(nm)
 						
 			User.lock.release()
@@ -129,20 +123,8 @@ class Zone(threading.Thread):
 			self.runUpdateCharShot()
 			self.runBulletCollision()
 			self.runNewUser()
-			#~ self.runBullet()
 		print "thread zone is ending"
-		
-	#~ def runBullet(self):
-		#~ for b in Bullet.listOfBullet:
-			#~ if Bullet.listOfBullet[b].mustSentPos(globalClock.getRealTime())==True:
-				#~ for u in User.listOfUser:
-						#~ nm=netMessageUDP(C_NETWORK_POS_SHOT,User.listOfUser[u].getIp())
-						#~ nm.addInt(b)
-						#~ nm.addFloat(Bullet.listOfBullet[b].getPos().getX())
-						#~ nm.addFloat(Bullet.listOfBullet[b].getPos().getY())
-						#~ nm.addFloat(Bullet.listOfBullet[b].getPos().getZ())
-						#~ NetworkMessageUdp.getInstance().addMessage(nm)
-		
+				
 	def runBulletCollision(self):
 		Bullet.lock.acquire()
 		bulletToRemove=[]

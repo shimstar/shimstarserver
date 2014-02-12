@@ -53,6 +53,8 @@ class Ship(ShimItem):
 		if self.bodyNP!=None:
 			self.bodyNP.detachNode()
 			self.bodyNP.removeNode()
+		##TODO Remove node from world
+		
 		
 	def getWorld(self):
 		return self.world,self.worldNP
