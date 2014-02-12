@@ -164,5 +164,6 @@ class character:
 		return self.face
 	
 	def destroy(self):
-		pass
+		if self.ship!=None:
+			self.ship.destroy()
 		

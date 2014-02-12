@@ -62,7 +62,20 @@ class Zone(threading.Thread):
 					NetworkMessage.getInstance().addMessage(nm)
 					#~ nm=netMessage(C_NETWORK_CHAR_SENT,usr.getConnexion())
 					#~ NetworkMessage.getInstance().addMessage(nm)
+					
+					print "zone::runNewUser " + str(User.listOfUser)
+					for othrUsr in User.listOfUser:
+						if othrUsr!=usrId:
+							print "zone::runNewUser (2) "
+							nm=netMessage(C_NETWORK_CHAR_INCOMING,usr.getConnexion())
+							User.listOfUser[othrUsr].sendInfoOtherPlayer(nm)
+							NetworkMessage.getInstance().addMessage(nm)
+							nm=netMessage(C_NETWORK_CHAR_INCOMING,User.listOfUser[othrUsr].getConnexion())
+							usr.sendInfoOtherPlayer(nm)
+							NetworkMessage.getInstance().addMessage(nm)
+						
 				NetworkTCPServer.getInstance().removeMessage(msg)
+				
 		
 	def run(self):
 		while not self.stopThread:

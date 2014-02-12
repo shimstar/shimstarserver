@@ -107,6 +107,8 @@ class User(threading.Thread):
 		print "user::destroy " + str(self.id)
 		User.lock.acquire()
 		if User.listOfUser.has_key(self.id):
+			for ch in self.listOfCharacter:
+				ch.destroy()
 			del User.listOfUser[self.id]
 		User.lock.release()
 		
@@ -117,6 +119,13 @@ class User(threading.Thread):
 		if len(self.listOfCharacter)>0:
 			for chr in self.listOfCharacter:
 				chr.sendInfo(nm)
+				
+	def sendInfoOtherPlayer(self,nm):
+		nm.addInt(self.id)
+		nm.addString(self.name)
+		currentChar=self.getCurrentCharacter()
+		currentChar.sendInfo(nm)
+		currentChar.sendCompleteInfo(nm)
 				
 	def sendInfoChar(self,nm):
 		currentChar=self.getCurrentCharacter()
