@@ -88,7 +88,8 @@ class Zone(threading.Thread):
 						if chr.ship.mustSentPos(globalClock.getRealTime())==True:
 							for u in User.listOfUser:
 								usrToSend=User.listOfUser[u]
-								nm=netMessageUDP(C_NETWORK_CHARACTER_UPDATE_POS,usrToSend.getIp(),usrToSend.getUdpPort())
+								#~ nm=netMessageUDP(C_NETWORK_CHARACTER_UPDATE_POS,usrToSend.getIp(),usrToSend.getUdpPort())
+								nm=netMessage(C_NETWORK_CHARACTER_UPDATE_POS,usrToSend.getConnexion())
 								nm.addInt(usrObj.getId())
 								nm.addInt(chr.getId())
 								nm.addFloat(chr.ship.bodyNP.getQuat().getR())
@@ -98,13 +99,16 @@ class Zone(threading.Thread):
 								nm.addFloat(chr.ship.getPos().getX())
 								nm.addFloat(chr.ship.getPos().getY())
 								nm.addFloat(chr.ship.getPos().getZ())
-								NetworkMessageUdp.getInstance().addMessage(nm)
+								#~ NetworkMessageUdp.getInstance().addMessage(nm)
+								NetworkMessage.getInstance().addMessage(nm)
+			
 			
 			if globalClock.getRealTime()-self.lastNpcSendTicks>C_SENDTICKS:
 				self.lastNpcSendTicks=globalClock.getRealTime()
 				for u in User.listOfUser:
 					if len(self.npc)>0:
-						nm=netMessageUDP(C_NETWORK_NPC_UPDATE_POS,User.listOfUser[u].getIp(),User.listOfUser[u].getUdpPort())
+						#~ nm=netMessageUDP(C_NETWORK_NPC_UPDATE_POS,User.listOfUser[u].getIp(),User.listOfUser[u].getUdpPort())
+						nm=netMessage(C_NETWORK_NPC_UPDATE_POS,User.listOfUser[u].getConnexion())
 						nm.addInt(len(self.npc))
 						for n in self.npc:							
 							nm.addInt(n.getId())
@@ -115,7 +119,8 @@ class Zone(threading.Thread):
 							nm.addFloat(n.ship.getPos().getX())
 							nm.addFloat(n.ship.getPos().getY())
 							nm.addFloat(n.ship.getPos().getZ())
-						NetworkMessageUdp.getInstance().addMessage(nm)
+						#~ NetworkMessageUdp.getInstance().addMessage(nm)
+						NetworkMessage.getInstance().addMessage(nm)
 						
 			User.lock.release()
 			self.runPhysics()
@@ -159,10 +164,12 @@ class Zone(threading.Thread):
 					objCollided.takeDamage(Bullet.listOfBullet[b].getDamage(),Bullet.listOfBullet[b].getShipOwner(),isinstance(objCollided.getOwner(),Character))
 					User.lock.acquire()
 					for u in User.listOfUser:
-						if isinstance(objCollided.getOwner(),Character)==True:
+						print "zone::run collision " + str(isinstance(objCollided.getOwner(),Character))
+						if isinstance(objCollided.getOwner(),character)!=True:
 							nm=netMessage(C_NETWORK_TAKE_DAMAGE_NPC,User.listOfUser[u].getConnexion())
 						else:
 							nm=netMessage(C_NETWORK_TAKE_DAMAGE_CHAR,User.listOfUser[u].getConnexion())
+						print "zone::run objCollided.getOwner.getID == " + str(objCollided.getOwner().getId())
 						nm.addInt(objCollided.getOwner().getId())
 						nm.addInt(Bullet.listOfBullet[b].getDamage())
 						NetworkMessage.getInstance().addMessage(nm)
@@ -170,12 +177,18 @@ class Zone(threading.Thread):
 					if objCollided.getHullPoints()==0:
 						User.lock.acquire()
 						for u in User.listOfUser:
-							if isinstance(objCollided.getOwner(),Character)==True:
+							print "zone::run collision " + str(isinstance(objCollided.getOwner(),character))
+							if isinstance(objCollided.getOwner(),character)!=True:
 								nm=netMessage(C_NETWORK_REMOVE_NPC,User.listOfUser[u].getConnexion())
 							else:
+								if objCollided.getOwner().getId()==User.listOfUser[u].getCurrentCharacter().getId():
+									nm2=netMessage(C_NETWORK_DEATH_CHAR,User.listOfUser[u].getConnexion())
+									nm2.addInt(objCollided.getOwner().getLastStation())
+									NetworkMessage.getInstance().addMessage(nm2)
 								nm=netMessage(C_NETWORK_REMOVE_CHAR,User.listOfUser[u].getConnexion())
 							nm.addInt(objCollided.getOwner().getId())
 							NetworkMessage.getInstance().addMessage(nm)
+							
 						User.lock.release()
 					User.lock.acquire()
 					for u in User.listOfUser:
@@ -190,8 +203,6 @@ class Zone(threading.Thread):
 						NetworkMessage.getInstance().addMessage(nm)
 					User.lock.release()
 					bulletToRemove.append(b)
-		
-		
 					
 		for b in bulletToRemove:
 			User.lock.acquire()
@@ -205,7 +216,8 @@ class Zone(threading.Thread):
 		Bullet.lock.release()
 		
 	def runUpdateCharShot(self):
-		tempMsg=NetworkZoneUDPServer.getInstance().getListOfMessageById(C_NETWORK_CHAR_SHOT)
+		#~ tempMsg=NetworkZoneUDPServer.getInstance().getListOfMessageById(C_NETWORK_CHAR_SHOT)
+		tempMsg=NetworkTCPServer.getInstance().getListOfMessageById(C_NETWORK_CHAR_SHOT)
 		if len(tempMsg)>0:
 			for msg in tempMsg:
 				netMsg=msg.getMessage()
@@ -232,7 +244,8 @@ class Zone(threading.Thread):
 						nm.addFloat(b.getQuat().getK())
 						NetworkMessage.getInstance().addMessage(nm)
 					User.lock.release()
-			NetworkZoneUDPServer.getInstance().removeMessage(msg)
+			#~ NetworkZoneUDPServer.getInstance().removeMessage(msg)
+			NetworkTCPServer.getInstance().removeMessage(msg)
 		
 	def runPhysics(self):
 		"""

@@ -22,11 +22,15 @@ class User(threading.Thread):
 		if new==False:
 			self.loadFromBdd()			
 		print "user::init " + str(self.id) 
+		User.lock.acquire()
 		User.listOfUser[self.id]=self
+		User.lock.release()
 	
 	def getPos(self):
 		return self.getCurrentCharacter().getPos()
 		
+	def changeZone(self,idZone):
+		slef.getCurrentCharacter().setZoneId(idZone)
 		
 	def getQuat(self):
 		return self.getCurrentCharacter().getQuat()
@@ -129,6 +133,7 @@ class User(threading.Thread):
 				
 	def sendInfoChar(self,nm):
 		currentChar=self.getCurrentCharacter()
+		
 		currentChar.sendCompleteInfo(nm)
 		
 	def deleteCharacter(self,id):
@@ -157,17 +162,23 @@ class User(threading.Thread):
 	
 	@staticmethod
 	def getUserById(id):
+		User.lock.acquire()
 		for usr in User.listOfUser:
 			if User.listOfUser[usr].getId()==id:
+				User.lock.release()
 				return User.listOfUser[usr]
+		User.lock.release()
 		return None
 	
 	
 	@staticmethod
 	def getUserInstantiatedByName(name):
+		User.lock.acquire()
 		for usr in User.listOfUser:
 			if User.listOfUser[usr].getName()==name:
+				User.lock.release()
 				return User.listOfUser[usr]
+		User.lock.release()
 		return None
 		
 	def getId(self):

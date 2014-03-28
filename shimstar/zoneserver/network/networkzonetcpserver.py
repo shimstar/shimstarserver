@@ -58,14 +58,19 @@ class NetworkTCPServer():
 		
 		if len(msgs)>0:
 			for msg in msgs:
-				ret=self.cWriter.send(msg.getMsg(),msg.getConnexion(),True)
+				if msg.getConnexion()!=None and isinstance(msg.getConnexion(),Connection):
+					ret=self.cWriter.send(msg.getMsg(),msg.getConnexion(),True)
+				else:
+					print "Error in networkzonetctpserver::tskNetworkMessage Connection is not good " +str(msg.getConnexion())
 				
 		msgs=NetworkMessage.getInstance().getListOfMessageForAllUsers()
 		
 		if len(msgs)>0:
 			for msg in msgs:
+				User.lock.acquire()
 				for u in User.listOfUser:
 					ret=self.cWriter.send(msg.getMsg(),User.listOfUser[u].getConnexion(),True)
+				User.lock.release()
 		
 		return Task.cont
 		
@@ -92,13 +97,16 @@ class NetworkTCPServer():
 			if self.activeConnections.count(c)>0:
 				self.activeConnections.remove(c)
 				usrToDelete=None
+				User.lock.acquire()
 				for usr in User.listOfUser:
 					if  User.listOfUser[usr].getConnexion()==c:
 						usrToDelete=User.listOfUser[usr]
+				User.lock.release()
 				if usrToDelete!=None:
 					#~ usrToDelete.saveToBDD()
-					User.lock.acquire()
+					
 					usrToDelete.destroy()
+					User.lock.acquire()
 					for usr in User.listOfUser:
 						if User.listOfUser[usr]!=usrToDelete:
 							nm=netMessage(C_NETWORK_USER_OUTGOING,User.listOfUser[usr].getConnexion())
@@ -106,6 +114,7 @@ class NetworkTCPServer():
 							NetworkMessage.getInstance().addMessage(nm)
 							#~ NetworkMessage.getInstance().addMessage(C_NETWORK_USER_OUTGOING,str(usrToDelete.getId()),User.listOfUser[usr].getConnexion())
 					User.lock.release()
+				
 				
 			if self.Connections.has_key(str(c)):
 				del self.Connections[str(c)]
@@ -138,7 +147,6 @@ class NetworkTCPServer():
 		msgID=myIterator.getUint32()		
 		print msgID
 		if msgID==C_NETWORK_CONNECT:
-			User.lock.acquire()
 			idusr=int(myIterator.getUint32())
 			idchar=int(myIterator.getUint32())
 			portudp=int(myIterator.getUint32())
@@ -149,7 +157,17 @@ class NetworkTCPServer():
 			tempUser.setConnexion(connexion)
 			tempUser.setCurrentCharacter(idchar)
 			print "user connected to zone"
+		elif msgID==C_NETWORK_DEATH_CHAR:
+			idusr=int(myIterator.getUint32())
+			userFound=None
+			User.lock.acquire()
+			for usr in User.listOfUser:
+				if usr==idusr:
+					userFound=User.listOfUser[usr]
 			User.lock.release()
+			if userFound!=None:
+				User.listOfUser[usr].destroy()
+
 		elif msgID==C_NETWORK_ASKING_NPC:
 			iduser=int(myIterator.getUint32())
 			msgTab=[]
@@ -160,6 +178,29 @@ class NetworkTCPServer():
 			iduser=int(myIterator.getUint32())
 			msgTab=[]
 			msgTab.append(iduser)
+			temp=message(msgID,msgTab)
+			self.listOfMessage.append(temp)
+		###UDP STUFF
+		elif msgID==C_NETWORK_CHARACTER_KEYBOARD:
+			idUser=myIterator.getUint32()
+			usr=User.getUserById(idUser)
+			if usr!=None:
+				nbKeys=myIterator.getUint32()
+				for i in range(nbKeys):
+					key=myIterator.getString()
+					val=myIterator.getUint32()
+					usr.getCurrentCharacter().getShip().modifyPYR(key,val)
+		elif msgID==C_NETWORK_CHAR_SHOT:
+			msgTab=[]
+			msgTab.append(myIterator.getUint32())
+			msgTab.append(myIterator.getUint32())
+			msgTab.append(myIterator.getStdfloat())
+			msgTab.append(myIterator.getStdfloat())
+			msgTab.append(myIterator.getStdfloat())
+			msgTab.append(myIterator.getStdfloat())
+			msgTab.append(myIterator.getStdfloat())
+			msgTab.append(myIterator.getStdfloat())
+			msgTab.append(myIterator.getStdfloat())
 			temp=message(msgID,msgTab)
 			self.listOfMessage.append(temp)
 			

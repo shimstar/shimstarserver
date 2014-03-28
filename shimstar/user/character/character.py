@@ -15,11 +15,20 @@ class character:
 		self.zone=None
 		self.zoneId=0
 		self.current=False
-		self.lastStation=1
+		self.lastStation=3
 		self.ship=None
 		if self.id!=0:
 			self.loadFromBDD()
 		#~ print self.ship
+		
+	def manageDeathFromMainServer(self):
+		self.ship.deleteFromBdd()
+		self.ship.destroy()
+		self.ship=None
+		self.addShip(1)
+			
+	def setZoneId(self,id):
+		self.zoneId=id
 			
 	def getShip(self):
 		return self.ship
@@ -38,6 +47,9 @@ class character:
 		
 	def getZoneId(self):
 		return self.zoneId
+		
+	def getLastStation(self):
+		return self.lastStation
 		
 	def loadFromBDD(self):
 		"""

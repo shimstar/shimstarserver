@@ -48,12 +48,12 @@ class Attitude:
 					nearerDist=100000000
 					ships=[]
 					nnn=[]
-					
+					User.lock.acquire()
 					for u in User.listOfUser:
 						ship=User.listOfUser[u].getCurrentCharacter().ship
 						ships.append(ship)
 						nnn.append(u)
-					
+					User.lock.release()
 					for n in self.npc.zone.npc:
 						if n!=self.npc:
 							ship=n.ship

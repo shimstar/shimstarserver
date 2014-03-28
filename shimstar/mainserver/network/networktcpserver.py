@@ -75,10 +75,11 @@ class NetworkTCPServer():
 			if self.activeConnections.count(c)>0:
 				self.activeConnections.remove(c)
 				usrToDelete=None
+				User.lock.acquire()
 				for usr in User.listOfUser:
 					if User.listOfUser[usr].getConnexion()==c:
 						usrToDelete=User.listOfUser[usr]
-						
+				User.lock.release()
 				if usrToDelete!=None:
 					#~ usrToDelete.saveToBDD()
 					#~ print "aaaaaaaaaaaaaaaaa"
@@ -90,6 +91,7 @@ class NetworkTCPServer():
 					#~ if User.listOfUser.index(usrToDelete.getId())>=0:
 						#~ User.listOfUser.remove(usrToDelete)		
 					usrToDelete.destroy()
+				User.lock.release()
 			if self.Connections.has_key(str(c)):
 				del self.Connections[str(c)]
 			self.cReader.removeConnection(c)
@@ -134,7 +136,7 @@ class NetworkTCPServer():
 						tempUser.sendInfo(nm)
 						NetworkMessage.getInstance().addMessage(nm)
 						tempUser.setConnexion(connexion)
-						User.listOfUser
+						#~ User.listOfUser
 					else:
 						nm=netMessage(C_NETWORK_CONNECT,connexion)
 						nm.addInt(C_CONNEXION_WRONGPWD)
@@ -178,12 +180,28 @@ class NetworkTCPServer():
 				nm=netMessage(C_NETWORK_CHOOSE_CHAR,connexion)
 				tempUser.setCurrent(idchar,nm)
 				NetworkMessage.getInstance().addMessage(nm)
+		elif msgID==C_NETWORK_USER_CHANGE_ZONE:
+			iduser=myIterator.getUint32()
+			idzone=iduser=myIterator.getUint32()
+			tempUser=User.getUserById(iduser)
+			if tempUser!=None:
+				tempUser.changeZone(idzone)
+		elif msgID==C_NETWORK_DEATH_CHAR:
+			idUser=int(myIterator.getUint32())
+			User.lock.acquire()
+			for u in User.listOfUser:
+				if u==int(idUser):
+					User.listOfUser[u].getCurrentCharacter().manageDeathFromMainServer()
+					nm=netMessage(C_NETWORK_DEATH_CHAR_STEP2,connexion)
+					User.listOfUser[u].getCurrentCharacter().sendCompleteInfo(nm)
+					NetworkMessage.getInstance().addMessage(nm)
+			User.lock.release()
 		elif msgID==C_USER_ADD_CHAR:
-			
 			id=int(myIterator.getUint32())
 			name=myIterator.getString()
 			face=myIterator.getString()
 			userFound=None
+			User.lock.acquire()
 			for u in User.listOfUser:
 				if u==int(id):
 					userFound=User.listOfUser[u]
@@ -193,6 +211,7 @@ class NetworkTCPServer():
 				nm=netMessage(C_USER_ADD_CHAR,connexion)
 				tempChar.sendInfo(nm)
 				NetworkMessage.getInstance().addMessage(nm)
+			User.lock.release()
 		elif msgID==C_USER_DELETE_CHAR:
 			idUser=int(myIterator.getUint32())
 			idChar=int(myIterator.getUint32())

@@ -17,6 +17,7 @@ class Ship(ShimItem):
 		self.pos=Point3(0,0,0)
 		self.hpr=Point3(0,0,0)
 		self.slots=[]
+		self.world=None
 		self.itemInInventory=[]
 		self.engine=None
 		self.owner=None
@@ -51,10 +52,10 @@ class Ship(ShimItem):
 		
 	def destroy(self):
 		if self.bodyNP!=None:
+			if self.world!=None:
+				self.world.removeRigidBody(self.bodyNP.node())
 			self.bodyNP.detachNode()
 			self.bodyNP.removeNode()
-		##TODO Remove node from world
-		
 		
 	def getWorld(self):
 		return self.world,self.worldNP
@@ -86,6 +87,7 @@ class Ship(ShimItem):
 		#~ print "ship::sendInfo " + str(self.template)
 		nm.addInt(self.id)
 		nm.addInt(self.template)
+		nm.addInt(self.hullpoints)
 		nm.addInt(len(self.itemInInventory))
 		if len(self.itemInInventory)>0:
 			for i in self.itemInInventory:
@@ -285,6 +287,35 @@ class Ship(ShimItem):
 				self.bodyNP.node().setLinearVelocity((self.bodyNP.node().getLinearVelocity().getX()*self.frictionVelocity,self.bodyNP.node().getLinearVelocity().getY()*self.frictionVelocity,self.bodyNP.node().getLinearVelocity().getZ()*self.frictionVelocity))
 				self.bodyNP.node().setAngularVelocity((self.bodyNP.node().getAngularVelocity().getX()*self.frictionAngular,self.bodyNP.node().getAngularVelocity().getY()*self.frictionAngular,self.bodyNP.node().getAngularVelocity().getZ()*self.frictionAngular))
 	
+	def deleteFromBdd(self):
+		instanceDbConnector=shimDbConnector.getInstance()
+		#suppression des items de la soute du vaisseau
+		query="DELETE FROM STAR006_ITEM WHERE  star006_containertype='star007_ship' and  star006_container_starnnn='" + str(self.id) +"'"
+		cursor=instanceDbConnector.getConnection().cursor()
+		cursor.execute(query)
+		cursor.close()
+		#suppression des items ds les slots du vaisseau
+		query="DELETE FROM STAR006_ITEM where star006_containertype='star009_slot' and star006_container_starnnn in ("
+		query+=" SELECT star009_id from star009_slot WHERE star009_ship_star005='" + str(self.id) + "')"
+		cursor=instanceDbConnector.getConnection().cursor()
+		cursor.execute(query)
+		cursor.close()
+		#suppression des slots
+		query="DELETE FROM star009_slot WHERE star009_ship_star005='" + str(self.id) + "'"
+		cursor=instanceDbConnector.getConnection().cursor()
+		cursor.execute(query)
+		cursor.close()
+		#suppression de l'item vaisseau
+		query="DELETE FROM STAR006_ITEM where star006_id =(SELECT star007_item_star006 from star007_ship where star007_id = '" + str(self.id) + "')"
+		cursor=instanceDbConnector.getConnection().cursor()
+		cursor.execute(query)
+		cursor.close()
+		#suppression du vaisseau
+		query="DELETE FROM star007_ship WHERE star007_id='" + str(self.id) + "'"
+		cursor=instanceDbConnector.getConnection().cursor()
+		cursor.execute(query)
+		cursor.close()
+		
 	def saveToBDD(self):
 		instanceDbConnector=shimDbConnector.getInstance()
 		if self.id>0:
@@ -357,7 +388,6 @@ class Ship(ShimItem):
 		self.bodyNP.setPythonTag("obj",self)
 		self.bodyNP.setPythonTag("pnode",visNP)
 		world.attachRigidBody(self.bodyNP.node())
-
 		visNP.reparentTo(self.bodyNP)
 		self.state=1
 		
