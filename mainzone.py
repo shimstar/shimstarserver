@@ -8,7 +8,6 @@ from direct.task.Task import Task
 from shimstar.core.stateserver import *
 from shimstar.zoneserver.network.networkmainserver import *
 from shimstar.zoneserver.network.networkzonetcpserver import *
-from shimstar.zoneserver.network.networkzoneudpserver import *
 from shimstar.world.zone.zone import *
 
 class ShimStarServerZone():
@@ -21,7 +20,6 @@ class ShimStarServerZone():
 		NetworkTCPServer.getInstance()
 		z=Zone(C_ID_ZONE)
 		z.start()
-		NetworkZoneUDPServer.getInstance().start()
 		taskMgr.add(self.event,"Poll main event",-38)
 		
 	def event(self,task):

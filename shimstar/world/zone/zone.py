@@ -1,11 +1,8 @@
 from direct.stdpy import threading
 from panda3d.bullet import*
 
-from shimstar.zoneserver.network.netmessageudp import *
-from shimstar.zoneserver.network.networkmessageudp import *
 from shimstar.zoneserver.network.netmessage import *
 from shimstar.zoneserver.network.networkzonetcpserver import *
-from shimstar.zoneserver.network.networkzoneudpserver import *
 from shimstar.core.constantes import *
 from shimstar.user.user import *
 from shimstar.core.constantes import *
