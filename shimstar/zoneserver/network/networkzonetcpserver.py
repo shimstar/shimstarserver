@@ -149,11 +149,9 @@ class NetworkTCPServer():
 		if msgID==C_NETWORK_CONNECT:
 			idusr=int(myIterator.getUint32())
 			idchar=int(myIterator.getUint32())
-			#~ portudp=int(myIterator.getUint32())
-			#~ print "networktcp:: id " + str(idusr) + "/" + str(idchar)
+			print "networkzonetcpserver::myprocessdatafunction " + str(idchar)
 			tempUser=User(id=idusr)
-			tempUser.setIp(netDatagram.getAddress().getIpString())
-			#~ tempUser.setUdpPort(portudp)
+			tempUser.setIp(netDatagram.getAddress().getIpString())			
 			tempUser.setConnexion(connexion)
 			tempUser.setCurrentCharacter(idchar)
 			print "user connected to zone"

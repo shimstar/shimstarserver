@@ -9,7 +9,6 @@ class User(threading.Thread):
 	lock=threading.Lock()
 
 	def __init__(self,name="",id=0,new=False):
-		
 		threading.Thread.__init__(self)
 		self.id=id
 		self.name=name
@@ -30,7 +29,7 @@ class User(threading.Thread):
 		return self.getCurrentCharacter().getPos()
 		
 	def changeZone(self,idZone):
-		slef.getCurrentCharacter().setZoneId(idZone)
+		self.getCurrentCharacter().setZoneId(idZone)
 		
 	def getQuat(self):
 		return self.getCurrentCharacter().getQuat()
@@ -43,6 +42,7 @@ class User(threading.Thread):
 		"""
 		id=0
 		query="SELECT star001_id FROM star001_user WHERE star001_name = '" + name + "'"
+		shimDbConnector.lock.acquire()
 		instanceDbConnector=shimDbConnector.getInstance()
 		cursor=instanceDbConnector.getConnection().cursor()
 		cursor.execute(query)
@@ -50,6 +50,7 @@ class User(threading.Thread):
 		for row in result_set:
 			id=int(row[0])
 		cursor.close()
+		shimDbConnector.lock.release()
 		if id>0:
 			return True
 		return False
@@ -95,7 +96,9 @@ class User(threading.Thread):
 		return self.name
 		
 	def setCurrentCharacter(self,idchar):
+		print "user::setCurrentCharacter " + str(idchar) + "/" +str(self.listOfCharacter)
 		for ch in self.listOfCharacter:
+			print "user::setCurrentCharacter " + str(ch.getId())
 			if ch.getId()==idchar:
 				ch.setCurrent(True)
 			else:
@@ -107,8 +110,17 @@ class User(threading.Thread):
 				return ch
 		return None
 		
+	@staticmethod
+	def destroyUserById(id):
+		User.lock.acquire()
+		if User.listOfUser.has_key(id):
+			User.listOfUser[id].destroy()
+		if User.listOfUser.has_key(id):
+			del User.listOfUser[id]
+		User.lock.release()
+		
 	def destroy(self):
-		print "user::destroy " + str(self.id)
+		#~ print "user::destroy " + str(self.id)
 		User.lock.acquire()
 		if User.listOfUser.has_key(self.id):
 			for ch in self.listOfCharacter:
@@ -133,8 +145,10 @@ class User(threading.Thread):
 				
 	def sendInfoChar(self,nm):
 		currentChar=self.getCurrentCharacter()
-		
-		currentChar.sendCompleteInfo(nm)
+		if currentChar!=None:
+			currentChar.sendCompleteInfo(nm)
+		else:
+			print "user::sendInfoChar No currentChar"
 		
 	def deleteCharacter(self,id):
 		for ch in self.listOfCharacter:
@@ -185,6 +199,8 @@ class User(threading.Thread):
 		return self.id
 	
 	def loadFromBdd(self):
+		shimDbConnector.lock.acquire()
+		shimDbConnector.getInstance().resetConnection()
 		if self.id==0:
 			query="SELECT star001_passwd,star001_id,star001_name FROM star001_user WHERE star001_name = '" + str(self.name) + "'"
 		else:
@@ -207,10 +223,11 @@ class User(threading.Thread):
 		cursor.execute(query)
 		result_set = cursor.fetchall ()
 		for row in result_set:
-			tempChar=character(row[0])
+			tempChar=character(int(row[0]))
 			tempChar.setUserId(self.id)
 			self.listOfCharacter.append(tempChar)
 		cursor.close()
+		shimDbConnector.lock.release()
 		
 	def saveToBDD(self):
 		instanceDbConnector=shimDbConnector.getInstance()

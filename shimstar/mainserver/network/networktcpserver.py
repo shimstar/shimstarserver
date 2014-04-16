@@ -127,9 +127,10 @@ class NetworkTCPServer():
 			password=myIterator.getString()
 			if User.userExists(name)==True:
 				tempUser=User.getUserInstantiatedByName(name)
+				print User.listOfUser
 				if tempUser==None:
 					tempUser=User(name=name)			
-					#~ print User.listOfUser
+					
 					if(tempUser.getPwd()==password):					
 						nm=netMessage(C_NETWORK_CONNECT,connexion)
 						nm.addInt(C_CONNEXION_OK)
@@ -244,6 +245,8 @@ class NetworkTCPServer():
 			tempUser=User(name=usr,new=True)
 			tempUser.setPwd(pwd)
 			tempUser.saveToBDD()
+			tempUser.destroy()
+			User.destroyUserById(0)
 			nm=netMessage(C_CREATE_USER,connexion)
 			nm.addInt(1)
 			NetworkMessage.getInstance().addMessage(nm)
