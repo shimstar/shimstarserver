@@ -145,7 +145,7 @@ class NetworkTCPServer():
 		connexion=netDatagram.getConnection()
 		msgTab=[]
 		msgID=myIterator.getUint32()		
-		print msgID
+		#~ print msgID
 		if msgID==C_NETWORK_CONNECT:
 			idusr=int(myIterator.getUint32())
 			idchar=int(myIterator.getUint32())
@@ -178,7 +178,21 @@ class NetworkTCPServer():
 			msgTab.append(iduser)
 			temp=message(msgID,msgTab)
 			self.listOfMessage.append(temp)
+		elif msgID==C_NETWORK_CHARACTER_MOUSE:
+			iduser=int(myIterator.getUint32())
+			mousePosX=float(myIterator.getStdfloat())
+			mousePosY=float(myIterator.getStdfloat())
+			usr=User.getUserById(iduser)
+			if usr!=None:
+				usr.getCurrentCharacter().getShip().setMousePos(mousePosX,mousePosY)
 		###UDP STUFF
+		elif msgID==C_NETWORK_CHARACTER_SPEED:
+			iduser=int(myIterator.getUint32())
+			speed=int(myIterator.getInt32())
+		
+			usr=User.getUserById(iduser)
+			if usr!=None:
+				usr.getCurrentCharacter().getShip().setMouseWheel(speed)
 		elif msgID==C_NETWORK_CHARACTER_KEYBOARD:
 			idUser=myIterator.getUint32()
 			usr=User.getUserById(idUser)

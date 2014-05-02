@@ -96,6 +96,7 @@ class Zone(threading.Thread):
 								nm.addFloat(chr.ship.getPos().getX())
 								nm.addFloat(chr.ship.getPos().getY())
 								nm.addFloat(chr.ship.getPos().getZ())
+								nm.addInt(chr.ship.getPoussee())
 								#~ NetworkMessageUdp.getInstance().addMessage(nm)
 								NetworkMessage.getInstance().addMessage(nm)
 			

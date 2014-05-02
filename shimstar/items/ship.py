@@ -33,6 +33,11 @@ class Ship(ShimItem):
 		self.world=None
 		self.worldNP=None
 		self.poussee=0
+		self.mousePosX=0.0
+		self.mousePosY=0.0
+		self.mouseWheel=0
+		self.pousseeTorqueY=0
+		self.pousseeTorqueP=0
 		self.name=""
 		self.damageHistory={}
 		self.pyr={'p':0,'y':0,'r':0,'a':0,'w':0}
@@ -43,6 +48,14 @@ class Ship(ShimItem):
 			self.loadFromTemplate()
 			
 		print "ship::__init__" + str(self.id)
+			
+	def setMouseWheel(self,s):
+		self.mouseWheel=s
+			
+	def setMousePos(self,x,y):
+		#~ print "Ship::setmousepos " + str(self.id) + "/" + str(x) + "/" + str(y)
+		self.mousePosX=float(x)
+		self.mousePosY=float(y)
 			
 	def getTemplate(self):
 		return self.template
@@ -270,22 +283,67 @@ class Ship(ShimItem):
 			if self.worldNP!=None:
 				self.bodyNP.node().setActive(True)		
 				forwardVec=self.bodyNP.getQuat().getForward()
-				v=Vec3(self.pyr['y']*self.torque,0.0,self.pyr['p']*self.torque)
+				
+				#~ if self.pyr['y']!=0 and self.pousseeTorqueY<self.torque:
+					#~ self.pousseeTorqueY+=self.torque/10
+				#~ else:
+					#~ if self.pousseeTorqueY>0:
+						#~ self.pousseeTorqueY-=self.torque/5
+					#~ else:
+						#~ self.pousseeTorqueY=0
+					
+				#~ if self.pyr['p']!=0 and self.pousseeTorqueP<self.torque:
+					#~ self.pousseeTorqueP+=self.torque/10
+				#~ else:
+					#~ if self.pousseeTorqueP>0:
+						#~ self.pousseeTorqueP-=self.torque/5
+					#~ else:
+						#~ self.pousseeTorqueP=0
+				
+				#~ v=Vec3(self.pyr['y']*self.pousseeTorqueY,0.0,self.pyr['p']*self.pousseeTorqueP)
+				
+				v=Vec3(self.mousePosY*self.torque,0.0,float(self.mousePosX)*float(self.torque))
+				#~ print "torque = " + str(self.mousePosX*self.torque) + "/" + str(self.mousePosX) + "/" + str(float(self.mousePosX)*float(self.torque)) +" /" + str(self.id)
 				v= self.worldNP.getRelativeVector(self.bodyNP,v) 
 				self.bodyNP.node().applyTorque(v)
 				
+				#~ if self.engine!=None:
+					#~ if self.pyr['a']==1:
+						#~ if self.poussee<self.engine.getSpeedMax():
+							#~ self.poussee+=self.engine.getAcceleration()
+					#~ else:
+						#~ if self.poussee>0:
+							#~ self.poussee-=self.engine.getAcceleration()
+					#~ if self.pyr['w']==1:
+						#~ if self.poussee>0:
+							#~ self.poussee-=self.engine.getAcceleration()
+				
+					
 				if self.engine!=None:
-					if self.pyr['a']==1:
-						if self.poussee<self.engine.getSpeedMax():
-							self.poussee+=self.engine.getAcceleration()
-					if self.pyr['w']==1:
-						if self.poussee>0:
-							self.poussee-=self.engine.getAcceleration()
+					if self.mouseWheel!=0:
+						self.poussee+=self.mouseWheel
+						if self.poussee<0:
+							self.poussee=0
+						elif self.poussee>=self.engine.getSpeedMax():
+							self.poussee=self.engine.getSpeedMax()
+						self.mouseWheel=0
 							
 				self.bodyNP.node().applyCentralForce(Vec3(forwardVec.getX()*self.poussee,forwardVec.getY()*self.poussee,forwardVec.getZ()*self.poussee))
 
 				self.bodyNP.node().setLinearVelocity((self.bodyNP.node().getLinearVelocity().getX()*self.frictionVelocity,self.bodyNP.node().getLinearVelocity().getY()*self.frictionVelocity,self.bodyNP.node().getLinearVelocity().getZ()*self.frictionVelocity))
-				self.bodyNP.node().setAngularVelocity((self.bodyNP.node().getAngularVelocity().getX()*self.frictionAngular,self.bodyNP.node().getAngularVelocity().getY()*self.frictionAngular,self.bodyNP.node().getAngularVelocity().getZ()*self.frictionAngular))
+				#~ self.bodyNP.node().setAngularVelocity((self.bodyNP.node().getAngularVelocity().getX()*self.frictionAngular,self.bodyNP.node().getAngularVelocity().getY()*self.frictionAngular,self.bodyNP.node().getAngularVelocity().getZ()*self.frictionAngular))
+				av=self.bodyNP.node().getAngularVelocity()
+		
+				av2=av*self.frictionVelocity
+				self.bodyNP.node().setAngularVelocity(av2)
+				av=self.bodyNP.node().getAngularVelocity()
+		
+				av2=av*0.8
+				self.bodyNP.node().setAngularVelocity(av2)
+				
+	
+	def getPoussee(self):
+		return self.poussee
 	
 	def deleteFromBdd(self):
 		instanceDbConnector=shimDbConnector.getInstance()
