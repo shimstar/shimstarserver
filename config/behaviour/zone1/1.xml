@@ -1,0 +1,17 @@
+<behaviour>
+	<attitude>
+		<typeattitude>1</typeattitude>
+		<levelattitude>3</levelattitude>
+		<faction>2</faction>
+	</attitude>
+	<attitude>
+		<typeattitude>2</typeattitude>
+		<levelattitude>3</levelattitude>
+		<faction>2</faction>
+	</attitude>
+	<patrol>
+		<patrolpoint>1000.0,1000.0,1000.0</patrolpoint>
+		<patrolpoint>-100.0,-3000.0,-400.0</patrolpoint>
+		<patrolpoint>800.0,-5000.0,-600.0</patrolpoint>
+	</patrol>
+</behaviour>
