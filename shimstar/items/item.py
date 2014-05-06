@@ -28,50 +28,6 @@ class ShimItem(object):
 			self.loadFromTemplate()
 		
 			
-	def getXml(self,docXml=None):
-		if docXml==None:
-			docXml = xml.dom.minidom.Document()
-		itemXml=docXml.createElement("item")
-		templateXml=docXml.createElement("template")
-		templateXml.appendChild(docXml.createTextNode(str(self.template)))
-		idXml=docXml.createElement("iditem")
-		idXml.appendChild(docXml.createTextNode(str(self.id)))
-		locationXml=docXml.createElement("location")
-		locationXml.appendChild(docXml.createTextNode(str(self.location)))
-		stackableXml=docXml.createElement("stackable")
-		stackableXml.appendChild(docXml.createTextNode(str(self.stackable)))
-		placeXml=docXml.createElement("place")
-		placeXml.appendChild(docXml.createTextNode(str(self.place)))
-		costXml=docXml.createElement("cost")
-		costXml.appendChild(docXml.createTextNode(str(self.cost)))
-		sellXml=docXml.createElement("sell")
-		sellXml.appendChild(docXml.createTextNode(str(self.sell)))
-		energyXml=docXml.createElement("energyCost")
-		energyXml.appendChild(docXml.createTextNode(str(self.energy)))
-		spaceXml=docXml.createElement("space")
-		spaceXml.appendChild(docXml.createTextNode(str(self.space)))
-		imgXml=docXml.createElement("img")
-		imgXml.appendChild(docXml.createTextNode(str(self.img)))
-		typeItemXml=docXml.createElement("typeitem")
-		typeItemXml.appendChild(docXml.createTextNode(str(self.typeItem)))	
-		nameXml=docXml.createElement("name")
-		nameXml.appendChild(docXml.createTextNode(str(self.name)))		
-		
-		itemXml.appendChild(typeItemXml)
-		itemXml.appendChild(idXml)
-		itemXml.appendChild(placeXml)
-		itemXml.appendChild(locationXml)
-		itemXml.appendChild(stackableXml)
-		itemXml.appendChild(templateXml)
-		itemXml.appendChild(costXml)
-		itemXml.appendChild(sellXml)
-		itemXml.appendChild(energyXml)
-		itemXml.appendChild(spaceXml)
-		itemXml.appendChild(imgXml)
-		itemXml.appendChild(nameXml)
-		
-		return itemXml
-			
 	def loadFromBdd(self):
 		query="SELECT star006_template_star004,star006_container_starnnn,star006_containertype,star006_owner_star001,star006_location "
 		query+=" FROM star006_item "

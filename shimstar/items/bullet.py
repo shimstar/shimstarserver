@@ -18,7 +18,8 @@ class Bullet(threading.Thread):
 		self.range=range
 		self.speed=speed
 		self.lastSentTicks=0
-		world,worldNP=self.weapon.getShip().getWorld()
+		worldNP=self.weapon.worldNP
+		world=self.weapon.world
 		visNP = loader.loadModel("models/" + egg)
 		geom = visNP.findAllMatches('**/+GeomNode').getPath(0).node().getGeom(0)			
 		shape=BulletConvexHullShape()

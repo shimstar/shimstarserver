@@ -13,7 +13,7 @@ from shimstar.core.constantes import *
 class Ship(ShimItem):
 	className="ship"
 	def __init__(self,id=0,template=0):
-		super(Ship,self).__init__(id,template)	
+		self.id=id
 		self.pos=Point3(0,0,0)
 		self.hpr=Point3(0,0,0)
 		self.slots=[]
@@ -26,6 +26,7 @@ class Ship(ShimItem):
 		self.frictionVelocity=0
 		self.weapon=None
 		self.lastSentTicks=0
+		self.shipTemplate=template
 		self.state=0
 		self.maxhullpoints=0
 		self.hullpoints=0
@@ -46,6 +47,7 @@ class Ship(ShimItem):
 			self.loadFromBDD()
 		elif self.template!=0:
 			self.loadFromTemplate()
+		super(Ship,self).__init__(id,self.template)	
 			
 		print "ship::__init__" + str(self.id)
 			
@@ -180,9 +182,10 @@ class Ship(ShimItem):
 		query="SELECT star005_egg,star005_hull,star005_mass,star005_maniability,star005_img,star005_item_star004 "
 		query+=", star004_name"
 		query+=" FROM STAR005_SHIP_TEMPLATE join star004_item_template on star005_item_star004=star004_id"
-		query+=" WHERE STAR005_id ='" + str(self.template) + "'"
+		query+=" WHERE STAR005_id ='" + str(self.shipTemplate) + "'"
 		cursor=instanceDbConnector.getConnection().cursor()
 		cursor.execute(query)
+		print query
 		result_set = cursor.fetchall ()
 		for row in result_set:
 			self.maniability=int(row[3])
@@ -193,9 +196,10 @@ class Ship(ShimItem):
 			self.img=row[4]
 			self.type=self.template
 			self.hullpoints=int(row[1])
-			self.itemTemplate=int(row[5])
+			self.template=int(row[5])
 			self.name=str(row[6])
 		cursor.close()
+		print "earerar " + str(self.template)
 		
 		cursor=instanceDbConnector.getConnection().cursor()
 		query="SELECT star009_id FROM star009_slot WHERE star009_ship_star005='" + str(self.template) + "'"
@@ -214,13 +218,13 @@ class Ship(ShimItem):
 		
 	def loadFromBDD(self):
 		query="SELECT star007_fitted,star005_egg,star005_hull,star005_mass,star005_torque,star005_img,star007_template_star005shiptemplate,star007_hull "
-		query+=" ,star007_posx,star007_posy,star007_posz,star005_friction_angular,star005_friction_velocity"
+		query+=" ,star007_posx,star007_posy,star007_posz,star005_friction_angular,star005_friction_velocity,star007_item_star006"
 		query+=",star004_name"
 		query+=" FROM star007_ship ship JOIN star005_ship_template shiptemplate ON ship.star007_template_star005shiptemplate = shiptemplate.star005_id  "
 		query+=" join star004_item_template on star005_item_star004=star004_id "
 		query+="where star007_id ='" + str(self.id) + "'"
 		#~ print "ship::LoadFromBdd "
-		#~ print query
+		print query
 		instanceDbConnector=shimDbConnector.getInstance()
 		cursor=instanceDbConnector.getConnection().cursor()
 		cursor.execute(query)
@@ -237,8 +241,9 @@ class Ship(ShimItem):
 			self.pos=Vec3(float(row[8]),float(row[9]),float(row[10]))
 			self.frictionAngular=float(row[11])
 			self.frictionVelocity=float(row[12])
-			self.name=str(row[13])
-			self.template=int(row[6])
+			self.name=str(row[14])
+			self.shipTemplate=int(row[6])
+			self.template=int(row[13])
 			
 		cursor.close()
 		
@@ -257,6 +262,8 @@ class Ship(ShimItem):
 				self.weapon=tempSlot.getItem()
 				self.weapon.setShip(self)
 		cursor.close()
+		
+		print "ship::loadFromBdd weapon " + str(self.weapon)
 		
 		cursor=instanceDbConnector.getConnection().cursor()
 		query="SELECT star004_type_star003,star006_id FROM star006_item item JOIN star004_item_template itemTemplate ON item.star006_template_star004 = itemTemplate.star004_id WHERE star006_containertype ='star007_ship' and star006_container_starnnn='" + str(self.id) + "'"
@@ -334,12 +341,13 @@ class Ship(ShimItem):
 				#~ self.bodyNP.node().setAngularVelocity((self.bodyNP.node().getAngularVelocity().getX()*self.frictionAngular,self.bodyNP.node().getAngularVelocity().getY()*self.frictionAngular,self.bodyNP.node().getAngularVelocity().getZ()*self.frictionAngular))
 				av=self.bodyNP.node().getAngularVelocity()
 		
-				av2=av*self.frictionVelocity
+				#~ av2=av*self.frictionVelocity
+				av2=av*0.72
 				self.bodyNP.node().setAngularVelocity(av2)
-				av=self.bodyNP.node().getAngularVelocity()
+				#~ av=self.bodyNP.node().getAngularVelocity()
 		
-				av2=av*0.8
-				self.bodyNP.node().setAngularVelocity(av2)
+				#~ av2=av*0.8
+				#~ self.bodyNP.node().setAngularVelocity(av2)
 				
 	
 	def getPoussee(self):
@@ -387,7 +395,8 @@ class Ship(ShimItem):
 			cursor.execute(query)
 			cursor.close()
 		elif self.id==0:
-			query="INSERT INTO STAR006_ITEM (star006_template_star004,star006_container_starnnn,star006_containertype,star006_owner_star001,star006_location)"
+			query="INSERT INTO STAR006_ITEM "
+			query+="(star006_template_star004,star006_container_starnnn,star006_containertype,star006_owner_star001,star006_location)"
 			query+=" values  ('" + str(self.template) + "','" + str(self.owner.id) + "',"
 			if self.owner.getClassName()=='character':
 				query+="'star002_character'"
@@ -448,6 +457,9 @@ class Ship(ShimItem):
 		world.attachRigidBody(self.bodyNP.node())
 		visNP.reparentTo(self.bodyNP)
 		self.state=1
+		if self.weapon!=None:
+			self.weapon.setShip(self)
 		
 	def getWeapon(self):
 		return self.weapon
+		

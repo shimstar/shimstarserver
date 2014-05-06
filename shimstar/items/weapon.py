@@ -20,9 +20,14 @@ class Weapon(ShimItem):
 		self.zone=0		
 		self.ship=None
 		self.loadFromTemplate()
+		self.world=None
+		self.worldNP=None
 		
 	def setShip(self,ship):
 		self.ship=ship
+		self.world=ship.world
+		self.worldNP=ship.worldNP
+	
 		
 	def getShip(self):
 		return self.ship
