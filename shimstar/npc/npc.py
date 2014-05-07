@@ -53,24 +53,6 @@ class NPC:
 		
 	def getShip(self):
 		return self.ship
-	
-	def getXml(self):
-		doc = xml.dom.minidom.Document()
-		npcxml=doc.createElement("npc")
-		nameNpc=doc.createElement("name")
-		nameNpc.appendChild(doc.createTextNode(self.name))
-		idNpc=doc.createElement("idnpc")
-		idNpc.appendChild(doc.createTextNode(str(str(self.id))))
-		idZoneNpc=doc.createElement("idZone")
-		idZoneNpc.appendChild(doc.createTextNode(str(self.zone.id)))
-		factionNpc=doc.createElement("faction")
-		factionNpc.appendChild(doc.createTextNode(str(self.faction)))
-		npcxml.appendChild(nameNpc)
-		npcxml.appendChild(idNpc)
-		npcxml.appendChild(idZoneNpc)
-		npcxml.appendChild(self.ship.getXml())
-		doc.appendChild(npcxml)
-		return doc
 		
 	def loadFromBDD(self):
 		query="SELECT star034_name,star034_zone_star011zone,star034_template_star035,star034_event_star047 FROM star034_npc WHERE star034_id='"+ str(self.id) +"'"
@@ -87,7 +69,9 @@ class NPC:
 		#~ self.loadXml()
 		
 	def loadTemplateFromBDD(self):
-		query="SELECT star035_ship_star005,star035_name FROM star035_npc_template WHERE star035_id='"+ str(self.template)+"'"
+		#~ query="SELECT star035_ship_star005,star035_name FROM star035_npc_template WHERE star035_id='"+ str(self.template)+"'"
+		query="SELECT star035_ship_star005,star035_name,star035_id_behaviour,star035_id_zone_behaviour_star011,star011_name "
+		query+=" FROM star035_npc_template JOIN star011_zone ON star035_id_zone_behaviour_star011 = star011_id WHERE star035_id='"+ str(self.template)+"'"
 		print "npc::loadTEmplateFromBDD ::::"  + str(query)
 		instanceDbConnector=shimDbConnector.getInstance()
 		cursor=instanceDbConnector.getConnection().cursor()
@@ -96,7 +80,12 @@ class NPC:
 		for row in result_set:
 			self.ship=Ship(0,int(row[0]))
 			self.name=row[1]
+			idbehav=row[2]
+			zoneName=row[4]
 		cursor.close()
+		self.ship.loadEgg(self.zone.world,self.zone.worldNP)
+		self.attitude.loadBehavior(idbehav,zoneName)
+		
 		
 	def loadShipFromBDD(self):
 		query="SELECT star007_id FROM star007_ship ship JOIN  star006_item item ON item.star006_id=ship.star007_item_star006 "

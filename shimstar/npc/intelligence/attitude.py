@@ -1,3 +1,6 @@
+import os, sys
+import os.path
+import xml.dom.minidom
 from shimstar.core.constantes import *
 from shimstar.npc.intelligence.commons.commons import *
 from shimstar.npc.intelligence.behaviors.behavior import *
@@ -13,6 +16,24 @@ class Attitude:
 		self.currentBehavior=-1
 		self.attitude={}
 		self.npc=npc
+		
+	def loadBehavior(self,id,zone):
+		#~ print "Attitude::loadBehavior " + str(id) + "/" + str(zone)
+		
+		if os.path.exists("./config/behaviour/"+str(zone) + "/" + str(id) + ".xml")==True:
+			dom = xml.dom.minidom.parse("./config/behaviour/"+str(zone) + "/" + str(id) + ".xml")
+			pp=dom.getElementsByTagName('patrolpoint')
+			beh=self.setBehavior(C_BEHAVIOR_PATROL)
+			for p in pp:
+				pos=p.firstChild.data
+				tabpos=pos.split(",")
+				print "attitude::loadBehavior " + str(tabpos)
+				beh.addPatrolPoint(Vec3(float(tabpos[0]),float(tabpos[1]),float(tabpos[2])))
+			atti=dom.getElementsByTagName('attitude')
+			for a in atti:
+				typeAtti=int(a.getElementsByTagName('typeattitude')[0].firstChild.data)
+				lvlAtti=int(a.getElementsByTagName('levelattitude')[0].firstChild.data)
+				self.addAttitude(typeAtti,lvlAtti)
 		
 	def getBehaviors(self):
 		return self.behavior

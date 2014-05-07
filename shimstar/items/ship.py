@@ -202,7 +202,8 @@ class Ship(ShimItem):
 		cursor.close()
 		
 		cursor=instanceDbConnector.getConnection().cursor()
-		query="SELECT star009_id FROM star009_slot WHERE star009_ship_star005='" + str(self.template) + "'"
+		query="SELECT star009_id FROM star009_slot WHERE star009_ship_star005='" + str(self.shipTemplate) + "'"
+		print "ship::loadFromTemplate " + str(query)
 		cursor.execute(query)
 		result_set = cursor.fetchall ()
 		self.slots=[]
@@ -213,7 +214,7 @@ class Ship(ShimItem):
 				self.engine=tempSlot.getItem()
 			if tempSlot.getItem()!=None and tempSlot.getItem().getTypeItem()==C_ITEM_WEAPON:
 				self.weapon=tempSlot.getItem()
-			
+		
 		cursor.close()
 		
 	def loadFromBDD(self):
@@ -290,41 +291,11 @@ class Ship(ShimItem):
 			if self.worldNP!=None:
 				self.bodyNP.node().setActive(True)		
 				forwardVec=self.bodyNP.getQuat().getForward()
-				
-				#~ if self.pyr['y']!=0 and self.pousseeTorqueY<self.torque:
-					#~ self.pousseeTorqueY+=self.torque/10
-				#~ else:
-					#~ if self.pousseeTorqueY>0:
-						#~ self.pousseeTorqueY-=self.torque/5
-					#~ else:
-						#~ self.pousseeTorqueY=0
-					
-				#~ if self.pyr['p']!=0 and self.pousseeTorqueP<self.torque:
-					#~ self.pousseeTorqueP+=self.torque/10
-				#~ else:
-					#~ if self.pousseeTorqueP>0:
-						#~ self.pousseeTorqueP-=self.torque/5
-					#~ else:
-						#~ self.pousseeTorqueP=0
-				
-				#~ v=Vec3(self.pyr['y']*self.pousseeTorqueY,0.0,self.pyr['p']*self.pousseeTorqueP)
-				
+	
 				v=Vec3(self.mousePosY*self.torque,0.0,float(self.mousePosX)*float(self.torque))
 				#~ print "torque = " + str(self.mousePosX*self.torque) + "/" + str(self.mousePosX) + "/" + str(float(self.mousePosX)*float(self.torque)) +" /" + str(self.id)
 				v= self.worldNP.getRelativeVector(self.bodyNP,v) 
 				self.bodyNP.node().applyTorque(v)
-				
-				#~ if self.engine!=None:
-					#~ if self.pyr['a']==1:
-						#~ if self.poussee<self.engine.getSpeedMax():
-							#~ self.poussee+=self.engine.getAcceleration()
-					#~ else:
-						#~ if self.poussee>0:
-							#~ self.poussee-=self.engine.getAcceleration()
-					#~ if self.pyr['w']==1:
-						#~ if self.poussee>0:
-							#~ self.poussee-=self.engine.getAcceleration()
-				
 					
 				if self.engine!=None:
 					if self.mouseWheel!=0:
@@ -342,7 +313,7 @@ class Ship(ShimItem):
 				lv2=lv*self.frictionVelocity
 				self.bodyNP.node().setLinearVelocity(lv2)
 				av=self.bodyNP.node().getAngularVelocity()
-				av2=av*self.frictionVelocity				
+				av2=av*self.frictionAngular				
 				self.bodyNP.node().setAngularVelocity(av2)
 				
 				
