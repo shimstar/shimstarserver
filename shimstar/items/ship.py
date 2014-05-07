@@ -26,6 +26,7 @@ class Ship(ShimItem):
 		self.frictionVelocity=0
 		self.weapon=None
 		self.lastSentTicks=0
+		self.template=template
 		self.shipTemplate=template
 		self.state=0
 		self.maxhullpoints=0
@@ -49,7 +50,7 @@ class Ship(ShimItem):
 			self.loadFromTemplate()
 		super(Ship,self).__init__(id,self.template)	
 			
-		print "ship::__init__" + str(self.id)
+		print "ship::__init__ id=" + str(self.id) + "/tempalte= " + str(self.template)
 			
 	def setMouseWheel(self,s):
 		self.mouseWheel=s
@@ -185,7 +186,7 @@ class Ship(ShimItem):
 		query+=" WHERE STAR005_id ='" + str(self.shipTemplate) + "'"
 		cursor=instanceDbConnector.getConnection().cursor()
 		cursor.execute(query)
-		print query
+		#~ print "ship::loadFRomTemplate ::" + str(query)
 		result_set = cursor.fetchall ()
 		for row in result_set:
 			self.maniability=int(row[3])
@@ -199,7 +200,6 @@ class Ship(ShimItem):
 			self.template=int(row[5])
 			self.name=str(row[6])
 		cursor.close()
-		print "earerar " + str(self.template)
 		
 		cursor=instanceDbConnector.getConnection().cursor()
 		query="SELECT star009_id FROM star009_slot WHERE star009_ship_star005='" + str(self.template) + "'"
@@ -224,7 +224,7 @@ class Ship(ShimItem):
 		query+=" join star004_item_template on star005_item_star004=star004_id "
 		query+="where star007_id ='" + str(self.id) + "'"
 		#~ print "ship::LoadFromBdd "
-		print query
+		#~ print "Ship::loadFromBDD id =" + str(self.id) + "/" + str(query)
 		instanceDbConnector=shimDbConnector.getInstance()
 		cursor=instanceDbConnector.getConnection().cursor()
 		cursor.execute(query)
@@ -244,7 +244,7 @@ class Ship(ShimItem):
 			self.name=str(row[14])
 			self.shipTemplate=int(row[6])
 			self.template=int(row[13])
-			
+		print "ship::loadFromBdd " + str(self.shipTemplate)
 		cursor.close()
 		
 		cursor=instanceDbConnector.getConnection().cursor()
@@ -337,17 +337,14 @@ class Ship(ShimItem):
 							
 				self.bodyNP.node().applyCentralForce(Vec3(forwardVec.getX()*self.poussee,forwardVec.getY()*self.poussee,forwardVec.getZ()*self.poussee))
 
-				self.bodyNP.node().setLinearVelocity((self.bodyNP.node().getLinearVelocity().getX()*self.frictionVelocity,self.bodyNP.node().getLinearVelocity().getY()*self.frictionVelocity,self.bodyNP.node().getLinearVelocity().getZ()*self.frictionVelocity))
-				#~ self.bodyNP.node().setAngularVelocity((self.bodyNP.node().getAngularVelocity().getX()*self.frictionAngular,self.bodyNP.node().getAngularVelocity().getY()*self.frictionAngular,self.bodyNP.node().getAngularVelocity().getZ()*self.frictionAngular))
+				#~ self.bodyNP.node().setLinearVelocity((self.bodyNP.node().getLinearVelocity().getX()*self.frictionVelocity,self.bodyNP.node().getLinearVelocity().getY()*self.frictionVelocity,self.bodyNP.node().getLinearVelocity().getZ()*self.frictionVelocity))
+				lv=self.bodyNP.node().getLinearVelocity()
+				lv2=lv*self.frictionVelocity
+				self.bodyNP.node().setLinearVelocity(lv2)
 				av=self.bodyNP.node().getAngularVelocity()
-		
-				#~ av2=av*self.frictionVelocity
-				av2=av*0.72
+				av2=av*self.frictionVelocity				
 				self.bodyNP.node().setAngularVelocity(av2)
-				#~ av=self.bodyNP.node().getAngularVelocity()
-		
-				#~ av2=av*0.8
-				#~ self.bodyNP.node().setAngularVelocity(av2)
+				
 				
 	
 	def getPoussee(self):
@@ -409,7 +406,7 @@ class Ship(ShimItem):
 			self.itemId=int(cursor.lastrowid)
 			cursor.close()
 			query="INSERT INTO STAR007_ship (star007_item_star006,star007_fitted,star007_template_star005shiptemplate,star007_hull) "
-			query+=" values ('"+str(self.itemId)+"','1','"+str(self.template)+"','"+str(self.hullpoints)+"')"
+			query+=" values ('"+str(self.itemId)+"','1','"+str(self.shipTemplate)+"','"+str(self.hullpoints)+"')"
 			cursor=instanceDbConnector.getConnection().cursor()
 			cursor.execute(query)
 			self.id=int(cursor.lastrowid)
@@ -441,7 +438,9 @@ class Ship(ShimItem):
 		"""
 		self.world=world
 		self.worldNP=worldNP
+		#~ print "ship::loadEgg " + str(self.egg)
 		visNP = loader.loadModel(self.egg)
+		
 		geom = visNP.findAllMatches('**/+GeomNode').getPath(0).node().getGeom(0)			
 		shape=BulletConvexHullShape()
 		shape.addGeom(geom)

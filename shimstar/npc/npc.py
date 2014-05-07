@@ -9,6 +9,7 @@ from shimstar.items.ship import *
 class NPC:
 	listOfNpc={}
 	def __init__(self,id=0,idtemplate=0,zone=0):
+		print "NPC::__init__" + str(id) + "/" + str(idtemplate)
 		self.zone=zone
 		self.ship=None
 		self.template=idtemplate
@@ -87,6 +88,7 @@ class NPC:
 		
 	def loadTemplateFromBDD(self):
 		query="SELECT star035_ship_star005,star035_name FROM star035_npc_template WHERE star035_id='"+ str(self.template)+"'"
+		print "npc::loadTEmplateFromBDD ::::"  + str(query)
 		instanceDbConnector=shimDbConnector.getInstance()
 		cursor=instanceDbConnector.getConnection().cursor()
 		cursor.execute(query)
@@ -99,7 +101,7 @@ class NPC:
 	def loadShipFromBDD(self):
 		query="SELECT star007_id FROM star007_ship ship JOIN  star006_item item ON item.star006_id=ship.star007_item_star006 "
 		query+=" WHERE star007_fitted=1 and  star006_container_starnnn='" + str(self.id) + "' AND star006_containertype='star034_npc'"
-		print query
+		print "NPC::loadShipFromBDD :: " + str(query)
 		instanceDbConnector=shimDbConnector.getInstance()
 		cursor=instanceDbConnector.getConnection().cursor()
 		cursor.execute(query)
