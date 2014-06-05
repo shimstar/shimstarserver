@@ -31,8 +31,13 @@ class Bullet(threading.Thread):
 		self.bodyNP.setQuat(quat)
 		pt1,pt2=self.weapon.ship.bodyNP.getTightBounds()
 		xDim = pt2.getX() - pt1.getX() 
-
-		self.bodyNP.setPos(weapon.ship.bodyNP,Vec3(0,xDim,0))
+		yDim = pt2.getY() - pt1.getY() 
+		
+		#~ print "bullet dims " +  str(xDim) + "/" + str(yDim)
+		dim=xDim
+		if xDim<yDim:
+			dim=yDim
+		self.bodyNP.setPos(weapon.ship.bodyNP,Vec3(0,dim+(dim/5),0))
 		#~ self.bodyNP.setPos(weapon.ship.bodyNP,Vec3(0,200,0))
 		self.initPos=self.bodyNP.getPos()
 		self.bodyNP.setCollideMask(BitMask32.allOn())
