@@ -180,30 +180,28 @@ class Ship(ShimItem):
 			Load a ship from a template (the id of the template is given in the constructor)
 		"""
 		instanceDbConnector=shimDbConnector.getInstance()
-		query="SELECT star005_egg,star005_hull,star005_mass,star005_maniability,star005_img,star005_item_star004 "
+		query="SELECT star005_egg,star005_hull,star005_mass,star004_id"
 		query+=", star004_name"
-		query+=" FROM STAR005_SHIP_TEMPLATE join star004_item_template on star005_item_star004=star004_id"
+		query+=" FROM STAR005_SHIP_TEMPLATE join star004_item_template on star005_id=star004_specific_starxxx AND star004_type_star003 = '" + str(C_ITEM_SHIP) + "'"
 		query+=" WHERE STAR005_id ='" + str(self.shipTemplate) + "'"
 		cursor=instanceDbConnector.getConnection().cursor()
 		cursor.execute(query)
 		#~ print "ship::loadFRomTemplate ::" + str(query)
 		result_set = cursor.fetchall ()
 		for row in result_set:
-			self.maniability=int(row[3])
 			self.maxhullpoints=int(row[1])
 			self.egg=row[0]
 			self.fitted=1
 			self.mass=float(row[2])
-			self.img=row[4]
 			self.type=self.template
 			self.hullpoints=int(row[1])
-			self.template=int(row[5])
-			self.name=str(row[6])
+			self.template=int(row[3])
+			self.name=str(row[4])
 		cursor.close()
 		
 		cursor=instanceDbConnector.getConnection().cursor()
 		query="SELECT star009_id FROM star009_slot WHERE star009_ship_star005='" + str(self.shipTemplate) + "'"
-		print "ship::loadFromTemplate " + str(query)
+		#~ print "ship::loadFromTemplate " + str(query)
 		cursor.execute(query)
 		result_set = cursor.fetchall ()
 		self.slots=[]
@@ -218,12 +216,12 @@ class Ship(ShimItem):
 		cursor.close()
 		
 	def loadFromBDD(self):
-		query="SELECT star007_fitted,star005_egg,star005_hull,star005_mass,star005_torque,star005_img,star007_template_star005shiptemplate,star007_hull "
+		query="SELECT star007_fitted,star005_egg,star005_hull,star005_mass,star005_torque,star005_egg,star007_template_star005shiptemplate,star007_hull "
 		query+=" ,star007_posx,star007_posy,star007_posz,star005_friction_angular,star005_friction_velocity,star007_item_star006"
 		query+=",star004_name"
 		query+=" FROM star007_ship ship JOIN star005_ship_template shiptemplate ON ship.star007_template_star005shiptemplate = shiptemplate.star005_id  "
-		query+=" join star004_item_template on star005_item_star004=star004_id "
-		query+="where star007_id ='" + str(self.id) + "'"
+		query+=" join star004_item_template on star005_id=star004_specific_starxxx"
+		query+=" where star007_id ='" + str(self.id) + "' AND star004_type_star003 = '" + str(C_ITEM_SHIP) + "'"
 		#~ print "ship::LoadFromBdd "
 		#~ print "Ship::loadFromBDD id =" + str(self.id) + "/" + str(query)
 		instanceDbConnector=shimDbConnector.getInstance()
@@ -236,7 +234,6 @@ class Ship(ShimItem):
 			self.egg=row[1]
 			self.fitted=int(row[0])
 			self.mass=float(row[3])
-			self.img=row[5]
 			self.type=int(row[6])
 			self.hullpoints=int(row[7])
 			self.pos=Vec3(float(row[8]),float(row[9]),float(row[10]))
@@ -245,7 +242,7 @@ class Ship(ShimItem):
 			self.name=str(row[14])
 			self.shipTemplate=int(row[6])
 			self.template=int(row[13])
-		print "ship::loadFromBdd " + str(self.shipTemplate)
+		#~ print "ship::loadFromBdd " + str(self.shipTemplate)
 		cursor.close()
 		
 		cursor=instanceDbConnector.getConnection().cursor()
@@ -264,7 +261,7 @@ class Ship(ShimItem):
 				self.weapon.setShip(self)
 		cursor.close()
 		
-		print "ship::loadFromBdd weapon " + str(self.weapon)
+		#~ print "ship::loadFromBdd weapon " + str(self.weapon)
 		
 		cursor=instanceDbConnector.getConnection().cursor()
 		query="SELECT star004_type_star003,star006_id FROM star006_item item JOIN star004_item_template itemTemplate ON item.star006_template_star004 = itemTemplate.star004_id WHERE star006_containertype ='star007_ship' and star006_container_starnnn='" + str(self.id) + "'"
@@ -314,8 +311,9 @@ class Ship(ShimItem):
 				self.bodyNP.node().setLinearVelocity(lv2)
 				av=self.bodyNP.node().getAngularVelocity()
 				av2=av*self.frictionAngular				
+				#~ av2=av*0.3				
 				self.bodyNP.node().setAngularVelocity(av2)
-				
+				#~ print "ship::runphysics " + str(self.id) + "/" +str(self.bodyNP.node().getAngularVelocity())
 				
 	
 	def getPoussee(self):
