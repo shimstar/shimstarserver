@@ -50,7 +50,7 @@ class BehaviorAttack(behavior):
 			x==1
 		if y==0:
 			y=-1
-		dist=random.randint(200,500)
+		dist=random.randint(300,700)
 		p1=NodePath('PatrolPoint' +str(self.npc.id) + "_" + str(self.nbA))
 		p1.setQuat(self.ship.bodyNP.getQuat())
 		p1.setPos(self.target.getPos())
@@ -61,7 +61,7 @@ class BehaviorAttack(behavior):
 			x==-1
 		if y==0:
 			y=1
-		dist=random.randint(200,500)
+		dist=random.randint(300,700)
 		self.nbA+=1
 		p2=NodePath('PatrolPoint' +str(self.npc.id) + "_"+ str(self.nbA))
 		p2.setQuat(self.ship.bodyNP.getQuat())
@@ -69,7 +69,7 @@ class BehaviorAttack(behavior):
 		p2.setPos(p2,(dist*x,0,dist*y))
 		x=random.randint(-1,1)
 		y=random.randint(-1,1)
-		dist=random.randint(200,500)
+		dist=random.randint(300,700)
 		if x==0:
 			x==-1
 		if y==0:
