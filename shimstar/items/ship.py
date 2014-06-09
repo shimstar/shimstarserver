@@ -283,38 +283,53 @@ class Ship(ShimItem):
 			on each step, add torque and forces to ship node.
 			It uses the self.pyr saved keypressed
 		"""
-		#~ print "SHip::runPhysics " + str(self.id) + " " + str(self.engine)
+		
+		#~ if self.bodyNP!=None and self.bodyNP.isEmpty()==False:			
+			#~ if self.worldNP!=None:
+				#~ self.bodyNP.node().setActive(True)		
+				#~ forwardVec=self.bodyNP.getQuat().getForward()
+	
+				#~ v=Vec3(self.mousePosY*self.torque,0.0,float(self.mousePosX)*float(self.torque))
+				#~ v= self.worldNP.getRelativeVector(self.bodyNP,v) 
+				#~ self.bodyNP.node().applyTorque(v)
+					
+				#~ if self.engine!=None:
+					#~ if self.mouseWheel!=0:
+						#~ self.poussee+=self.mouseWheel
+						#~ if self.poussee<0:
+							#~ self.poussee=0
+						#~ elif self.poussee>=self.engine.getSpeedMax():
+							#~ self.poussee=self.engine.getSpeedMax()
+						#~ self.mouseWheel=0
+							
+				#~ self.bodyNP.node().applyCentralForce(Vec3(forwardVec.getX()*self.poussee,forwardVec.getY()*self.poussee,forwardVec.getZ()*self.poussee))
+
+				#~ lv=self.bodyNP.node().getLinearVelocity()
+				#~ lv2=lv*self.frictionVelocity
+				#~ self.bodyNP.node().setLinearVelocity(lv2)
+				#~ av=self.bodyNP.node().getAngularVelocity()
+				#~ av2=av*self.frictionAngular				
+				#~ self.bodyNP.node().setAngularVelocity(av2)
 		if self.bodyNP!=None and self.bodyNP.isEmpty()==False:			
 			if self.worldNP!=None:
 				self.bodyNP.node().setActive(True)		
 				forwardVec=self.bodyNP.getQuat().getForward()
-	
-				v=Vec3(self.mousePosY*self.torque,0.0,float(self.mousePosX)*float(self.torque))
-				#~ print "torque = " + str(self.mousePosX*self.torque) + "/" + str(self.mousePosX) + "/" + str(float(self.mousePosX)*float(self.torque)) +" /" + str(self.id)
+				v=Vec3(self.pyr['y']*self.torque,0.0,self.pyr['p']*self.torque)
 				v= self.worldNP.getRelativeVector(self.bodyNP,v) 
 				self.bodyNP.node().applyTorque(v)
-					
+				
 				if self.engine!=None:
-					if self.mouseWheel!=0:
-						self.poussee+=self.mouseWheel
-						if self.poussee<0:
-							self.poussee=0
-						elif self.poussee>=self.engine.getSpeedMax():
-							self.poussee=self.engine.getSpeedMax()
-						self.mouseWheel=0
+					if self.pyr['a']==1:
+						if self.poussee<self.engine.getSpeedMax():
+							self.poussee+=self.engine.getAcceleration()
+					if self.pyr['w']==1:
+						if self.poussee>0:
+							self.poussee-=self.engine.getAcceleration()
 							
 				self.bodyNP.node().applyCentralForce(Vec3(forwardVec.getX()*self.poussee,forwardVec.getY()*self.poussee,forwardVec.getZ()*self.poussee))
 
-				#~ self.bodyNP.node().setLinearVelocity((self.bodyNP.node().getLinearVelocity().getX()*self.frictionVelocity,self.bodyNP.node().getLinearVelocity().getY()*self.frictionVelocity,self.bodyNP.node().getLinearVelocity().getZ()*self.frictionVelocity))
-				lv=self.bodyNP.node().getLinearVelocity()
-				lv2=lv*self.frictionVelocity
-				self.bodyNP.node().setLinearVelocity(lv2)
-				av=self.bodyNP.node().getAngularVelocity()
-				av2=av*self.frictionAngular				
-				#~ av2=av*0.3				
-				self.bodyNP.node().setAngularVelocity(av2)
-				#~ print "ship::runphysics " + str(self.id) + "/" +str(self.bodyNP.node().getAngularVelocity())
-				
+				self.bodyNP.node().setLinearVelocity((self.bodyNP.node().getLinearVelocity().getX()*self.frictionVelocity,self.bodyNP.node().getLinearVelocity().getY()*self.frictionVelocity,self.bodyNP.node().getLinearVelocity().getZ()*self.frictionVelocity))
+				self.bodyNP.node().setAngularVelocity((self.bodyNP.node().getAngularVelocity().getX()*self.frictionAngular,self.bodyNP.node().getAngularVelocity().getY()*self.frictionAngular,self.bodyNP.node().getAngularVelocity().getZ()*self.frictionAngular))
 	
 	def getPoussee(self):
 		return self.poussee
