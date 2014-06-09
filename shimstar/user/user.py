@@ -155,6 +155,13 @@ class User(threading.Thread):
 			if ch.getId()==id:
 				ch.destroy()
 				ch.delete()
+				
+	def getCharacterById(self,id):
+		for c in self.listOfCharacter:
+			if c.getId()==id:
+				return c
+				
+		return None
 	
 	def addCharacter(self,name,face):
 		"""

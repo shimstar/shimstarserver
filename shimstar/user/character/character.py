@@ -17,6 +17,7 @@ class character:
 		self.current=False
 		self.lastStation=3
 		self.ship=None
+		self.readDialogs=[]
 		if self.id!=0:
 			self.loadFromBDD()
 		#~ print self.ship
@@ -70,6 +71,56 @@ class character:
 		cursor.close()
 		
 		self.loadShipFromBDD()
+		
+	def loadReadDialogs(self):
+		query = "select star029_dialogue_star025 from star029_character_dialogue where star029_character_star002 = '" + str(self.id) + "'"
+		instanceDbConnector=shimDbConnector.getInstance()
+		cursor=instanceDbConnector.getConnection().cursor()
+		cursor.execute(query)
+		result_set = cursor.fetchall ()
+		for row in result_set:
+			self.readDialogs.append(int(row[0]))
+		cursor.close()
+		
+	def getReadDialogs(self):
+		if len(self.readDialogs)==0: # if len == 0, maybe there is no readDialogs, or maybe we have just not read it
+			self.loadReadDialogs()
+		return self.readDialogs
+		
+	def appendReadDialog(self,idDialogue):
+		self.readDialogs.append(idDialogue)
+		query = "insert into star029_character_dialogue (star029_dialogue_star025,star028_character_star002)"
+		query +=" values ('" + str(r) + "','" + str(self.id) + "')"
+		instanceDbConnector=shimDbConnector.getInstance()
+
+		cursor=instanceDbConnector.getConnection().cursor()
+		cursor.execute(query)
+		cursor.close()
+			
+		instanceDbConnector.commit()
+		
+	def saveReadDialog(self):
+		query = "delete from star029_character_dialog where star029_character_star002 =  '" + str(self.id) + "'"
+		instanceDbConnector=shimDbConnector.getInstance()
+
+		cursor=instanceDbConnector.getConnection().cursor()
+		cursor.execute(query)
+		cursor.close()
+		for r in self.readDialogs:
+			query = "insert into star029_character_dialogue (star029_dialogue_star025,star028_character_star002)"
+			query +=" values ('" + str(r) + "','" + str(self.id) + "')"
+			instanceDbConnector=shimDbConnector.getInstance()
+
+			cursor=instanceDbConnector.getConnection().cursor()
+			cursor.execute(query)
+			cursor.close()
+			
+		instanceDbConnector.commit()
+		
+	def sendReadDialogs(self,nm):
+		nm.addInt(len(self.readDialogs))
+		for d in self.readDialogs:
+			nm.addInt(d)
 		
 	def loadShipFromBDD(self):
 		"""

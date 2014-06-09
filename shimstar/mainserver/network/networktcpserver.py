@@ -231,6 +231,30 @@ class NetworkTCPServer():
 			user=myIterator.getString()
 			pwd=myIterator.getString()
 			self.createNewUser(user,pwd,connexion)
+		elif msgID==C_NETWORK_ASK_READ_DIALOG:
+			idUser=int(myIterator.getUint32())
+			idChar=int(myIterator.getUint32())
+			userFound=None
+			for u in User.listOfUser:
+				if u==int(idUser):
+					userFound=User.listOfUser[u]
+			if userFound!=None:
+				ch=userFound.getCharacterById(idChar)
+				if ch !=None:
+					nm=netMessage(C_NETWORK_ASK_READ_DIALOG,connexion)
+					ch.sendReadDialogs(nm)
+					NetworkMessage.getInstance().addMessage(nm)
+		elif msgID==C_NETWORK_APPEND_READ_DIALOG:
+			idUser=int(myIterator.getUint32())
+			idChar=int(myIterator.getUint32())
+			userFound=None
+			for u in User.listOfUser:
+				if u==int(idUser):
+					userFound=User.listOfUser[u]
+			if userFound!=None:
+				ch=userFound.getCharacterById(idChar)
+				if ch !=None:
+					ch.appendReadDialog(int(myIterator.getUint32()))
 			
 	def createNewUser(self,usr,pwd,connexion):
 		"""
