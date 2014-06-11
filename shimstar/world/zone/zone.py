@@ -162,12 +162,12 @@ class Zone(threading.Thread):
 					objCollided.takeDamage(Bullet.listOfBullet[b].getDamage(),Bullet.listOfBullet[b].getShipOwner(),isinstance(objCollided.getOwner(),Character))
 					User.lock.acquire()
 					for u in User.listOfUser:
-						print "zone::run collision " + str(isinstance(objCollided.getOwner(),Character))
+						#~ print "zone::run collision " + str(isinstance(objCollided.getOwner(),Character))
 						if isinstance(objCollided.getOwner(),character)!=True:
 							nm=netMessage(C_NETWORK_TAKE_DAMAGE_NPC,User.listOfUser[u].getConnexion())
 						else:
 							nm=netMessage(C_NETWORK_TAKE_DAMAGE_CHAR,User.listOfUser[u].getConnexion())
-						print "zone::run objCollided.getOwner.getID == " + str(objCollided.getOwner().getId())
+						#~ print "zone::run objCollided.getOwner.getID == " + str(objCollided.getOwner().getId())
 						nm.addInt(objCollided.getOwner().getId())
 						nm.addInt(Bullet.listOfBullet[b].getDamage())
 						NetworkMessage.getInstance().addMessage(nm)
@@ -175,7 +175,7 @@ class Zone(threading.Thread):
 					if objCollided.getHullPoints()==0:
 						User.lock.acquire()
 						for u in User.listOfUser:
-							print "zone::run collision " + str(isinstance(objCollided.getOwner(),character))
+							#~ print "zone::run collision " + str(isinstance(objCollided.getOwner(),character))
 							if isinstance(objCollided.getOwner(),character)!=True:
 								nm=netMessage(C_NETWORK_REMOVE_NPC,User.listOfUser[u].getConnexion())
 							else:

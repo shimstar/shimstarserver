@@ -244,6 +244,13 @@ class NetworkTCPServer():
 					nm=netMessage(C_NETWORK_ASK_READ_DIALOG,connexion)
 					ch.sendReadDialogs(nm)
 					NetworkMessage.getInstance().addMessage(nm)
+		elif msgID==C_NETWORK_ASKING_CHAR:
+			usrId=int(myIterator.getUint32())
+			usr=User.getUserById(usrId)
+			if usr!=None:
+				nm=netMessage(C_NETWORK_CURRENT_CHAR_INFO,connexion)
+				usr.sendInfoCharForStation(nm)
+				NetworkMessage.getInstance().addMessage(nm)
 		elif msgID==C_NETWORK_APPEND_READ_DIALOG:
 			idUser=int(myIterator.getUint32())
 			idChar=int(myIterator.getUint32())

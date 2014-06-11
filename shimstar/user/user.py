@@ -143,6 +143,14 @@ class User(threading.Thread):
 		currentChar.sendInfo(nm)
 		currentChar.sendCompleteInfo(nm)
 				
+	def sendInfoCharForStation(self,nm):
+		currentChar=self.getCurrentCharacter()
+		if currentChar!=None:
+			currentChar.sendCompleteInfoForStation(nm)
+		else:
+			print "user::sendInfoChar No currentChar"
+				
+				
 	def sendInfoChar(self,nm):
 		currentChar=self.getCurrentCharacter()
 		if currentChar!=None:

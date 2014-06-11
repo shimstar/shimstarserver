@@ -89,8 +89,8 @@ class character:
 		
 	def appendReadDialog(self,idDialogue):
 		self.readDialogs.append(idDialogue)
-		query = "insert into star029_character_dialogue (star029_dialogue_star025,star028_character_star002)"
-		query +=" values ('" + str(r) + "','" + str(self.id) + "')"
+		query = "insert into star029_character_dialogue (star029_dialogue_star025,star029_character_star002)"
+		query +=" values ('" + str(idDialogue) + "','" + str(self.id) + "')"
 		instanceDbConnector=shimDbConnector.getInstance()
 
 		cursor=instanceDbConnector.getConnection().cursor()
@@ -118,9 +118,11 @@ class character:
 		instanceDbConnector.commit()
 		
 	def sendReadDialogs(self,nm):
+		self.getReadDialogs()
 		nm.addInt(len(self.readDialogs))
 		for d in self.readDialogs:
 			nm.addInt(d)
+			
 		
 	def loadShipFromBDD(self):
 		"""
@@ -146,6 +148,10 @@ class character:
 		nm.addString(self.name)
 		nm.addString(self.face)
 		nm.addInt(self.zoneId)
+		
+	def sendCompleteInfoForStation(self,nm):
+		self.ship.sendInfo(nm)
+		self.sendReadDialogs(nm)
 		
 	def sendCompleteInfo(self,nm):
 		self.ship.sendInfo(nm)
