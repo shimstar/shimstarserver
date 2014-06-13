@@ -8,10 +8,12 @@ from shimstar.items.ship import *
 
 class NPC:
 	listOfNpc={}
+	
 	def __init__(self,id=0,idtemplate=0,zone=0):
 		print "NPC::__init__" + str(id) + "/" + str(idtemplate)
 		self.zone=zone
 		self.ship=None
+		self.className="npc"
 		self.template=idtemplate
 		self.id=id
 		self.idEvent=0

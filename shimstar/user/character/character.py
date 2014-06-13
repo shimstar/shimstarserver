@@ -9,6 +9,7 @@ class character:
 	def __init__(self,id=0):
 		self.id=id
 		self.name=""
+		self.className="character"
 		self.userId=""
 		self.coin=0
 		self.face=""

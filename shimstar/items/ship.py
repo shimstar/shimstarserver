@@ -104,12 +104,18 @@ class Ship(ShimItem):
 		nm.addInt(self.id)
 		nm.addInt(self.template)
 		nm.addInt(self.hullpoints)
-		nm.addInt(len(self.itemInInventory))
-		if len(self.itemInInventory)>0:
-			for i in self.itemInInventory:
-				nm.addInt(i.getTypeItem())
-				nm.addInt(i.getTemplate())
-				nm.addInt(i.getId())
+		
+		if self.owner.className == "character":
+			nm.addInt(len(self.itemInInventory))
+			if len(self.itemInInventory)>0:
+				for i in self.itemInInventory:
+					nm.addInt(i.getTypeItem())
+					nm.addInt(i.getTemplate())
+					nm.addInt(i.getId())
+			nm.addInt(len(self.slots))
+			for s in self.slots:
+				s.sendInfo(nm)
+				
 		
 	def mustSentPos(self,timer):
 		"""
@@ -199,21 +205,22 @@ class Ship(ShimItem):
 			self.name=str(row[4])
 		cursor.close()
 		
-		cursor=instanceDbConnector.getConnection().cursor()
-		query="SELECT star009_id FROM star009_slot WHERE star009_ship_star005='" + str(self.shipTemplate) + "'"
-		#~ print "ship::loadFromTemplate " + str(query)
-		cursor.execute(query)
-		result_set = cursor.fetchall ()
-		self.slots=[]
-		for row in result_set:
-			tempSlot=Slot(0,row[0])
-			self.slots.append(tempSlot)
-			if tempSlot.getItem()!=None and tempSlot.getItem().getTypeItem()==C_ITEM_ENGINE:
-				self.engine=tempSlot.getItem()
-			if tempSlot.getItem()!=None and tempSlot.getItem().getTypeItem()==C_ITEM_WEAPON:
-				self.weapon=tempSlot.getItem()
-		
-		cursor.close()
+		if len(self.slots)==0:
+			cursor=instanceDbConnector.getConnection().cursor()
+			query="SELECT star009_id FROM star009_slot WHERE star009_ship_star005='" + str(self.shipTemplate) + "'"
+			#~ print "ship::loadFromTemplate " + str(query)
+			cursor.execute(query)
+			result_set = cursor.fetchall ()
+			self.slots=[]
+			for row in result_set:
+				tempSlot=Slot(0,row[0])
+				self.slots.append(tempSlot)
+				if tempSlot.getItem()!=None and tempSlot.getItem().getTypeItem()==C_ITEM_ENGINE:
+					self.engine=tempSlot.getItem()
+				if tempSlot.getItem()!=None and tempSlot.getItem().getTypeItem()==C_ITEM_WEAPON:
+					self.weapon=tempSlot.getItem()
+			
+			cursor.close()
 		
 	def loadFromBDD(self):
 		query="SELECT star007_fitted,star005_egg,star005_hull,star005_mass,star005_torque,star005_egg,star007_template_star005shiptemplate,star007_hull "
@@ -248,7 +255,7 @@ class Ship(ShimItem):
 		cursor=instanceDbConnector.getConnection().cursor()
 		query="SELECT star009_id FROM star009_slot WHERE star009_ship_star007='" + str(self.id) + "'"
 		cursor.execute(query)
-		#~ print query
+		#~ print "ship::loadFromBdd " + str(query)
 		result_set = cursor.fetchall ()
 		for row in result_set:
 			tempSlot=Slot(row[0])
@@ -405,6 +412,7 @@ class Ship(ShimItem):
 				#~ else:
 				query="UPDATE STAR006_ITEM SET STAR006_location = '" + str(it.getLocation()) + "', star006_containertype='star007_ship', star006_container_starnnn='" + str(self.id) +"'"
 				query+=" WHERE star006_id='" + str(it.getId()) + "'"
+				#~ print query
 				cursor=instanceDbConnector.getConnection().cursor()
 				cursor.execute(query)
 				cursor.close()
@@ -445,4 +453,17 @@ class Ship(ShimItem):
 		
 	def getWeapon(self):
 		return self.weapon
+		
+	def uninstallItemBySlotId(self, slotId):
+		for s in self.slots:
+			if s.getId()==int(slotId):
+				self.uninstallItem(s)
+				break
+				
+	def uninstallItem(self,slot):
+		it=slot.getItem()
+		self.itemInInventory.append(it)
+		it.setContainer(self.id)
+		it.setContainerType("star007_ship")
+		slot.setItem(None)
 		

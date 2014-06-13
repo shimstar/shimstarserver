@@ -21,6 +21,25 @@ class Slot:
 			self.loadFromBDD()
 			self.id=0
 			
+			
+	def sendInfo(self,nm):
+		nm.addInt(self.getId())
+		nm.addInt(len(self.types))
+		for t in self.types:
+			nm.addInt(t)
+		it=self.getItem()
+		if it!=None:
+			nm.addInt(it.getTypeItem())
+			nm.addInt(it.getTemplate())
+			nm.addInt(it.getId())
+		else:
+			nm.addInt(0)
+			nm.addInt(0)
+			nm.addInt(0)
+			
+	def getTypes(self):
+		return self.types
+			
 	def setItem(self,item):
 		self.item=item
 		if item!=None:

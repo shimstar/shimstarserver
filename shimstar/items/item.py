@@ -105,7 +105,6 @@ class ShimItem(object):
 	def setContainerType(self,tc):
 		self.containertype=tc
 		
-		
 	def getContainer(self):
 		return self.container
 		
@@ -153,3 +152,4 @@ class ShimItem(object):
 		
 	def getStackable(self):
 		return self.stackable
+		
