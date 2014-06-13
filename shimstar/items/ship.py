@@ -467,3 +467,20 @@ class Ship(ShimItem):
 		it.setContainerType("star007_ship")
 		slot.setItem(None)
 		
+	def installItem(self,slotId,itemId):
+		slotToInstall=None
+		for s in self.slots:
+			if s.getId()==int(slotId):
+				slotToInstall=s
+				break
+				
+		if slotToInstall!=None:
+			itemToInstall=None
+			for i in self.itemInInventory:
+				if i.getId()==itemId:
+					itemToInstall=i
+					break
+			if itemToInstall!=None:
+				self.itemInInventory.remove(itemToInstall)
+				slotToInstall.setItem(itemToInstall)
+				
