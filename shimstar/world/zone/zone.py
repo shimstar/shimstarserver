@@ -10,6 +10,7 @@ from shimstar.bdd.dbconnector import *
 from shimstar.world.zone.asteroid import *
 from shimstar.world.zone.station import *
 from shimstar.npc.npc import *
+from shimstar.items.mineral import *
 
 C_STEP_SIZE=1.0/60.0
 
@@ -124,9 +125,76 @@ class Zone(threading.Thread):
 			self.runPhysics()
 			
 			self.runUpdateCharShot()
+			self.runUpdateChar()
 			self.runBulletCollision()
 			self.runNewUser()
 		print "thread zone is ending"
+	
+	def runUpdateChar(self):
+		tempMsg=NetworkTCPServer.getInstance().getListOfMessageById(C_NETWORK_START_MINING)
+		if len(tempMsg)>0:
+			for msg in tempMsg:
+				netMsg=msg.getMessage()
+				usr=int(netMsg[0])
+				if User.listOfUser.has_key(usr):
+					ch=User.listOfUser[usr].getCurrentCharacter()
+					User.lock.acquire()
+					ch.setIsMining(True)
+					for a in self.listOfAsteroid:
+						if a.getId() == int(netMsg[1]):
+							ch.setMiningAsteroid(a)
+							break
+					User.lock.release()
+				NetworkTCPServer.getInstance().removeMessage(msg)
+		
+		tempMsg=NetworkTCPServer.getInstance().getListOfMessageById(C_NETWORK_STOP_MINING)
+		if len(tempMsg)>0:
+			for msg in tempMsg:
+				netMsg=msg.getMessage()
+				usr=int(netMsg[0])
+				if User.listOfUser.has_key(usr):
+					ch=User.listOfUser[usr].getCurrentCharacter()
+					User.lock.acquire()
+					ch.setIsMining(False)
+					User.lock.release()
+				NetworkTCPServer.getInstance().removeMessage(msg)
+				
+		User.lock.acquire()
+		for u in User.listOfUser:
+			ch=User.listOfUser[u].getCurrentCharacter()
+			if ch!=None:
+				if ch.getIsMining()==True:
+					aste=ch.getMiningAsteroid()
+					if aste!=None:
+						minerals=aste.getMinerals()
+						if len(minerals)>0:
+							idmineral=0
+							for i in minerals:
+								idmineral=i
+								break
+							if idmineral>0:
+								nbMineral=ch.grabMining()
+								if nbMineral>0:
+									hasItem=ch.getShip().hasInInventory(idmineral)
+									idItem=0
+									if hasItem!=None:
+										idItem=hasItem.getId()
+										hasItem.setNb(hasItem.getNb()+nbMineral)
+									else:
+										hasItem=Mineral(0,idmineral)
+										hasItem.setNb(nbMineral)
+										hasItem.saveToBDD()
+										idItem=hasItem.getId()
+										ch.getShip().addToInventory(hasItem)
+									print "mining " + str(idItem) + "/" + str(hasItem.getNb())
+									nm=netMessage(C_NETWORK_CHARACTER_ADD_TO_INVENTORY,User.listOfUser[u].getConnexion())
+									nm.addInt(C_ITEM_MINERAL)
+									nm.addInt(idmineral)
+									nm.addInt(idItem)
+									nm.addInt(nbMineral)
+									NetworkMessage.getInstance().addMessage(nm)
+		
+		User.lock.release()
 				
 	def runBulletCollision(self):
 		Bullet.lock.acquire()

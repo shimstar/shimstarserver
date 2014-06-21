@@ -21,15 +21,23 @@ class ShimItem(object):
 		self.id=id
 		self.container=0
 		self.stackable=0
+		self.itemSpecific=0
 		self.containertype=""
+		self.nb=1
 		if self.id>0:
 			self.loadFromBdd()
 		else:
 			self.loadFromTemplate()
 		
+	def getNb(self):
+		return self.nb
+		
+	def setNb(self,nb):
+		self.nb=nb
+	
 			
 	def loadFromBdd(self):
-		query="SELECT star006_template_star004,star006_container_starnnn,star006_containertype,star006_owner_star001,star006_location "
+		query="SELECT star006_template_star004,star006_container_starnnn,star006_containertype,star006_owner_star001,star006_location,star006_nb "
 		query+=" FROM star006_item "
 		query+=" WHERE star006_id = '" + str(self.id) + "'"
 		instanceDbConnector=shimDbConnector.getInstance()
@@ -43,11 +51,12 @@ class ShimItem(object):
 			self.typeContainer=row[2]
 			self.owner=int(row[3])
 			self.location=int(row[4])
+			self.nb=int(row[5])
 		cursor.close()
 		self.loadFromTemplate()
 		
 	def loadFromTemplate(self):
-		query="SELECT star004_name, star004_type_star003, star004_energy, star004_img,star004_cost,star004_sell,star004_space,star004_mass,star004_stackable "
+		query="SELECT star004_name, star004_type_star003, star004_energy, star004_img,star004_cost,star004_sell,star004_space,star004_mass,star004_stackable,star004_specific_starxxx "
 		query+=" FROM star004_item_template "
 		query+=" WHERE star004_id = '" + str(self.template) + "'"
 		instanceDbConnector=shimDbConnector.getInstance()
@@ -64,6 +73,7 @@ class ShimItem(object):
 			self.space=int(row[6])
 			self.mass=float(row[7])
 			self.stackable=int(row[8])
+			self.itemSpecific=int(row[9])
 		cursor.close()
 		
 	def getOwner(self):
@@ -78,11 +88,11 @@ class ShimItem(object):
 		
 	def saveToBDD(self):
 		if self.id==0:
-			query="INSERT INTO STAR006_ITEM (star006_template_star004,star006_container_starnnn,star006_containertype,star006_location,star006_id_star036) "
-			query+=" values ('" + str(self.template) + "','"+str(self.container)+"','"+self.containertype+"','"+ str(self.location)+"','" + str(self.mission) +"')"
+			query="INSERT INTO STAR006_ITEM (star006_template_star004,star006_container_starnnn,star006_containertype,star006_location,star006_id_star036,star006_nb) "
+			query+=" values ('" + str(self.template) + "','"+str(self.container)+"','"+self.containertype+"','"+ str(self.location)+"','" + str(self.mission) +"','" + str(self.nb) + "')"
 		else:
 			query="UPDATE STAR006_ITEM SET star006_container_starnnn='"+ str(self.container)+ "', star006_containertype='"+ self.containertype+"', star006_location='" + str(self.location)+ "'"
-			query+=", star006_id_star036='" + str(self.mission) + "'"
+			query+=", star006_id_star036='" + str(self.mission) + "',star006_nb='" + str(self.nb) +"'"
 			query+=" WHERE STAR006_id='"+ str(self.id)+"'"
 		instanceDbConnector=shimDbConnector.getInstance()
 		cursor=instanceDbConnector.getConnection().cursor()

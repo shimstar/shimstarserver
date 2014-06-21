@@ -94,6 +94,7 @@ class NetworkTCPServer():
 			conn=PointerToConnection()
 			self.cManager.getResetConnection(conn)
 			c=conn.p()
+			#~ print self.activeConnections.count(c)
 			if self.activeConnections.count(c)>0:
 				self.activeConnections.remove(c)
 				usrToDelete=None
@@ -103,8 +104,7 @@ class NetworkTCPServer():
 						usrToDelete=User.listOfUser[usr]
 				User.lock.release()
 				if usrToDelete!=None:
-					#~ usrToDelete.saveToBDD()
-					
+					usrToDelete.saveToBDD()
 					usrToDelete.destroy()
 					User.lock.acquire()
 					for usr in User.listOfUser:
@@ -215,8 +215,17 @@ class NetworkTCPServer():
 			msgTab.append(myIterator.getStdfloat())
 			temp=message(msgID,msgTab)
 			self.listOfMessage.append(temp)
-			
-				
+		elif msgID==C_NETWORK_START_MINING:
+			msgTab=[]
+			msgTab.append(myIterator.getUint32()) #userId
+			msgTab.append(myIterator.getUint32()) #asteroid Id
+			temp=message(msgID,msgTab)
+			self.listOfMessage.append(temp)	
+		elif msgID==C_NETWORK_STOP_MINING:
+			msgTab=[]
+			msgTab.append(myIterator.getUint32()) #userId
+			temp=message(msgID,msgTab)
+			self.listOfMessage.append(temp)	
 		
 	def sendMessage(self,idMessage,message,connexion):
 		"""

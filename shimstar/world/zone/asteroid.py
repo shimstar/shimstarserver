@@ -71,7 +71,7 @@ class Asteroid(DirectObject):
 				visNP.reparentTo(self.bodyNP)
 			cursor.close()
 			
-			query="SELECT STAR058_idmineral_star054, star058_nb from star058_ast_mineral where star058_idast_star013 = '" + str(self.idTemplate) + "'"
+			query="SELECT STAR058_idmineral_star004, star058_nb from star058_ast_mineral where star058_idast_star013 = '" + str(self.idTemplate) + "'"
 			cursor=instanceDbConnector.getConnection().cursor()
 			cursor.execute(query)
 			result_set = cursor.fetchall ()
@@ -84,7 +84,7 @@ class Asteroid(DirectObject):
 		def getMinerals(self):
 			return self.minerals
 			
-		def collect(self,id,nb):
+		def collectByIdMineral(self,id,nb):
 			if self.minerals.has_key(id)==True:
 				self.minerals[id]-=nb
 

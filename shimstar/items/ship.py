@@ -52,6 +52,17 @@ class Ship(ShimItem):
 			
 		print "ship::__init__ id=" + str(self.id) + "/tempalte= " + str(self.template)
 			
+	def hasInInventory(self,itemTemplate):
+		for i in self.itemInInventory:
+			if i.getTemplate()==itemTemplate:
+				return i
+		return None
+		
+	def addToInventory(self,it):
+		self.itemInInventory.append(it)
+		it.setContainerType("star007_ship")
+		it.setContainer(self.id)
+			
 	def setMouseWheel(self,s):
 		self.mouseWheel=s
 			
@@ -112,6 +123,7 @@ class Ship(ShimItem):
 					nm.addInt(i.getTypeItem())
 					nm.addInt(i.getTemplate())
 					nm.addInt(i.getId())
+					nm.addInt(i.getNb())
 			nm.addInt(len(self.slots))
 			for s in self.slots:
 				s.sendInfo(nm)
@@ -405,16 +417,21 @@ class Ship(ShimItem):
 
 		for it in self.itemInInventory:
 			if it.getId()>0:
-				#~ if it.getTypeItem()==C_ITEM_MINERAL:
-					#~ query="UPDATE STAR006_ITEM SET STAR006_location = '" + str(it.getLocation()) + "', star006_containertype='star007_ship', star006_container_starnnn='" + str(self.id) +"'"
-					#~ query+=" ,star006_nb='" + str(it.getNb()) + "'"
-					#~ query+=" WHERE star006_id='" + str(it.getId()) + "'"
-				#~ else:
 				query="UPDATE STAR006_ITEM SET STAR006_location = '" + str(it.getLocation()) + "', star006_containertype='star007_ship', star006_container_starnnn='" + str(self.id) +"'"
+				query+=" ,star006_nb='" + str(it.getNb()) + "'"
+				query+=" ,star006_owner_star001='" + str(self.owner.id) + "'"
 				query+=" WHERE star006_id='" + str(it.getId()) + "'"
 				#~ print query
 				cursor=instanceDbConnector.getConnection().cursor()
 				cursor.execute(query)
+				cursor.close()
+			else:
+				query="insert into star006_item (star006_template_star004,star006_container_starnnn,star006_containertype,star006_owner_star001,star006_location,star006_id_star036,star006_nb)"
+				query=+" values ('" + str(it.getTemplate()) + "','" + str(self.id) + "','star007_ship','" + str(self.owner.id) + "','" + str(it.getLocation()) + "','0','" + str(it.getNb()) + "')"
+				cursor=instanceDbConnector.getConnection().cursor()
+				cursor.execute(query)
+				id=int(cursor.lastrowid)
+				it.setId(id)
 				cursor.close()
 				
 		for sl in self.slots:

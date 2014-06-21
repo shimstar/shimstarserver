@@ -12,22 +12,7 @@ class Engine(ShimItem):
 		super(Engine,self).__init__(id,template)	
 		super(Engine,self).loadFromBdd()
 		self.loadFromTemplate()
-			
-		
-	def getXml(self,docXml=None):
-		itemXml=super(Engine,self).getXml(docXml)
-		if docXml==None:
-			docXml = xml.dom.minidom.Document()
-		speedXml=docXml.createElement("speedMax")
-		speedXml.appendChild(docXml.createTextNode(str(self.speedMax)))
-		accelerationXml=docXml.createElement("acceleration")
-		accelerationXml.appendChild(docXml.createTextNode(str(self.acceleration)))
-		
-		itemXml.appendChild(speedXml)
-		itemXml.appendChild(accelerationXml)
-				
-		return itemXml
-		
+					
 	def loadFromTemplate(self):
 		query="SELECT star017_acceleration,star017_speed"
 		query+=" FROM star004_item_template IT"

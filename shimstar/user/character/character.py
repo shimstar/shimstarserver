@@ -19,9 +19,31 @@ class character:
 		self.lastStation=3
 		self.ship=None
 		self.readDialogs=[]
+		self.isMining=False
+		self.miningAsteroid=None
+		self.lastMiningTicks=0
 		if self.id!=0:
 			self.loadFromBDD()
 		#~ print self.ship
+		
+	def grabMining(self):
+		if self.isMining==True:
+			if globalClock.getRealTime()-self.lastMiningTicks>0.5:
+				self.lastMiningTicks=globalClock.getRealTime()
+				return 10
+		return 0
+
+	def setMiningAsteroid(self,a):
+		self.miningAsteroid=a
+
+	def getMiningAsteroid(self):
+		return self.miningAsteroid
+	
+	def getIsMining(self):
+		return self.isMining
+		
+	def setIsMining(self,m):
+		self.isMining=m
 		
 	def manageDeathFromMainServer(self):
 		self.ship.deleteFromBdd()
@@ -202,6 +224,8 @@ class character:
 		if self.id==0:
 			self.id=cursor.lastrowid
 		cursor.close()
+		
+		self.ship.saveToBDD()
 		instanceDbConnector.commit()
 		
 
