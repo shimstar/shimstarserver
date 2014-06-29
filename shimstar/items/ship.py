@@ -50,7 +50,7 @@ class Ship(ShimItem):
 			self.loadFromTemplate()
 		super(Ship,self).__init__(id,self.template)	
 			
-		print "ship::__init__ id=" + str(self.id) + "/tempalte= " + str(self.template)
+		#~ print "ship::__init__ id=" + str(self.id) + "/tempalte= " + str(self.template)
 			
 	def hasInInventory(self,itemTemplate):
 		for i in self.itemInInventory:
@@ -159,18 +159,26 @@ class Ship(ShimItem):
 		"""
 			save in self.pyr, the keypressed by a player in the aim to use it in movement.
 		"""
+		#~ print "ship::modifyPYR "  + str(key) + "/" + str(value)
 		if key=='d':
-			self.pyr['p']=-int(value)
+			if self.pyr['p']!=-6*int(value):
+				self.pyr['p']=-int(value)
 		elif key=='z':
 			self.pyr['y']=-int(value)
 		elif key=='s':
 			self.pyr['y']=int(value)
 		elif key=='q':
-			self.pyr['p']=int(value)
+			if self.pyr['p']!=6*int(value):
+				self.pyr['p']=int(value)
+			#~ self.pyr['p']=int(value)
 		elif key=='a':
 			self.pyr['a']=int(value)
 		elif key=='w':
 			self.pyr['w']=int(value)
+		elif key=='qq':
+			self.pyr['p']=int(value)*6
+		elif key=='dd':
+			self.pyr['p']=-int(value)*6
 			
 	def getHullPoints(self):
 		return self.hullpoints
@@ -333,6 +341,7 @@ class Ship(ShimItem):
 			if self.worldNP!=None:
 				self.bodyNP.node().setActive(True)		
 				forwardVec=self.bodyNP.getQuat().getForward()
+				#~ print self.pyr
 				v=Vec3(self.pyr['y']*self.torque,0.0,self.pyr['p']*self.torque)
 				v= self.worldNP.getRelativeVector(self.bodyNP,v) 
 				self.bodyNP.node().applyTorque(v)
@@ -467,6 +476,9 @@ class Ship(ShimItem):
 		self.state=1
 		if self.weapon!=None:
 			self.weapon.setShip(self)
+		
+	def setPos(self,pos):
+		self.bodyNP.setPos(pos)
 		
 	def getWeapon(self):
 		return self.weapon
