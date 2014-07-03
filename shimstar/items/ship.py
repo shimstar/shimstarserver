@@ -179,6 +179,10 @@ class Ship(ShimItem):
 			self.pyr['p']=int(value)*6
 		elif key=='dd':
 			self.pyr['p']=-int(value)*6
+		elif key=='zz':
+			self.pyr['y']=-int(value)*6
+		elif key=='ss':
+			self.pyr['y']=int(value)*6
 			
 	def getHullPoints(self):
 		return self.hullpoints
