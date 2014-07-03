@@ -43,6 +43,7 @@ class Asteroid(DirectObject):
 			query="SELECT star014_zone_star011, star014_posx, star014_posy, star014_posz, star014_hprh,star014_hprp,star014_hprr, star013_egg, star013_mass,star014_template_star013"
 			query+=" FROM star014_asteroid A1 JOIN star013_asteroid_template A2 on A1.star014_template_star013 = A2.star013_id "
 			query+=" WHERE A1.star014_id = '" + str(self.id) + "'"
+			shimDbConnector.lock.acquire()
 			instanceDbConnector=shimDbConnector.getInstance()
 
 			cursor=instanceDbConnector.getConnection().cursor()
@@ -80,6 +81,7 @@ class Asteroid(DirectObject):
 				
 			#~ print self.minerals
 			cursor.close()
+			shimDbConnector.lock.release()
 
 		def getMinerals(self):
 			return self.minerals

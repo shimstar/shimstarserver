@@ -156,6 +156,7 @@ class Zone(threading.Thread):
 					ch=User.listOfUser[usr].getCurrentCharacter()
 					User.lock.acquire()
 					ch.setIsMining(False)
+					ch.saveToBDD()
 					User.lock.release()
 				NetworkTCPServer.getInstance().removeMessage(msg)
 				
@@ -186,7 +187,6 @@ class Zone(threading.Thread):
 										hasItem.saveToBDD()
 										idItem=hasItem.getId()
 										ch.getShip().addToInventory(hasItem)
-									print "mining " + str(idItem) + "/" + str(hasItem.getNb())
 									nm=netMessage(C_NETWORK_CHARACTER_ADD_TO_INVENTORY,User.listOfUser[u].getConnexion())
 									nm.addInt(C_ITEM_MINERAL)
 									nm.addInt(idmineral)
@@ -344,6 +344,7 @@ class Zone(threading.Thread):
 		
 	def loadZoneFromBdd(self):
 		query="SELECT star011_name, star011_typezone_star012 FROM star011_zone WHERE star011_id ='" + str(self.id) + "'"
+		shimDbConnector.lock.acquire()
 		instanceDbConnector=shimDbConnector.getInstance()
 
 		cursor=instanceDbConnector.getConnection().cursor()
@@ -353,17 +354,58 @@ class Zone(threading.Thread):
 			self.zoneName=row[0]
 			self.typeZone=row[1]
 		cursor.close()
-		
+		shimDbConnector.lock.release()
 		self.loadZoneAsteroidFromBdd()
 		self.loadZoneStationFromBdd()
 		self.loadZoneNPCFromBDD()
 		
 	def loadZoneNPCFromBDD(self):
-		#~ temp=NPC(0,1,self)
+		#~ temp=NPC(0,3,self)
+		#~ temp.ship.setPos((1000,1000,1000))
+		#~ temp.saveToBDD()
+		#~ temp=NPC(0,3,self)
+		#~ temp.ship.setPos((1000,1200,1200))
+		#~ temp.saveToBDD()
+		#~ temp=NPC(0,3,self)
+		#~ temp.ship.setPos((1500,1500,1000))
+		#~ temp.saveToBDD()
+		#~ temp=NPC(0,3,self)
+		#~ temp.ship.setPos((2000,1000,2000))
+		#~ temp.saveToBDD()
+		#~ temp=NPC(0,3,self)
+		#~ temp.ship.setPos((1000,2000,1500))
+		#~ temp.saveToBDD()
+		#~ temp=NPC(0,3,self)
+		#~ temp.ship.setPos((2000,1500,1500))
+		#~ temp.saveToBDD()
+		#~ temp=NPC(0,3,self)
+		#~ temp.ship.setPos((3000,2000,1800))
+		#~ temp.saveToBDD()
+		#~ temp=NPC(0,4,self)
+		#~ temp.ship.setPos((-1000,-1000,-1000))
+		#~ temp.saveToBDD()
+		#~ temp=NPC(0,4,self)
+		#~ temp.ship.setPos((-1000,-1200,-1200))
+		#~ temp.saveToBDD()
+		#~ temp=NPC(0,4,self)
+		#~ temp.ship.setPos((-1500,-1500,-1000))
+		#~ temp.saveToBDD()
+		#~ temp=NPC(0,4,self)
+		#~ temp.ship.setPos((-2000,-1000,-2000))
+		#~ temp.saveToBDD()
+		#~ temp=NPC(0,4,self)
+		#~ temp.ship.setPos((-1000,-2000,-1500))
+		#~ temp.saveToBDD()
+		#~ temp=NPC(0,4,self)
+		#~ temp.ship.setPos((-2000,-1500,-1500))
+		#~ temp.saveToBDD()
+		#~ temp=NPC(0,4,self)
+		#~ temp.ship.setPos((-3000,-2000,-1800))
 		#~ temp.saveToBDD()
 		#~ temp=NPC(0,1,self)
 		#~ temp.saveToBDD()
 		query="SELECT star034_id FROM star034_npc WHERE star034_zone_star011zone ='" + str(self.id) + "'"
+		shimDbConnector.lock.acquire()
 		instanceDbConnector=shimDbConnector.getInstance()
 		cursor=instanceDbConnector.getConnection().cursor()
 		cursor.execute(query)
@@ -374,9 +416,11 @@ class Zone(threading.Thread):
 			self.npc.append(temp)
 			temp.ship.loadEgg(self.world,self.worldNP)
 			temp.loadXml()
+		shimDbConnector.lock.release()
 		
 	def loadZoneAsteroidFromBdd(self):
 		query="SELECT star014_id FROM star014_asteroid WHERE star014_zone_star011 ='" + str(self.id) + "'"
+		shimDbConnector.lock.acquire()
 		instanceDbConnector=shimDbConnector.getInstance()
 
 		cursor=instanceDbConnector.getConnection().cursor()
@@ -386,11 +430,13 @@ class Zone(threading.Thread):
 			astLoaded=Asteroid(row[0],self.world,self.worldNP)
 			self.listOfAsteroid.append(astLoaded)
 		cursor.close()
+		shimDbConnector.lock.release()
 		
 	def loadZoneStationFromBdd(self):
 		query="SELECT star022_zone_star011 FROM star022_station WHERE star022_inzone_star011 ='" + str(self.id) + "'"
+		shimDbConnector.lock.acquire()
 		instanceDbConnector=shimDbConnector.getInstance()
-
+		
 		cursor=instanceDbConnector.getConnection().cursor()
 		cursor.execute(query)
 		result_set = cursor.fetchall ()
@@ -398,3 +444,4 @@ class Zone(threading.Thread):
 			stationLoaded=Station(row[0],self.world,self.worldNP)
 			self.listOfStation.append(stationLoaded)
 		cursor.close()
+		shimDbConnector.lock.release()

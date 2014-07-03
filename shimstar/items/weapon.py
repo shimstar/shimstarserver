@@ -94,6 +94,7 @@ class Weapon(ShimItem):
 		query="SELECT star018_damage,star018_range,star018_egg,star018_cadence,star018_speed"
 		query+=" FROM star004_item_template IT join star018_weapon w on w.star018_id = IT.star004_specific_starxxx "
 		query+="WHERE IT.star004_id = '" +str(self.template) + "'"
+		shimDbConnector.lock.acquire()
 		instanceDbConnector=shimDbConnector.getInstance()
 
 		cursor=instanceDbConnector.getConnection().cursor()
@@ -106,7 +107,7 @@ class Weapon(ShimItem):
 			self.cadence=float(row[3])
 			self.speed=int(row[4])
 		cursor.close()
-		
+		shimDbConnector.lock.release()
 		super(Weapon,self).loadFromTemplate()	
 		
 	def getRange(self):

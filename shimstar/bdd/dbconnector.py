@@ -33,7 +33,9 @@ class shimDbConnector:
 		self.connection.close()
 		
 	def resetConnection(self):
+		shimDbConnector.lock.acquire()
 		self.connection.close()
 		self.connection=MySQLdb.connect (host = self.host,user = self.user,passwd = self.pwd, db = self.db)
+		shimDbConnector.lock.release()
 		
 	

@@ -40,6 +40,7 @@ class ShimItem(object):
 		query="SELECT star006_template_star004,star006_container_starnnn,star006_containertype,star006_owner_star001,star006_location,star006_nb "
 		query+=" FROM star006_item "
 		query+=" WHERE star006_id = '" + str(self.id) + "'"
+		shimDbConnector.lock.acquire()
 		instanceDbConnector=shimDbConnector.getInstance()
 		cursor=instanceDbConnector.getConnection().cursor()
 		cursor.execute(query)
@@ -53,12 +54,14 @@ class ShimItem(object):
 			self.location=int(row[4])
 			self.nb=int(row[5])
 		cursor.close()
+		shimDbConnector.lock.release()
 		self.loadFromTemplate()
 		
 	def loadFromTemplate(self):
 		query="SELECT star004_name, star004_type_star003, star004_energy, star004_img,star004_cost,star004_sell,star004_space,star004_mass,star004_stackable,star004_specific_starxxx "
 		query+=" FROM star004_item_template "
 		query+=" WHERE star004_id = '" + str(self.template) + "'"
+		shimDbConnector.lock.acquire()
 		instanceDbConnector=shimDbConnector.getInstance()
 		cursor=instanceDbConnector.getConnection().cursor()
 		cursor.execute(query)
@@ -75,18 +78,22 @@ class ShimItem(object):
 			self.stackable=int(row[8])
 			self.itemSpecific=int(row[9])
 		cursor.close()
+		shimDbConnector.lock.release()
 		
 	def getOwner(self):
 		return self.owner
 		
 	def delete(self):
 		query="DELETE FROM STAR006_item WHERE STAR006_id ='"+ str(self.id) +"'"
+		shimDbConnector.lock.acquire()
 		instanceDbConnector=shimDbConnector.getInstance()
 		cursor=instanceDbConnector.getConnection().cursor()
 		cursor.execute(query)
 		cursor.close()
+		shimDbConnector.lock.release()
 		
 	def saveToBDD(self):
+		shimDbConnector.lock.acquire()
 		if self.id==0:
 			query="INSERT INTO STAR006_ITEM (star006_template_star004,star006_container_starnnn,star006_containertype,star006_location,star006_id_star036,star006_nb) "
 			query+=" values ('" + str(self.template) + "','"+str(self.container)+"','"+self.containertype+"','"+ str(self.location)+"','" + str(self.mission) +"','" + str(self.nb) + "')"
@@ -102,6 +109,7 @@ class ShimItem(object):
 		cursor.close()
 	
 		instanceDbConnector.commit()
+		shimDbConnector.lock.release()
 		
 	def setContainer(self,id):
 		self.container=id

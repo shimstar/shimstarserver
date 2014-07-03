@@ -19,6 +19,7 @@ class Engine(ShimItem):
 		query+=" join star017_engine w on w.star017_id = IT.star004_specific_starxxx "
 		query+="WHERE IT.star004_id = '" +str(self.template) + "'"
 		#~ print query
+		shimDbConnector.lock.acquire()
 		instanceDbConnector=shimDbConnector.getInstance()
 
 		cursor=instanceDbConnector.getConnection().cursor()
@@ -28,6 +29,7 @@ class Engine(ShimItem):
 			self.speedMax=int(row[1])
 			self.acceleration=int(row[0])
 		cursor.close()
+		shimDbConnector.lock.release()
 		
 		super(Engine,self).loadFromTemplate()	
 				

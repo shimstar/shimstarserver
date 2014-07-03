@@ -29,7 +29,11 @@ class User(threading.Thread):
 		return self.getCurrentCharacter().getPos()
 		
 	def changeZone(self,idZone):
+		print "User::changeZone"
+		shimDbConnector.getInstance().resetConnection()
+		self.getCurrentCharacter().loadFromBDD()
 		self.getCurrentCharacter().setZoneId(idZone)
+		self.getCurrentCharacter().saveCharacterToBDD()
 		
 	def getQuat(self):
 		return self.getCurrentCharacter().getQuat()
@@ -96,9 +100,7 @@ class User(threading.Thread):
 		return self.name
 		
 	def setCurrentCharacter(self,idchar):
-		print "user::setCurrentCharacter " + str(idchar) + "/" +str(self.listOfCharacter)
 		for ch in self.listOfCharacter:
-			print "user::setCurrentCharacter " + str(ch.getId())
 			if ch.getId()==idchar:
 				ch.setCurrent(True)
 			else:
@@ -178,7 +180,6 @@ class User(threading.Thread):
 				face
 			create a new character with few starting skills (laser light, hunter light, pilotage, weapon)
 		"""
-		print "user::addcharacter "
 		temp=character(0)
 		temp.setFace(face)
 		temp.setName(name)
@@ -245,6 +246,7 @@ class User(threading.Thread):
 		shimDbConnector.lock.release()
 		
 	def saveToBDD(self):
+		shimDbConnector.lock.acquire()
 		instanceDbConnector=shimDbConnector.getInstance()
 		if self.id==0:
 			query="insert into star001_user (star001_name,star001_passwd,star001_created) values('" + self.name + "','"+self.password+"',now())"
@@ -257,6 +259,7 @@ class User(threading.Thread):
 			ch.saveToBDD()
 		
 		instanceDbConnector.commit()
+		shimDbConnector.lock.release()
 		
 	@staticmethod
 	def userExists(name):
@@ -266,6 +269,7 @@ class User(threading.Thread):
 		"""
 		id=0
 		query="SELECT star001_id FROM star001_user WHERE star001_name = '" + name + "'"
+		shimDbConnector.lock.acquire()
 		instanceDbConnector=shimDbConnector.getInstance()
 		cursor=instanceDbConnector.getConnection().cursor()
 		cursor.execute(query)
@@ -273,6 +277,8 @@ class User(threading.Thread):
 		for row in result_set:
 			id=int(row[0])
 		cursor.close()
+		shimDbConnector.lock.release()
 		if id>0:
 			return True
 		return False
+		

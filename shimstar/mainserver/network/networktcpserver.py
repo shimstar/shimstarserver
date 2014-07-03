@@ -182,8 +182,8 @@ class NetworkTCPServer():
 				tempUser.setCurrent(idchar,nm)
 				NetworkMessage.getInstance().addMessage(nm)
 		elif msgID==C_NETWORK_USER_CHANGE_ZONE:
-			iduser=myIterator.getUint32()
-			idzone=iduser=myIterator.getUint32()
+			iduser=int(myIterator.getUint32())
+			idzone=myIterator.getUint32()
 			tempUser=User.getUserById(iduser)
 			if tempUser!=None:
 				tempUser.changeZone(idzone)
@@ -276,6 +276,14 @@ class NetworkTCPServer():
 				ch=userFound.getCharacterById(idChar)
 				if ch !=None:
 					ch.appendReadDialog(int(myIterator.getUint32()))
+		elif msgID==C_NETWORK_CHARACTER_ACCEPT_MISSION:
+			idUser=int(myIterator.getUint32())
+			idMission=int(myIterator.getUint32())
+			userFound=None
+			for u in User.listOfUser:
+				if u==int(idUser):
+					ch=User.listOfUser[u].getCurrentCharacter()
+					ch.acceptMission(idMission)
 			
 	def createNewUser(self,usr,pwd,connexion):
 		"""

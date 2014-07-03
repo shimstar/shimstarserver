@@ -205,6 +205,7 @@ class Ship(ShimItem):
 		"""
 			Load a ship from a template (the id of the template is given in the constructor)
 		"""
+		shimDbConnector.lock.acquire()
 		instanceDbConnector=shimDbConnector.getInstance()
 		query="SELECT star005_egg,star005_hull,star005_mass,star004_id"
 		query+=", star004_name"
@@ -224,8 +225,10 @@ class Ship(ShimItem):
 			self.template=int(row[3])
 			self.name=str(row[4])
 		cursor.close()
+		shimDbConnector.lock.release()
 		
 		if len(self.slots)==0:
+			shimDbConnector.lock.release()
 			cursor=instanceDbConnector.getConnection().cursor()
 			query="SELECT star009_id FROM star009_slot WHERE star009_ship_star005='" + str(self.shipTemplate) + "'"
 			#~ print "ship::loadFromTemplate " + str(query)
@@ -241,6 +244,7 @@ class Ship(ShimItem):
 					self.weapon=tempSlot.getItem()
 			
 			cursor.close()
+			shimDbConnector.lock.release()
 		
 	def loadFromBDD(self):
 		query="SELECT star007_fitted,star005_egg,star005_hull,star005_mass,star005_torque,star005_egg,star007_template_star005shiptemplate,star007_hull "

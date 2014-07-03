@@ -34,6 +34,7 @@ class Station:
 	def loadStationFromBdd(self,world,worldNP):
 		query="SELECT star011_name, star022_posx, star022_posy,star022_posz,star022_hprh,star022_hprp,star022_hprr,star011_egg,star022_inzone_star011,star011_typezone_star012,star022_mass "
 		query+=" FROM star022_station join star011_zone on star011_id = star022_zone_star011 WHERE star022_zone_star011='" + str(self.id) + "'"
+		shimDbConnector.lock.acquire()
 		instanceDbConnector=shimDbConnector.getInstance()
 
 		cursor=instanceDbConnector.getConnection().cursor()
@@ -64,5 +65,6 @@ class Station:
 			visNP.reparentTo(self.bodyNP)
 
 		cursor.close()
+		shimDbConnector.lock.release()
 	
 
