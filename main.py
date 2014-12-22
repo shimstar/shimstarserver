@@ -28,7 +28,7 @@ class ShimStarServer():
 	
 	def saveOnForcedQuit(self):
 		print "main::saveOnForcedQuit"
-	
+	 
 app=ShimStarServer()
 run()
 			

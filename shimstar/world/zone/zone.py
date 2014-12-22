@@ -40,9 +40,10 @@ class Zone(threading.Thread):
 				usr=User.getUserById(usrId)
 				if usr!=None:
 					for temp in self.npc:
-						nm=netMessage(C_NETWORK_NPC_INCOMING,usr.getConnexion())
-						temp.sendInfo(nm)
-						NetworkMessage.getInstance().addMessage(nm)
+						if temp.ship!=None and temp.ship.getHullPoints()>0:
+							nm=netMessage(C_NETWORK_NPC_INCOMING,usr.getConnexion())
+							temp.sendInfo(nm)
+							NetworkMessage.getInstance().addMessage(nm)
 					nm=netMessage(C_NETWORK_NPC_SENT,usr.getConnexion())
 					NetworkMessage.getInstance().addMessage(nm)
 				NetworkTCPServer.getInstance().removeMessage(msg)

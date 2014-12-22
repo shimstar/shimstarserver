@@ -9,17 +9,31 @@ from shimstar.npc.intelligence.behaviors.behaviorattack import *
 from shimstar.npc.intelligence.behaviors.behaviorfactory import *
 from shimstar.user.user import *
 #~ from shimstar.core.function import *
+class AttitudeProperties:
+	def __init__(self,typeAttitude=0,level=0,faction=0):
+		self.level=level
+		self.typeAttitude=typeAttitude
+		self.faction=faction
+		
+	def getFaction(self):
+		return self.faction
+		
+	def getTypeAttitude(self):
+		return self.typeAttitude
+		
+	def getLevel(self):
+		return self.level
+
 
 class Attitude:
 	def __init__(self,npc):
 		self.behavior={}
 		self.currentBehavior=-1
-		self.attitude={}
+		self.attitude=[]
 		self.npc=npc
 		
 	def loadBehavior(self,id,zone):
 		#~ print "Attitude::loadBehavior " + str(id) + "/" + str(zone)
-		
 		if os.path.exists("./config/behaviour/"+str(zone) + "/" + str(id) + ".xml")==True:
 			dom = xml.dom.minidom.parse("./config/behaviour/"+str(zone) + "/" + str(id) + ".xml")
 			pp=dom.getElementsByTagName('patrolpoint')
@@ -27,13 +41,14 @@ class Attitude:
 			for p in pp:
 				pos=p.firstChild.data
 				tabpos=pos.split(",")
-				print "attitude::loadBehavior " + str(tabpos)
 				beh.addPatrolPoint(Vec3(float(tabpos[0]),float(tabpos[1]),float(tabpos[2])))
 			atti=dom.getElementsByTagName('attitude')
 			for a in atti:
 				typeAtti=int(a.getElementsByTagName('typeattitude')[0].firstChild.data)
 				lvlAtti=int(a.getElementsByTagName('levelattitude')[0].firstChild.data)
-				self.addAttitude(typeAtti,lvlAtti)
+				faction=int(a.getElementsByTagName('faction')[0].firstChild.data)
+				temp=AttitudeProperties(typeAtti,lvlAtti,faction)
+				self.attitude.append(temp)
 		
 	def getBehaviors(self):
 		return self.behavior
@@ -54,43 +69,48 @@ class Attitude:
 			if len(self.behavior)>0:
 				self.currentBehavior=0
 		
-		if self.attitude.has_key(C_ATTITUDE_AGGRESSIVITE):
+		for att in self.attitude:
+			if att.getTypeAttitude()==C_ATTITUDE_AGGRESSIVITE:
+		#~ if self.attitude.has_key(C_ATTITUDE_AGGRESSIVITE):
 		#~ if False:
 			#~ print "attitude::run " + str(self.npc.id) +  " / " + " has aggressive attitude"
-			if self.attitude[C_ATTITUDE_AGGRESSIVITE]>2:
-				alreadyAttack=False
-				for behav in self.behavior:
-					if isinstance(self.behavior[behav],BehaviorAttack)==True:
-						alreadyAttack=True
-						break
-				#~ print User.listOfUser
-				if alreadyAttack==False:
-					nearer=None
-					nearerDist=100000000
-					ships=[]
-					nnn=[]
-					User.lock.acquire()
-					for u in User.listOfUser:
-						ship=User.listOfUser[u].getCurrentCharacter().ship
-						ships.append(ship)
-						nnn.append(u)
-					User.lock.release()
-					for n in self.npc.zone.npc:
-						if n!=self.npc:
-							ship=n.ship
+				if att.getLevel()>2:
+				#~ if self.attitude[C_ATTITUDE_AGGRESSIVITE]>2:
+					alreadyAttack=False
+					for behav in self.behavior:
+						if isinstance(self.behavior[behav],BehaviorAttack)==True:
+							alreadyAttack=True
+							break
+					#~ print User.listOfUser
+					if alreadyAttack==False:
+						nearer=None
+						nearerDist=100000000
+						ships=[]
+						nnn=[]
+						User.lock.acquire()
+						for u in User.listOfUser:
+							ship=User.listOfUser[u].getCurrentCharacter().ship
 							ships.append(ship)
-							nnn.append(n)
-					for s in ships:
-						if s.bodyNP.isEmpty()==False:
-							dist=calcDistance(self.npc.ship.bodyNP,s.bodyNP)
-							if dist<nearerDist:
-								nearerDist=dist
-								nearer=ship
-					if nearer!=None:
-						print "attitude::run acquiring new target " + str(nearer)
-						behav=self.setBehavior(C_BEHAVIOR_ATTACK)
-						behav.setTarget(nearer.bodyNP)
-					
+							nnn.append(u)
+						User.lock.release()
+						for n in self.npc.zone.npc:
+							if n!=self.npc:
+								ship=n.ship
+								ships.append(ship)
+								nnn.append(n)
+						for s in ships:
+							if s.bodyNP.isEmpty()==False:
+								#~ print "attitude::run " + str(s.owner.faction) + "/" + str(att.getFaction())
+								if s.owner.faction==att.getFaction():
+									dist=calcDistance(self.npc.ship.bodyNP,s.bodyNP)
+									if dist<nearerDist:
+										nearerDist=dist
+										nearer=ship
+						if nearer!=None:
+							#~ print "attitude::run acquiring new target " + str(nearer)
+							behav=self.setBehavior(C_BEHAVIOR_ATTACK)
+							behav.setTarget(nearer.bodyNP)
+						
 	def runPhysics(self):
 		if self.currentBehavior>=0:
 			if self.behavior.has_key(self.currentBehavior)==True:
@@ -102,7 +122,6 @@ class Attitude:
 			self.currentBehavior=beh
 		return self.behavior[beh]
 		
-	def addAttitude(self,att,lvl):
-		self.attitude[att]=lvl
-		
-		
+	def addAttitude(self,typeAttitude,level,faction):
+		temp=AttitudeProperties(typeAttitude,level,faction)
+		self.attitude.append(temp)

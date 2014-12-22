@@ -272,10 +272,11 @@ class character:
 
 	
 	def saveMissionToBDD(self):		
-		shimDbConnector.lock.release()
+		shimDbConnector.lock.acquire()
+		instanceDbConnector=shimDbConnector.getInstance()
 		for m in self.missions:
 			query="SELECT star039_mission_star036 FROM star039_character_mission where star039_character_star002='" +str(self.id)+ "' AND star039_mission_star036='"+str(m.getId())+"'"
-			instanceDbConnector=shimDbConnector.getInstance()
+			
 			cursor=instanceDbConnector.getConnection().cursor()
 			cursor.execute(query)
 			result_set = cursor.fetchall ()
