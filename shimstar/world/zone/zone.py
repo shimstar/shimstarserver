@@ -142,7 +142,7 @@ class Zone(threading.Thread):
 				if User.listOfUser.has_key(usr):
 					User.lock.acquire()
 					for us in User.listOfUser:
-						nm=netMessage(C_NETWORK_USER_OUTGOING,User.listOfUser[u].getConnexion())
+						nm=netMessage(C_NETWORK_USER_OUTGOING,User.listOfUser[us].getConnexion())
 						nm.addInt(usr)
 						NetworkMessage.getInstance().addMessage(nm)				
 					User.lock.release() 
