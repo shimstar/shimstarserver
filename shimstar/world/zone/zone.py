@@ -129,7 +129,25 @@ class Zone(threading.Thread):
 			self.runUpdateChar()
 			self.runBulletCollision()
 			self.runNewUser()
+			self.runOutUser()
 		print "thread zone is ending"
+		
+	def runOutUser(self):
+		tempMsg=NetworkTCPServer.getInstance().getListOfMessageById(C_NETWORK_USER_CHANGE_ZONE)
+		if len(tempMsg)>0:
+			for msg in tempMsg:
+				netMsg=msg.getMessage()
+				usr=int(netMsg[0])
+				print "user is leaving zone " + str(usr)
+				if User.listOfUser.has_key(usr):
+					User.lock.acquire()
+					for us in User.listOfUser:
+						nm=netMessage(C_NETWORK_USER_OUTGOING,User.listOfUser[u].getConnexion())
+						nm.addInt(usr)
+						NetworkMessage.getInstance().addMessage(nm)				
+					User.lock.release() 
+					User.listOfUser[usr].destroy()
+				NetworkTCPServer.getInstance().removeMessage(msg)
 	
 	def runUpdateChar(self):
 		tempMsg=NetworkTCPServer.getInstance().getListOfMessageById(C_NETWORK_START_MINING)

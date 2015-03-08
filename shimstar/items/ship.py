@@ -28,6 +28,7 @@ class Ship(ShimItem):
 		self.lastSentTicks=0
 		self.template=template
 		self.shipTemplate=template
+		self.slowAngular=1
 		self.state=0
 		self.maxhullpoints=0
 		self.hullpoints=0
@@ -161,28 +162,31 @@ class Ship(ShimItem):
 		"""
 		#~ print "ship::modifyPYR "  + str(key) + "/" + str(value)
 		if key=='d':
-			if self.pyr['p']!=-6*int(value):
-				self.pyr['p']=-int(value)
+			self.pyr['p']=-int(value)
 		elif key=='z':
 			self.pyr['y']=-int(value)
 		elif key=='s':
 			self.pyr['y']=int(value)
 		elif key=='q':
-			if self.pyr['p']!=6*int(value):
-				self.pyr['p']=int(value)
-			#~ self.pyr['p']=int(value)
+			self.pyr['p']=int(value)
 		elif key=='a':
 			self.pyr['a']=int(value)
 		elif key=='w':
 			self.pyr['w']=int(value)
-		elif key=='qq':
-			self.pyr['p']=int(value)*6
-		elif key=='dd':
-			self.pyr['p']=-int(value)*6
-		elif key=='zz':
-			self.pyr['y']=-int(value)*6
-		elif key=='ss':
-			self.pyr['y']=int(value)*6
+		#~ elif key=='qq':
+			#~ self.pyr['p']=int(value)*4
+		#~ elif key=='dd':
+			#~ self.pyr['p']=-int(value)*4
+		#~ elif key=='zz':
+			#~ self.pyr['y']=-int(value)*4
+		#~ elif key=='ss':
+			#~ self.pyr['y']=int(value)*4
+		
+		if key=="lcontrol":
+			if value==0:
+				self.slowAngular=1
+			else:
+				self.slowAngular=0.33
 			
 	def getHullPoints(self):
 		return self.hullpoints
@@ -350,7 +354,7 @@ class Ship(ShimItem):
 				self.bodyNP.node().setActive(True)		
 				forwardVec=self.bodyNP.getQuat().getForward()
 				#~ print self.pyr
-				v=Vec3(self.pyr['y']*self.torque,0.0,self.pyr['p']*self.torque)
+				v=Vec3(self.pyr['y']*self.torque*self.slowAngular,0.0,self.pyr['p']*self.torque*self.slowAngular)
 				v= self.worldNP.getRelativeVector(self.bodyNP,v) 
 				self.bodyNP.node().applyTorque(v)
 				

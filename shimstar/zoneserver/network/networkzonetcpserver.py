@@ -145,7 +145,7 @@ class NetworkTCPServer():
 		connexion=netDatagram.getConnection()
 		msgTab=[]
 		msgID=myIterator.getUint32()		
-		#~ print msgID
+		print msgID
 		if msgID==C_NETWORK_CONNECT:
 			idusr=int(myIterator.getUint32())
 			idchar=int(myIterator.getUint32())
@@ -166,6 +166,12 @@ class NetworkTCPServer():
 				User.listOfUser[usr].destroy()
 
 		elif msgID==C_NETWORK_ASKING_NPC:
+			iduser=int(myIterator.getUint32())
+			msgTab=[]
+			msgTab.append(iduser)
+			temp=message(msgID,msgTab)
+			self.listOfMessage.append(temp)
+		elif msgID==C_NETWORK_USER_CHANGE_ZONE :
 			iduser=int(myIterator.getUint32())
 			msgTab=[]
 			msgTab.append(iduser)
