@@ -146,7 +146,8 @@ class Zone(threading.Thread):
 						nm.addInt(usr)
 						NetworkMessage.getInstance().addMessage(nm)				
 					User.lock.release() 
-					User.listOfUser[usr].destroy()
+					if User.listOfUser.has_key(usr)==True:
+						User.listOfUser[usr].destroy()
 				NetworkTCPServer.getInstance().removeMessage(msg)
 	
 	def runUpdateChar(self):
