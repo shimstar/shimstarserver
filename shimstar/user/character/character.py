@@ -371,6 +371,7 @@ class character:
 		return self.face
 	
 	def destroy(self):
+		print "Character :: destroy " + str(self.id)
 		if self.ship!=None:
 			self.ship.destroy()
 		

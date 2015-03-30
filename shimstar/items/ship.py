@@ -51,7 +51,7 @@ class Ship(ShimItem):
 			self.loadFromTemplate()
 		super(Ship,self).__init__(id,self.template)	
 			
-		#~ print "ship::__init__ id=" + str(self.id) + "/tempalte= " + str(self.template)
+		print "ship::__init__ id=" + str(self.id) + "/tempalte= " + str(self.template) + "/" + str(self.owner)
 			
 	def hasInInventory(self,itemTemplate):
 		for i in self.itemInInventory:
@@ -79,6 +79,7 @@ class Ship(ShimItem):
 		return self.state
 		
 	def destroy(self):
+		print "ship::destroy"  + str(self.id)
 		if self.bodyNP!=None:
 			if self.world!=None:
 				self.world.removeRigidBody(self.bodyNP.node())

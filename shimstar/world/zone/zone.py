@@ -54,14 +54,16 @@ class Zone(threading.Thread):
 				netMsg=msg.getMessage()
 				usrId=int(netMsg[0])
 				usr=User.getUserById(usrId)
-				#~ print "runnewUser::C_NETWORK_ASKING_CHAR " + str(usr)
+				print "runnewUser::C_NETWORK_ASKING_CHAR " + str(usr)
 				if usr!=None:
 					nm=netMessage(C_NETWORK_CURRENT_CHAR_INFO,usr.getConnexion())
 					usr.sendInfoChar(nm)
 					NetworkMessage.getInstance().addMessage(nm)
 					
 					for othrUsr in User.listOfUser:
+						print "runnewUser::C_NETWORK_ASKING_CHAR se d" + str(othrUsr)
 						if othrUsr!=usrId:
+							print "runnewUser::C_NETWORK_ASKING_CHAR sending" + str(othrUsr)
 							nm=netMessage(C_NETWORK_CHAR_INCOMING,usr.getConnexion())
 							User.listOfUser[othrUsr].sendInfoOtherPlayer(nm)
 							NetworkMessage.getInstance().addMessage(nm)
@@ -147,6 +149,7 @@ class Zone(threading.Thread):
 						NetworkMessage.getInstance().addMessage(nm)				
 					User.lock.release() 
 					if User.listOfUser.has_key(usr)==True:
+						print "runoutUser want destroy " + str(usr)
 						User.listOfUser[usr].destroy()
 				NetworkTCPServer.getInstance().removeMessage(msg)
 	

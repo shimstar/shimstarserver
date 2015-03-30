@@ -122,7 +122,7 @@ class User(threading.Thread):
 		User.lock.release()
 		
 	def destroy(self):
-		#~ print "user::destroy " + str(self.id)
+		print "user::destroy " + str(self.id)
 		User.lock.acquire()
 		if User.listOfUser.has_key(self.id):
 			for ch in self.listOfCharacter:
