@@ -114,6 +114,7 @@ class User(threading.Thread):
 		
 	@staticmethod
 	def destroyUserById(id):
+		print "USER :: destroyUserById " + str(id)
 		User.lock.acquire()
 		if User.listOfUser.has_key(id):
 			User.listOfUser[id].destroy()

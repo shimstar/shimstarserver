@@ -151,6 +151,7 @@ class Zone(threading.Thread):
 					if User.listOfUser.has_key(usr)==True:
 						print "runoutUser want destroy " + str(usr)
 						User.listOfUser[usr].destroy()
+						print "runoutUser TTT " + str(User.listOfUser)
 				NetworkTCPServer.getInstance().removeMessage(msg)
 	
 	def runUpdateChar(self):

@@ -145,7 +145,7 @@ class NetworkTCPServer():
 		connexion=netDatagram.getConnection()
 		msgTab=[]
 		msgID=myIterator.getUint32()		
-		#~ print msgID
+		print msgID
 		if msgID==C_NETWORK_CONNECT:
 			idusr=int(myIterator.getUint32())
 			idchar=int(myIterator.getUint32())
@@ -154,16 +154,20 @@ class NetworkTCPServer():
 			tempUser.setConnexion(connexion)
 			tempUser.setCurrentCharacter(idchar)
 			print "user connected to zone"
-		elif msgID==C_NETWORK_DEATH_CHAR:
-			idusr=int(myIterator.getUint32())
-			userFound=None
-			User.lock.acquire()
-			for usr in User.listOfUser:
-				if usr==idusr:
-					userFound=User.listOfUser[usr]
-			User.lock.release()
-			if userFound!=None:
-				User.listOfUser[usr].destroy()
+		#~ elif msgID==C_NETWORK_DEATH_CHAR:
+			#~ idusr=int(myIterator.getUint32())
+			#~ print "networkzonetcpserver :: msgId = C_NETWORK_DEATH_CHAR " + str(idusr)
+			#~ userFound=None
+			#~ User.lock.acquire()
+			#~ for usr in User.listOfUser:
+				#~ if usr==idusr:
+					#~ print "networkzonetcpserver :: msgId = C_NETWORK_DEATH_CHAR found " + str(usr) + "=" + str(idusr)
+					#~ userFound=User.listOfUser[usr]
+			#~ print "networkzonetcpserver :: msgId = C_NETWORK_DEATH_CHAR blahblah " + str(idusr) + "/" + str(userFound)
+			#~ User.lock.release()
+			#~ if userFound!=None:
+				#~ print "networkzonetcpserver :: msgId = C_NETWORK_DEATH_CHAR want to destroy " + str(usr)
+				#~ User.listOfUser[usr].destroy()
 
 		elif msgID==C_NETWORK_ASKING_NPC:
 			iduser=int(myIterator.getUint32())
@@ -172,7 +176,9 @@ class NetworkTCPServer():
 			temp=message(msgID,msgTab)
 			self.listOfMessage.append(temp)
 		elif msgID==C_NETWORK_USER_CHANGE_ZONE :
+			
 			iduser=int(myIterator.getUint32())
+			print "zonetcpserver ;; user change zone " + str(iduser)
 			msgTab=[]
 			msgTab.append(iduser)
 			temp=message(msgID,msgTab)
