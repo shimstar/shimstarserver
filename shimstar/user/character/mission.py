@@ -154,6 +154,6 @@ class Mission:
 				finished=False
 				break
 				
-		if finished==True:
+		if finished:
 			self.status=C_STATEMISSION_SUCCESS
 		

@@ -19,7 +19,7 @@ class shimDbConnector:
 		
 	@staticmethod
 	def getInstance():
-		if shimDbConnector.instance==None:
+		if shimDbConnector.instance is None:
 			shimDbConnector()
 		return shimDbConnector.instance
 		

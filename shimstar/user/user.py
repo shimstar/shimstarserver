@@ -18,7 +18,7 @@ class User(threading.Thread):
 		self.newToZone=1
 		self.listOfCharacter=[]
 		self.connexion=None
-		if new==False:
+		if not new:
 			self.loadFromBdd()			
 		print "user::init " + str(self.id) 
 		User.lock.acquire()
@@ -108,7 +108,7 @@ class User(threading.Thread):
 				
 	def getCurrentCharacter(self):
 		for ch in self.listOfCharacter:
-			if ch.getIsCurrent()==True:
+			if ch.getIsCurrent():
 				return ch
 		return None
 		
@@ -148,7 +148,7 @@ class User(threading.Thread):
 				
 	def sendInfoCharForStation(self,nm):
 		currentChar=self.getCurrentCharacter()
-		if currentChar!=None:
+		if currentChar is not None:
 			currentChar.sendCompleteInfoForStation(nm)
 		else:
 			print "user::sendInfoChar No currentChar"
@@ -156,7 +156,7 @@ class User(threading.Thread):
 				
 	def sendInfoChar(self,nm):
 		currentChar=self.getCurrentCharacter()
-		if currentChar!=None:
+		if currentChar is not None:
 			currentChar.sendCompleteInfo(nm)
 		else:
 			print "user::sendInfoChar No currentChar"

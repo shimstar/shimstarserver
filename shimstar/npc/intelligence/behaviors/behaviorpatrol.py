@@ -19,7 +19,7 @@ class behaviorPatrol(behavior):
 		# If there is patrolspoints
 		if nbPatrolsPoints>0:
 			#if the patrolpoint change, change the target to turn into
-			if self.target==None:
+			if self.target is None:
 				self.target=self.patrolsPoint[self.currentPatrolPoint]
 			self.pointerToGo.setPos(self.ship.bodyNP.getPos())
 			self.pointerToGo.lookAt(self.target)
@@ -49,18 +49,18 @@ class behaviorPatrol(behavior):
 		PDif=self.ship.bodyNP.getP()-self.pointerToGo.getP()
 		RDif=self.ship.bodyNP.getR()-self.pointerToGo.getR()
 		
-		if HDif>10 and HDif<179:
+		if 10 < HDif < 179:
 			p=-1
-		elif HDif<-10 and HDif>-179:
+		elif -10 > HDif > -179:
 			p=1
 		elif HDif>179:
 			p=1
 		elif HDif<-179:
 			p=-1
 			
-		if PDif>10 and PDif<179:
+		if 10 < PDif < 179:
 			y=-1
-		elif PDif<-10 and PDif>-179:
+		elif -10 > PDif > -179:
 			y=1
 		elif PDif>179:
 			y=1
@@ -75,10 +75,10 @@ class behaviorPatrol(behavior):
 		av2=av*self.ship.frictionAngular
 		self.ship.bodyNP.node().setAngularVelocity(av2)
 		
-		if self.target!=None:
+		if self.target is not None:
 			dist=self.calcDistance(self.target,self.ship.bodyNP)
 			if dist > 100:
-				if (self.ship.bodyNP.node().getLinearVelocity()==Vec3(0,0,0)):
+				if self.ship.bodyNP.node().getLinearVelocity()==Vec3(0,0,0):
 					f=Vec3(forwardVec.getX()*self.ship.engine.getSpeedMax(),forwardVec.getY()*self.ship.engine.getSpeedMax(),forwardVec.getZ()*self.ship.engine.getSpeedMax())
 				else:
 					f=Vec3(forwardVec.getX()*self.ship.engine.getSpeedMax()/2,forwardVec.getY()*self.ship.engine.getSpeedMax()/2,forwardVec.getZ()*self.ship.engine.getSpeedMax()/2)

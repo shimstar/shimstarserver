@@ -13,7 +13,7 @@ class BehaviorAttack(behavior):
 		self.target=target
 		
 	def run(self):
-		if self.target==None or self.target.isEmpty()==True:
+		if self.target is None or self.target.isEmpty()==True:
 			self.status=C_BEHAVIOR_STATUS_FINISHED
 		else:
 			self.runBehav()
@@ -21,12 +21,12 @@ class BehaviorAttack(behavior):
 		
 	def runBehav(self):
 		#~ print "BehaviorAttack::runBehav " + str(self.npc.id) + " / " + str(self.patrolsPoint)
-		if self.target.isEmpty()!=True:
-			if len(self.patrolsPoint)==0 and self.avoidTarget==None:
-				if self.target!=None:
+		if not self.target.isEmpty():
+			if len(self.patrolsPoint)==0 and self.avoidTarget is None:
+				if self.target is not None:
 					self.runShotTo()
 			else:
-				if self.avoidTarget!=None:
+				if self.avoidTarget is not None:
 					self.pointerToGo.setPos(self.ship.bodyNP.getPos())
 					self.pointerToGo.lookAt(self.avoidTarget)
 					dist=self.calcDistance(self.avoidTarget,self.ship.bodyNP)
@@ -47,7 +47,7 @@ class BehaviorAttack(behavior):
 		x=random.randint(-1,1)
 		y=random.randint(-1,1)
 		if x==0:
-			x==1
+			x=-1
 		if y==0:
 			y=-1
 		dist=random.randint(300,700)
@@ -58,7 +58,7 @@ class BehaviorAttack(behavior):
 		x=random.randint(-1,1)
 		y=random.randint(-1,1)
 		if x==0:
-			x==-1
+			x=-1
 		if y==0:
 			y=1
 		dist=random.randint(300,700)
@@ -71,7 +71,7 @@ class BehaviorAttack(behavior):
 		y=random.randint(-1,1)
 		dist=random.randint(300,700)
 		if x==0:
-			x==-1
+			x=-1
 		if y==0:
 			y=-1
 		self.nbA+=1
@@ -182,18 +182,18 @@ class BehaviorAttack(behavior):
 		PDif=self.ship.bodyNP.getP()-self.pointerToGo.getP()
 		RDif=self.ship.bodyNP.getR()-self.pointerToGo.getR()
 		
-		if HDif>1 and HDif<179:
+		if 1 < HDif < 179:
 			p=-1
-		elif HDif<-1 and HDif>-179:
+		elif -1 > HDif > -179:
 			p=1
 		elif HDif>179:
 			p=1
 		elif HDif<-179:
 			p=-1
 			
-		if PDif>1 and PDif<179:
+		if 1 < PDif < 179:
 			y=-1
-		elif PDif<-1 and PDif>-179:
+		elif -1 > PDif > -179:
 			y=1
 		elif PDif>179:
 			y=1
@@ -208,7 +208,7 @@ class BehaviorAttack(behavior):
 		av2=av*self.ship.frictionAngular
 		self.ship.bodyNP.node().setAngularVelocity(av2)
 		
-		if self.target!=None and self.target.isEmpty()!=True:
+		if self.target is not None and self.target.isEmpty()!=True:
 			tgt=None
 			if len(self.patrolsPoint)>0:
 				tgt=self.patrolsPoint[0]

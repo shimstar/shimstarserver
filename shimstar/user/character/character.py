@@ -30,7 +30,7 @@ class character:
 		#~ print self.ship
 		
 	def grabMining(self):
-		if self.isMining==True:
+		if self.isMining:
 			if globalClock.getRealTime()-self.lastMiningTicks>0.5:
 				self.lastMiningTicks=globalClock.getRealTime()
 				return 10
@@ -181,7 +181,7 @@ class character:
 		for row in result_set:
 			self.ship=Ship(int(row[0]))
 
-		if self.ship==None:
+		if self.ship is None:
 			self.addShip(1)
 
 		self.ship.setOwner(self)
@@ -222,8 +222,8 @@ class character:
 		"""
 		#~ print "character::setCurrent " + str(self.id) + "/" + str(current)
 		self.current=current
-		if current==True:
-			if nm!=None:
+		if current:
+			if nm is not None:
 				self.ship.sendInfo(nm)
 		
 	def getPos(self):
@@ -321,7 +321,7 @@ class character:
 				if m.getId()==id:
 					found=True
 					break
-			if found==False:
+			if not found:
 				missionToRemove.append(id)
 			
 		cursor.close()
@@ -372,7 +372,7 @@ class character:
 	
 	def destroy(self):
 		print "Character :: destroy " + str(self.id)
-		if self.ship!=None:
+		if self.ship is not None:
 			self.ship.destroy()
 		
 	def acceptMission(self,idMission):
@@ -384,13 +384,13 @@ class character:
 			if m.getId()==int(idMission):
 				found=True
 				break
-		if found==False:
+		if not found:
 			mi=Mission(idMission,self.id)
 			mi.setCharacterStatus(C_STATEMISSION_INPROGRESS)
 			self.missions.append(mi)
 			preItems=mi.getPreItems()
 			for p in preItems:
-				if self.missionItemBelongsToCharacter(mi.getId(),p)==False:
+				if not self.missionItemBelongsToCharacter(mi.getId(), p):
 					newItem=self.ship.addItemFromTemplateInInventory(p)
 					newItem.setMission(mi.getId())
 					#~ networkmessage.instance.addMessage(C_CHAR_UPDATE,str(self.userId) + "/" + str(self.id) + "/additem=" + str(newItem.getXml().toxml()),self.connexion)

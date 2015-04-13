@@ -12,7 +12,7 @@ class NPC:
     listOfNpc = {}
 
     def __init__(self, id=0, idtemplate=0, zone=0):
-        # ~ print "NPC::__init__" + str(id) + "/" + str(idtemplate)
+        print "NPC::__init__" + str(id) + "/" + str(idtemplate)
         self.zone = zone
         self.ship = None
         self.className = "npc"
@@ -42,7 +42,7 @@ class NPC:
         return "NPC"
 
     def runPhysics(self):
-        if self.attitude != None:
+        if self.attitude is not None:
             self.attitude.run()
             self.attitude.runPhysics()
 
@@ -106,7 +106,7 @@ class NPC:
             self.ship = Ship(int(row[0]))
         cursor.close()
         shimDbConnector.lock.release()
-        if self.ship != None:
+        if self.ship is not None:
             self.ship.setOwner(self)
 
 
@@ -129,7 +129,7 @@ class NPC:
         self.saveToXml()
 
     def loadXml(self):
-        if os.path.exists("./config/npc/npc" + str(self.id) + ".xml") == True:
+        if os.path.exists("./config/npc/npc" + str(self.id) + ".xml"):
             dom = xml.dom.minidom.parse("./config/npc/npc" + str(self.id) + ".xml")
             pp = dom.getElementsByTagName('patrolpoint')
             beh = self.attitude.setBehavior(C_BEHAVIOR_PATROL)
@@ -168,7 +168,7 @@ class NPC:
         behaviors = self.attitude.getBehaviors()
         for bId in behaviors:
             b = behaviors[bId]
-            if isinstance(b, behaviorPatrol) == True:
+            if isinstance(b, behaviorPatrol):
                 patrolsXml = docXml.createElement("patrol")
                 pp = b.getPatrolPoints()
                 for p in pp:
@@ -187,7 +187,7 @@ class NPC:
     @staticmethod
     def getNPC(id):
         # ~ print str(npc.listOfNpc.keys()) + " searching for " + str(id)
-        if NPC.listOfNpc.has_key(id) == True:
+        if NPC.listOfNpc.has_key(id):
             return NPC.listOfNpc[id]
         else:
             return None

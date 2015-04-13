@@ -14,7 +14,7 @@ class StateServer:
 		
 	@staticmethod
 	def getInstance():
-		if StateServer.instance==None:
+		if StateServer.instance is None:
 			StateServer.instance=StateServer()
 			
 		return StateServer.instance

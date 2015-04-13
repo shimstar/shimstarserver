@@ -80,8 +80,8 @@ class Ship(ShimItem):
 		
 	def destroy(self):
 		print "ship::destroy"  + str(self.id)
-		if self.bodyNP!=None:
-			if self.world!=None:
+		if self.bodyNP is not None:
+			if self.world is not None:
 				self.world.removeRigidBody(self.bodyNP.node())
 			self.bodyNP.detachNode()
 			self.bodyNP.removeNode()
@@ -90,13 +90,13 @@ class Ship(ShimItem):
 		return self.world,self.worldNP
 		
 	def shot(self):
-		if self.worldNP==None:
+		if self.worldNP is None:
 			return None
 		else:
-			if self.weapon!=None:
+			if self.weapon is not None:
 				bul= self.weapon.shot(self.bodyNP.getPos(),self.bodyNP.getQuat(),self)
 				#~ print "ship::shot" + str(bul)
-				if bul!=None:
+				if bul is not None:
 					nm=netMessage(C_NETWORK_NEW_NPC_SHOT,None)
 					nm.addInt(self.owner.id)
 					nm.addInt(bul.getId())
@@ -146,13 +146,13 @@ class Ship(ShimItem):
 		return self.bodyNP
 	
 	def getPos(self):
-		if self.bodyNP!=None and self.bodyNP.isEmpty()==False:
+		if self.bodyNP is not None and self.bodyNP.isEmpty()==False:
 			return self.bodyNP.getPos()
 		else:
 			return None
 			
 	def getQuat(self):
-		if self.bodyNP!=None and self.bodyNP.isEmpty()==False:
+		if self.bodyNP is not None and self.bodyNP.isEmpty()==False:
 			return self.bodyNP.getQuat()
 		else:
 			return None
@@ -203,9 +203,9 @@ class Ship(ShimItem):
 		#~ print "ship::takedamage"
 		self.hullpoints-=hp
 		
-		if who!=None:
-			if character==True:
-				if self.damageHistory.has_key(who.getId())==True:
+		if who is not None:
+			if character:
+				if self.damageHistory.has_key(who.getId()):
 					self.damageHistory[who.getId()]+=hp
 				else:
 					self.damageHistory[who.getId()]=hp
@@ -247,9 +247,9 @@ class Ship(ShimItem):
 			for row in result_set:
 				tempSlot=Slot(0,row[0])
 				self.slots.append(tempSlot)
-				if tempSlot.getItem()!=None and tempSlot.getItem().getTypeItem()==C_ITEM_ENGINE:
+				if tempSlot.getItem() is not None and tempSlot.getItem().getTypeItem()==C_ITEM_ENGINE:
 					self.engine=tempSlot.getItem()
-				if tempSlot.getItem()!=None and tempSlot.getItem().getTypeItem()==C_ITEM_WEAPON:
+				if tempSlot.getItem() is not None and tempSlot.getItem().getTypeItem()==C_ITEM_WEAPON:
 					self.weapon=tempSlot.getItem()
 			
 			cursor.close()
@@ -294,9 +294,9 @@ class Ship(ShimItem):
 			tempSlot=Slot(row[0])
 			self.slots.append(tempSlot)
 
-			if tempSlot.getItem()!=None and isinstance(tempSlot.getItem(),Engine):
+			if tempSlot.getItem() is not None and isinstance(tempSlot.getItem(),Engine):
 				self.engine=tempSlot.getItem()
-			if tempSlot.getItem()!=None and isinstance(tempSlot.getItem(),Weapon):
+			if tempSlot.getItem() is not None and isinstance(tempSlot.getItem(),Weapon):
 				self.weapon=tempSlot.getItem()
 				self.weapon.setShip(self)
 		cursor.close()
@@ -350,8 +350,8 @@ class Ship(ShimItem):
 				#~ av=self.bodyNP.node().getAngularVelocity()
 				#~ av2=av*self.frictionAngular				
 				#~ self.bodyNP.node().setAngularVelocity(av2)
-		if self.bodyNP!=None and self.bodyNP.isEmpty()==False:			
-			if self.worldNP!=None:
+		if self.bodyNP is not None and self.bodyNP.isEmpty()==False:
+			if self.worldNP is not None:
 				self.bodyNP.node().setActive(True)		
 				forwardVec=self.bodyNP.getQuat().getForward()
 				#~ print self.pyr
@@ -359,7 +359,7 @@ class Ship(ShimItem):
 				v= self.worldNP.getRelativeVector(self.bodyNP,v) 
 				self.bodyNP.node().applyTorque(v)
 				
-				if self.engine!=None:
+				if self.engine is not None:
 					if self.pyr['a']==1:
 						if self.poussee<self.engine.getSpeedMax():
 							self.poussee+=self.engine.getAcceleration()
@@ -408,7 +408,7 @@ class Ship(ShimItem):
 		instanceDbConnector=shimDbConnector.getInstance()
 		if self.id>0:
 			query="UPDATE STAR007_SHIP SET star007_hull='" + str(self.hullpoints) + "'"
-			if self.bodyNP!=None and self.bodyNP.isEmpty()==False:
+			if self.bodyNP is not None and self.bodyNP.isEmpty()==False:
 				query+=",star007_posx='" + str(self.bodyNP.getPos().getX()) + "'"
 				query+=",star007_posy='" + str(self.bodyNP.getPos().getY()) + "'"
 				query+=",star007_posZ='" + str(self.bodyNP.getPos().getZ()) + "'"
@@ -487,7 +487,7 @@ class Ship(ShimItem):
 		world.attachRigidBody(self.bodyNP.node())
 		visNP.reparentTo(self.bodyNP)
 		self.state=1
-		if self.weapon!=None:
+		if self.weapon is not None:
 			self.weapon.setShip(self)
 		
 	def setPos(self,pos):
@@ -516,13 +516,13 @@ class Ship(ShimItem):
 				slotToInstall=s
 				break
 				
-		if slotToInstall!=None:
+		if slotToInstall is not None:
 			itemToInstall=None
 			for i in self.itemInInventory:
 				if i.getId()==itemId:
 					itemToInstall=i
 					break
-			if itemToInstall!=None:
+			if itemToInstall is not None:
 				self.itemInInventory.remove(itemToInstall)
 				slotToInstall.setItem(itemToInstall)
 				

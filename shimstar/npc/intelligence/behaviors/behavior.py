@@ -60,7 +60,7 @@ class behavior(object):
 		if self.obstacle!=obj:
 			self.obstacle=obj
 			#~ print obj
-			if self.target==None:
+			if self.target is None:
 				self.target=NodePath('PatrolPoint')
 			pt1, pt2 = NPobj.getTightBounds()
 			size=0
@@ -102,7 +102,7 @@ class behavior(object):
 
 			if size<50:
 				size=50
-			if self.bodyNP!=None and self.bodyNP.isEmpty()==False and obj.bodyNP!=None and obj.bodyNP.isEmpty==False:
+			if self.bodyNP is not None and self.bodyNP.isEmpty()==False and obj.bodyNP is not None and obj.bodyNP.isEmpty==False:
 				#~ self.target.setHpr(self.ship.bodyNP.getHpr())
 				self.target.setQuat(self.ship.getQuat())
 				self.target.setPos(obj.bodyNP.getPos())

@@ -28,7 +28,7 @@ class Slot:
 		for t in self.types:
 			nm.addInt(t)
 		it=self.getItem()
-		if it!=None:
+		if it is not None:
 			nm.addInt(it.getTypeItem())
 			nm.addInt(it.getTemplate())
 			nm.addInt(it.getId())
@@ -42,7 +42,7 @@ class Slot:
 			
 	def setItem(self,item):
 		self.item=item
-		if item!=None:
+		if item is not None:
 			item.setContainer(self.id)
 			item.setContainerType("star009_slot")
 			
@@ -118,7 +118,7 @@ class Slot:
 		return self.item
 		
 	def getXml(self,docXml=None):
-		if docXml==None:
+		if docXml is None:
 			docXml = xml.dom.minidom.Document()
 		slotXml=docXml.createElement("slot")
 		idXml=docXml.createElement("id")
@@ -136,7 +136,7 @@ class Slot:
 		typesXml=docXml.createElement("types")
 		typesXml.appendChild(docXml.createTextNode(str(typesString)))
 		
-		if self.item!=None:
+		if self.item is not None:
 			itemXml=docXml.createElement("item")
 			iditemXml=docXml.createElement("iditem")
 			iditemXml.appendChild(docXml.createTextNode(str(self.item.getId())))
@@ -160,13 +160,13 @@ class Slot:
 		if self.id==0:
 			bNew=True
 			
-		if self.item!=None:
+		if self.item is not None:
 			self.item.setContainer(self.id)
 			self.item.setContainerType("star009_slot")
 			self.item.saveToBDD()
 		if self.id>0:
 			query="UPDATE star009_slot set star009_item_star006='"
-			if self.item!=None:
+			if self.item is not None:
 				query+=str(self.item.getId())
 			else:
 				query+="0"
@@ -174,7 +174,7 @@ class Slot:
 		else:
 			query="INSERT INTO star009_slot (star009_location_star008,star009_numero,star009_ship_star007,star009_item_star006)"
 			query+=" VALUES ('" + str(self.location) + "','" + str(self.nb) + "','"+str(self.idShip)+"','"
-			if self.item!=None:
+			if self.item is not None:
 				query+=str(self.item.getId())
 			else:
 				query+="0"
@@ -187,7 +187,7 @@ class Slot:
 			
 		cursor.close()
 		
-		if bNew==True:
+		if bNew:
 			for t in self.types:
 				query="INSERT INTO star021_slot_typeitem (star021_typeitem_star003,star021_slot_star009) values('"+str(t)+"','"+str(self.id)+"')"
 				#~ print query
@@ -195,7 +195,7 @@ class Slot:
 				cursor.execute(query)
 				cursor.close()
 		
-		if self.item!=None:
+		if self.item is not None:
 			self.item.setContainer(self.id)
 			self.item.saveToBDD()
 		

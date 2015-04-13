@@ -34,7 +34,7 @@ class Attitude:
 		
 	def loadBehavior(self,id,zone):
 		#~ print "Attitude::loadBehavior " + str(id) + "/" + str(zone)
-		if os.path.exists("./config/behaviour/"+str(zone) + "/" + str(id) + ".xml")==True:
+		if os.path.exists("./config/behaviour/" + str(zone) + "/" + str(id) + ".xml"):
 			dom = xml.dom.minidom.parse("./config/behaviour/"+str(zone) + "/" + str(id) + ".xml")
 			pp=dom.getElementsByTagName('patrolpoint')
 			beh=self.setBehavior(C_BEHAVIOR_PATROL)
@@ -58,7 +58,7 @@ class Attitude:
 		
 	def run(self):
 		if self.currentBehavior>=0:
-			if self.behavior.has_key(self.currentBehavior)==True:
+			if self.behavior.has_key(self.currentBehavior):
 				if self.behavior[self.currentBehavior].getStatus()==C_BEHAVIOR_STATUS_CURRENT:
 					self.behavior[self.currentBehavior].run()
 				else:
@@ -78,11 +78,11 @@ class Attitude:
 				#~ if self.attitude[C_ATTITUDE_AGGRESSIVITE]>2:
 					alreadyAttack=False
 					for behav in self.behavior:
-						if isinstance(self.behavior[behav],BehaviorAttack)==True:
+						if isinstance(self.behavior[behav], BehaviorAttack):
 							alreadyAttack=True
 							break
 					#~ print User.listOfUser
-					if alreadyAttack==False:
+					if not alreadyAttack:
 						nearer=None
 						nearerDist=100000000
 						ships=[]
@@ -99,25 +99,25 @@ class Attitude:
 								ships.append(ship)
 								nnn.append(n)
 						for s in ships:
-							if s.bodyNP.isEmpty()==False:
+							if not s.bodyNP.isEmpty():
 								#~ print "attitude::run " + str(s.owner.faction) + "/" + str(att.getFaction())
 								if s.owner.faction==att.getFaction():
 									dist=calcDistance(self.npc.ship.bodyNP,s.bodyNP)
 									if dist<nearerDist:
 										nearerDist=dist
 										nearer=ship
-						if nearer!=None:
+						if nearer is not None:
 							#~ print "attitude::run acquiring new target " + str(nearer)
 							behav=self.setBehavior(C_BEHAVIOR_ATTACK)
 							behav.setTarget(nearer.bodyNP)
 						
 	def runPhysics(self):
 		if self.currentBehavior>=0:
-			if self.behavior.has_key(self.currentBehavior)==True:
+			if self.behavior.has_key(self.currentBehavior):
 				self.behavior[self.currentBehavior].runPhysics()
 		
 	def setBehavior(self,beh):
-		if self.behavior.has_key(beh)==False:
+		if not self.behavior.has_key(beh):
 			self.behavior[beh]=behaviorFactory.getBehavior(beh,self.npc)
 			self.currentBehavior=beh
 		return self.behavior[beh]
