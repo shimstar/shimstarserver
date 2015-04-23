@@ -137,7 +137,7 @@ class NPC:
                 pos = p.firstChild.data
                 tabpos = pos.split(",")
                 beh.addPatrolPoint(Vec3(float(tabpos[0]), float(tabpos[1]), float(tabpos[2])))
-            self.faction = int(dom.getElementsByTagName('faction')[0].firstChild.data)
+            # self.faction = int(dom.getElementsByTagName('faction')[0].firstChild.data)
             atti = dom.getElementsByTagName('attitude')
             for a in atti:
                 typeAtti = int(a.getElementsByTagName('typeattitude')[0].firstChild.data)
