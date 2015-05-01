@@ -27,11 +27,25 @@ class NPC(threading.Thread):
             self.loadFromBDD()
         else:
             self.loadTemplateFromBDD()
-
+        NPC.lock.acquire()
         NPC.listOfNpc[self.id] = self
+        NPC.lock.release()
 
     def getId(self):
         return self.id
+
+    def destroy(self):
+        NPC.lock.acquire()
+        if NPC.listOfNpc.has_key(self.id):
+            if self.ship is not None:
+                self.ship.destroy()
+                self.ship=None
+            del NPC.listOfNpc[self.id]
+        NPC.lock.release()
+
+    def deleteFromBdd(self):
+        # TODO implement suppression de la base de donnéee
+        pass
 
     def sendInfo(self, nm):
         nm.addInt(self.id)
