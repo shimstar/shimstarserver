@@ -22,26 +22,29 @@ class BehaviorAttack(behavior):
 
     def runBehav(self):
         # ~ print "BehaviorAttack::runBehav " + str(self.npc.id) + " / " + str(self.patrolsPoint)
-        if not self.target.isEmpty():
-            if len(self.patrolsPoint) == 0 and self.avoidTarget is None:
-                if self.target is not None:
-                    self.runShotTo()
-            else:
-                if self.avoidTarget is not None:
-                    self.pointerToGo.setPos(self.ship.bodyNP.getPos())
-                    self.pointerToGo.lookAt(self.avoidTarget)
-                    dist = self.calcDistance(self.avoidTarget, self.ship.bodyNP)
-                    if dist < 50:
-                        self.avoidTarget = None
+        if self.ship is not None and self.ship.bodyNP is not None and self.ship.bodyNP.isEmpty()!=True:
+            if not self.target.isEmpty():
+                self.ship.lock.acquire()
+                if len(self.patrolsPoint) == 0 and self.avoidTarget is None:
+                    if self.target is not None:
+                        self.runShotTo()
                 else:
-                    #~ if self.npc.id==8:
-                    #~ print "here " + str(self.ship.bodyNP.getPos()) + " / " + str(self.patrolsPoint[0])
-                    self.pointerToGo.setPos(self.ship.bodyNP.getPos())
-                    self.pointerToGo.lookAt(self.patrolsPoint[0])
-                    dist = self.calcDistance(self.patrolsPoint[0], self.ship.bodyNP)
-                    #~ print "####" + str(dist)
-                    if dist < 300:
-                        del self.patrolsPoint[0]
+                    if self.avoidTarget is not None:
+                        self.pointerToGo.setPos(self.ship.bodyNP.getPos())
+                        self.pointerToGo.lookAt(self.avoidTarget)
+                        dist = self.calcDistance(self.avoidTarget, self.ship.bodyNP)
+                        if dist < 50:
+                            self.avoidTarget = None
+                    else:
+                        #~ if self.npc.id==8:
+                        #~ print "here " + str(self.ship.bodyNP.getPos()) + " / " + str(self.patrolsPoint[0])
+                        self.pointerToGo.setPos(self.ship.bodyNP.getPos())
+                        self.pointerToGo.lookAt(self.patrolsPoint[0])
+                        dist = self.calcDistance(self.patrolsPoint[0], self.ship.bodyNP)
+                        #~ print "####" + str(dist)
+                        if dist < 300:
+                            del self.patrolsPoint[0]
+                self.ship.lock.release()
 
     def dodgeAround(self):
         self.nbA += 1
