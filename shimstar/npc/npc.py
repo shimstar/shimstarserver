@@ -8,8 +8,9 @@ from shimstar.npc.intelligence.attitude import *
 from shimstar.items.ship import *
 
 
-class NPC:
+class NPC(threading.Thread):
     listOfNpc = {}
+    lock=threading.Lock()
 
     def __init__(self, id=0, idtemplate=0, zone=0):
         print "NPC::__init__" + str(id) + "/" + str(idtemplate)
