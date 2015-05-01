@@ -8,7 +8,7 @@ from shimstar.npc.intelligence.behaviors.behaviorpatrol import *
 from shimstar.npc.intelligence.behaviors.behaviorattack import *
 from shimstar.npc.intelligence.behaviors.behaviorfactory import *
 from shimstar.user.user import *
-from shimstar.npc.npc import *
+# from shimstar.npc.npc import *
 # ~ from shimstar.core.function import *
 class AttitudeProperties:
     def __init__(self, typeAttitude=0, level=0, faction=0):
@@ -90,13 +90,17 @@ class Attitude:
                             ships.append(ship)
                             nnn.append(u)
                         User.lock.release()
-                        NPC.lock.acquire()
+
+                        self.npc.lock.acquire()
+                        self.npc.zone.lockListNpc.acquire()
                         for n in self.npc.zone.npc:
                             if n != self.npc:
                                 ship = n.ship
                                 ships.append(ship)
                                 nnn.append(n)
-                        NPC.lock.release()
+                        self.npc.zone.lockListNpc.release()
+                        self.npc.lock.release()
+
                         for s in ships:
                             s.lock.acquire()
                             if not s.bodyNP.isEmpty():
