@@ -3,12 +3,13 @@ from shimstar.bdd.dbconnector import *
 from pandac.PandaModules import Vec3
 import os, sys
 import os.path
+from direct.stdpy import threading
 import xml.dom.minidom
 from shimstar.npc.intelligence.attitude import *
 from shimstar.items.ship import *
 
 
-class NPC(threading.Thread):
+class NPC():
     listOfNpc = {}
     lock=threading.Lock()
 
@@ -44,7 +45,7 @@ class NPC(threading.Thread):
         NPC.lock.release()
 
     def deleteFromBdd(self):
-        # TODO implement suppression de la base de donnéee
+        # TODO implement suppression de la base de donneee
         pass
 
     def sendInfo(self, nm):
