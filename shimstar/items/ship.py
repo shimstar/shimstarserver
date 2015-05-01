@@ -95,6 +95,9 @@ class Ship(ShimItem, threading.Thread):
                 self.world.removeRigidBody(self.bodyNP.node())
             self.bodyNP.detachNode()
             self.bodyNP.removeNode()
+            self.bodyNP=None
+            # TODO uncomment line below to destroy ship
+            # self.deleteFromBdd()
         self.lock.release()
 
     def getWorld(self):
