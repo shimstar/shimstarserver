@@ -17,6 +17,7 @@ class NPC():
         print "NPC::__init__" + str(id) + "/" + str(idtemplate)
         self.zone = zone
         self.ship = None
+        self.name=""
         self.className = "npc"
         self.template = idtemplate
         self.id = id
@@ -108,7 +109,6 @@ class NPC():
         self.ship.loadEgg(self.zone.world, self.zone.worldNP)
         self.attitude.loadBehavior(idbehav, zoneName)
 
-
     def loadShipFromBDD(self):
         query = "SELECT star007_id FROM star007_ship ship JOIN  star006_item item ON item.star006_id=ship.star007_item_star006 "
         query += " WHERE star007_fitted=1 and  star006_container_starnnn='" + str(
@@ -124,7 +124,6 @@ class NPC():
         shimDbConnector.lock.release()
         if self.ship is not None:
             self.ship.setOwner(self)
-
 
     def saveToBDD(self):
         if self.id == 0:
