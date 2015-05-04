@@ -94,18 +94,20 @@ class Attitude:
                         self.npc.lock.acquire()
                         self.npc.zone.lockListNpc.acquire()
                         for n in self.npc.zone.npc:
-                            if n != self.npc:
+                            # print "attitude::run " + str(self.npc) + "//" + str(self.npc.faction) + "//" + str(self.npc.id) + "//" + str(n) + "//" + str(n.faction)
+                            if n != self.npc and self.npc.faction!=n.faction:
                                 ship = n.ship
                                 ships.append(ship)
                                 nnn.append(n)
+
                         self.npc.zone.lockListNpc.release()
                         self.npc.lock.release()
 
                         for s in ships:
                             s.lock.acquire()
                             if not s.bodyNP.isEmpty():
-                                #~ print "attitude::run " + str(s.owner.faction) + "/" + str(att.getFaction())
-                                if s.owner.faction == att.getFaction():
+                                # print "attitude::run " + str(s.owner.faction) + "/" + str(att.getFaction())
+                                if s.owner.faction == att.getFaction() or att.getFaction()==0:
                                     dist = calcDistance(self.npc.ship.bodyNP, s.bodyNP)
                                     if dist < nearerDist:
                                         nearerDist = dist
