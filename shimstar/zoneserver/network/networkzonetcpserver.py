@@ -145,7 +145,7 @@ class NetworkTCPServer():
 		connexion=netDatagram.getConnection()
 		msgTab=[]
 		msgID=myIterator.getUint32()		
-		print msgID
+		# print msgID
 		if msgID==C_NETWORK_CONNECT:
 			idusr=int(myIterator.getUint32())
 			idchar=int(myIterator.getUint32())

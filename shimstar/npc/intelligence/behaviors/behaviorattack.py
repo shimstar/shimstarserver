@@ -14,9 +14,10 @@ class BehaviorAttack(behavior):
         self.target = target
 
     def run(self):
+        print "behaviorAttack :: run " + str(self.target)
         if self.target is None or self.target.isEmpty() == True:
             self.status = C_BEHAVIOR_STATUS_FINISHED
-        else:
+            # print "BehaviourAtttack :: run finished"
             self.runBehav()
             self.runPhysics()
 
