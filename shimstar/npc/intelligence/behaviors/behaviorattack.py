@@ -14,15 +14,15 @@ class BehaviorAttack(behavior):
         self.target = target
 
     def run(self):
-        print "behaviorAttack :: run " + str(self.target)
+        print "behaviorAttack :: run " + "/" + str(self.npc.id) + "/" + str(self.target)
         if self.target is None or self.target.isEmpty() == True:
             self.status = C_BEHAVIOR_STATUS_FINISHED
             # print "BehaviourAtttack :: run finished"
-            self.runBehav()
-            self.runPhysics()
+        self.runBehav()
+        self.runPhysics()
 
     def runBehav(self):
-        # ~ print "BehaviorAttack::runBehav " + str(self.npc.id) + " / " + str(self.patrolsPoint)
+        #print "BehaviorAttack::runBehav " + str(self.npc.id) + " / " + str(self.target)
         if self.ship is not None and self.ship.bodyNP is not None and self.ship.bodyNP.isEmpty()!=True:
             if not self.target.isEmpty():
                 self.ship.lock.acquire()
