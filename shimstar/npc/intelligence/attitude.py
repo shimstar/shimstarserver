@@ -34,7 +34,7 @@ class Attitude:
         self.npc = npc
 
     def loadBehavior(self, id, zone):
-        #~ print "Attitude::loadBehavior " + str(id) + "/" + str(zone)
+        print "Attitude::loadBehavior " + str(id) + "/" + str(zone)
         if os.path.exists("./config/behaviour/" + str(zone) + "/" + str(id) + ".xml"):
             dom = xml.dom.minidom.parse("./config/behaviour/" + str(zone) + "/" + str(id) + ".xml")
             pp = dom.getElementsByTagName('patrolpoint')
@@ -79,6 +79,7 @@ class Attitude:
                             alreadyAttack = True
                             break
                     #~ print User.listOfUser
+
                     if not alreadyAttack:
                         nearer = None
                         nearerDist = 100000000
@@ -105,9 +106,10 @@ class Attitude:
 
                         for s in ships:
                             s.lock.acquire()
-                            if not s.bodyNP.isEmpty():
+                            if s.bodyNP is not None and not s.bodyNP.isEmpty():
                                 # print "attitude::run " + str(s.owner.faction) + "/" + str(att.getFaction())
-                                if s.owner.faction == att.getFaction() or att.getFaction()==0:
+                                # if s.owner.faction == att.getFaction() or att.getFaction()==0:
+                                if s.owner.faction == att.getFaction():
                                     dist = calcDistance(self.npc.ship.bodyNP, s.bodyNP)
                                     if dist < nearerDist:
                                         nearerDist = dist
