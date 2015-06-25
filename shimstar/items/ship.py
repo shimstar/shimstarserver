@@ -53,8 +53,25 @@ class Ship(ShimItem, threading.Thread):
             self.loadFromTemplate()
         super(Ship, self).__init__(id, self.template)
 
-        print "ship::__init__ id=" + str(self.id) + "/tempalte= " + str(self.template) + "/" + str(self.owner)
+        print "ship::__init__ id=" + str(self.id) + "/tempalte= " + str(self.template) + "/" + str(self.owner) + "/" + str(self)
 
+
+    def getInventory(self):
+        return self.itemInInventory
+
+    def getItems(self):
+        items=[]
+        for s in self.slots:
+            if s.getItem()!=None:
+                items.append(s.getItem())
+        return items
+
+    def getDamageHistory(self):
+        """
+        return damageHistory
+        self.damageHistory contains the history of who has shot on the ship, and how many damage.
+        """
+        return self.damageHistory
 
     def hasInInventory(self, itemTemplate):
         for i in self.itemInInventory:
@@ -224,14 +241,13 @@ class Ship(ShimItem, threading.Thread):
             """
         # ~ print "ship::takedamage"
         self.hullpoints -= hp
-
         if who is not None:
             if character:
                 if self.damageHistory.has_key(who.getId()):
                     self.damageHistory[who.getId()] += hp
                 else:
                     self.damageHistory[who.getId()] = hp
-
+        print "takeDamage " + str(self.damageHistory)
 
     def loadFromTemplate(self):
         """

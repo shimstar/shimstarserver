@@ -92,7 +92,7 @@ class Bullet(threading.Thread):
 		return bullet.className
 			
 	def getShipOwner(self):
-		return self.weapon.ship.name
+		return self.weapon.ship.owner
 			
 	def getWeapon(self):
 		return self.weapon

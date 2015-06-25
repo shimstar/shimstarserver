@@ -11,6 +11,7 @@ from shimstar.world.zone.asteroid import *
 from shimstar.world.zone.station import *
 from shimstar.npc.npc import *
 from shimstar.items.mineral import *
+from shimstar.items.junk import *
 
 C_STEP_SIZE = 1.0 / 60.0
 
@@ -257,7 +258,7 @@ class Zone(threading.Thread):
                     bulletToRemove.append(b)
                 elif isinstance(objCollided, Ship) == True:
                     objCollided.takeDamage(Bullet.listOfBullet[b].getDamage(), Bullet.listOfBullet[b].getShipOwner(),
-                        isinstance(objCollided.getOwner(), Character))
+                        isinstance(Bullet.listOfBullet[b].getShipOwner(), character))
                     User.lock.acquire()
                     for u in User.listOfUser:
                         # ~ print "zone::run collision " + str(isinstance(objCollided.getOwner(),Character))
@@ -270,7 +271,9 @@ class Zone(threading.Thread):
                         nm.addInt(Bullet.listOfBullet[b].getDamage())
                         NetworkMessage.getInstance().addMessage(nm)
                     User.lock.release()
-                    if objCollided.getHullPoints() == 0:
+                    if objCollided.getHullPoints() <= 0:
+                        tempJunk=junk(0,objCollided.getPos(),self.id,4)
+                        tempJunk.populateFromShip(objCollided)
                         User.lock.acquire()
                         for u in User.listOfUser:
                             # ~ print "zone::run collision " + str(isinstance(objCollided.getOwner(),character))
@@ -288,6 +291,11 @@ class Zone(threading.Thread):
                                 nm = netMessage(C_NETWORK_REMOVE_CHAR, User.listOfUser[u].getConnexion())
                             nm.addInt(objCollided.getOwner().getId())
                             NetworkMessage.getInstance().addMessage(nm)
+
+                            if tempJunk.mustSendToUser(u):
+                                nm = netMessage(C_NETWORK_ADD_JUNK, User.listOfUser[u].getConnexion())
+                                tempJunk.sendInfo(nm,u)
+                                NetworkMessage.getInstance().addMessage(nm)
 
                         User.lock.release()
                     User.lock.acquire()
@@ -402,44 +410,13 @@ class Zone(threading.Thread):
         # temp.saveToBDD()  # ~ temp=NPC(0,3,self)
         # ~ temp.ship.setPos((1000,1200,1200))
         #~ temp.saveToBDD()
-        #~ temp=NPC(0,3,self)
-        #~ temp.ship.setPos((1500,1500,1000))
-        #~ temp.saveToBDD()
-        #~ temp=NPC(0,3,self)
+        # temp=NPC(0,3,self)
+        # temp.ship.setPos((1500,1500,1000))
+        # temp.saveToBDD()
+        # temp=NPC(0,3,self)
         #~ temp.ship.setPos((2000,1000,2000))
         #~ temp.saveToBDD()
-        #~ temp=NPC(0,3,self)
-        #~ temp.ship.setPos((1000,2000,1500))
-        #~ temp.saveToBDD()
-        #~ temp=NPC(0,3,self)
-        #~ temp.ship.setPos((2000,1500,1500))
-        #~ temp.saveToBDD()
-        #~ temp=NPC(0,3,self)
-        #~ temp.ship.setPos((3000,2000,1800))
-        #~ temp.saveToBDD()
-        #~ temp=NPC(0,4,self)
-        #~ temp.ship.setPos((-1000,-1000,-1000))
-        #~ temp.saveToBDD()
-        #~ temp=NPC(0,4,self)
-        #~ temp.ship.setPos((-1000,-1200,-1200))
-        #~ temp.saveToBDD()
-        #~ temp=NPC(0,4,self)
-        #~ temp.ship.setPos((-1500,-1500,-1000))
-        #~ temp.saveToBDD()
-        #~ temp=NPC(0,4,self)
-        #~ temp.ship.setPos((-2000,-1000,-2000))
-        #~ temp.saveToBDD()
-        #~ temp=NPC(0,4,self)
-        #~ temp.ship.setPos((-1000,-2000,-1500))
-        #~ temp.saveToBDD()
-        #~ temp=NPC(0,4,self)
-        #~ temp.ship.setPos((-2000,-1500,-1500))
-        #~ temp.saveToBDD()
-        #~ temp=NPC(0,4,self)
-        #~ temp.ship.setPos((-3000,-2000,-1800))
-        #~ temp.saveToBDD()
-        #~ temp=NPC(0,1,self)
-        #~ temp.saveToBDD()
+
         query = "SELECT star034_id FROM star034_npc WHERE star034_zone_star011zone ='" + str(self.id) + "'"
         shimDbConnector.lock.acquire()
         instanceDbConnector = shimDbConnector.getInstance()
