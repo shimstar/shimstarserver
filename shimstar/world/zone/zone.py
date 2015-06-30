@@ -77,6 +77,24 @@ class Zone(threading.Thread):
 
                 NetworkTCPServer.getInstance().removeMessage(msg)
 
+        tempMsg = NetworkTCPServer.getInstance().getListOfMessageById(C_NETWORK_ASKING_JUNK)
+        if len(tempMsg) > 0:
+            for msg in tempMsg:
+                netMsg = msg.getMessage()
+                usrId = int(netMsg[0])
+                usr = User.getUserById(usrId)
+                print "runnewUser::C_NETWORK_ASKING_JUNK " + str(usr)
+                if usr != None:
+                    nbJunk=0
+                    for tempJunk in junk.junks:
+                        if tempJunk.mustSendToUser(u):
+                            nm = netMessage(C_NETWORK_ADD_JUNK, User.listOfUser[u].getConnexion())
+                            tempJunk.sendInfo(nm,u)
+                            NetworkMessage.getInstance().addMessage(nm)
+                            nbJunk+=1
+
+                    nm = netMessage(C_NETWORK_JUNK_SENT, User.listOfUser[u].getConnexion())
+                    NetworkMessage.getInstance().addMessage(nm)
 
     def run(self):
         while not self.stopThread:
@@ -384,6 +402,16 @@ class Zone(threading.Thread):
 
         return Zone.instance
 
+    def loadZoneJunkFromBdd(self):
+        query="SELECT star015_id FROM star015_junk WHERE star015_zone_star011 ='" + str(self.id) + "'"
+        instanceDbConnector=shimDbConnector.getInstance()
+
+        cursor=instanceDbConnector.getConnection().cursor()
+        cursor.execute(query)
+        result_set = cursor.fetchall ()
+        for row in result_set:
+            junkLoaded=junk(row[0])
+        cursor.close()
 
     def loadZoneFromBdd(self):
         query = "SELECT star011_name, star011_typezone_star012 FROM star011_zone WHERE star011_id ='" + str(
