@@ -20,14 +20,14 @@ class Bullet(threading.Thread):
         self.range = range
         self.speed = speed
         self.lastSentTicks = 0
-        worldNP = self.weapon.worldNP
-        world = self.weapon.world
+        self.worldNP = self.weapon.worldNP
+        self.world = self.weapon.world
         visNP = loader.loadModel("models/" + egg)
         geom = visNP.findAllMatches('**/+GeomNode').getPath(0).node().getGeom(0)
         shape = BulletConvexHullShape()
         shape.addGeom(geom)
         body = BulletRigidBodyNode("bullet" + str(self.id))
-        self.bodyNP = worldNP.attachNewNode(body)
+        self.bodyNP = self.worldNP.attachNewNode(body)
         self.bodyNP.node().addShape(shape)
         self.bodyNP.node().setMass(0.0001)
         self.bodyNP.setQuat(quat)
@@ -45,7 +45,7 @@ class Bullet(threading.Thread):
         self.bodyNP.setCollideMask(BitMask32.allOn())
         self.bodyNP.setPythonTag("obj", self)
         self.bodyNP.setPythonTag("pnode", visNP)
-        world.attachRigidBody(self.bodyNP.node())
+        self.attachRigidBody(self.bodyNP.node())
         visNP.reparentTo(self.bodyNP)
         forwardVec = self.bodyNP.getQuat().getForward()
         self.bodyNP.node().setLinearVelocity(
