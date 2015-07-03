@@ -58,22 +58,32 @@ class Zone(threading.Thread):
                 netMsg = msg.getMessage()
                 usrId = int(netMsg[0])
                 usr = User.getUserById(usrId)
-                print "runnewUser::C_NETWORK_ASKING_CHAR " + str(usr)
                 if usr != None:
                     nm = netMessage(C_NETWORK_CURRENT_CHAR_INFO, usr.getConnexion())
                     usr.sendInfoChar(nm)
                     NetworkMessage.getInstance().addMessage(nm)
 
+                NetworkTCPServer.getInstance().removeMessage(msg)
+
+        tempMsg = NetworkTCPServer.getInstance().getListOfMessageById(C_NETWORK_ASKING_OTHER_CHAR)
+        if len(tempMsg) > 0:
+            for msg in tempMsg:
+                netMsg = msg.getMessage()
+                usrId = int(netMsg[0])
+                usr = User.getUserById(usrId)
+
+                if usr != None:
                     for othrUsr in User.listOfUser:
-                        print "runnewUser::C_NETWORK_ASKING_CHAR se d" + str(othrUsr)
                         if othrUsr != usrId:
-                            print "runnewUser::C_NETWORK_ASKING_CHAR sending" + str(othrUsr)
                             nm = netMessage(C_NETWORK_CHAR_INCOMING, usr.getConnexion())
                             User.listOfUser[othrUsr].sendInfoOtherPlayer(nm)
                             NetworkMessage.getInstance().addMessage(nm)
                             nm = netMessage(C_NETWORK_CHAR_INCOMING, User.listOfUser[othrUsr].getConnexion())
                             usr.sendInfoOtherPlayer(nm)
                             NetworkMessage.getInstance().addMessage(nm)
+
+                    nm = netMessage(C_NETWORK_CHAR_SENT, usr.getConnexion())
+                    NetworkMessage.getInstance().addMessage(nm)
 
                 NetworkTCPServer.getInstance().removeMessage(msg)
 
@@ -83,21 +93,23 @@ class Zone(threading.Thread):
                 netMsg = msg.getMessage()
                 usrId = int(netMsg[0])
                 usr = User.getUserById(usrId)
-                print "runnewUser::C_NETWORK_ASKING_JUNK " + str(usr)
                 if usr != None:
                     nbJunk=0
+                    idChar=usr.getCurrentCharacter().getId()
                     for tempJunk in junk.junks:
-                        if tempJunk.mustSendToUser(u):
-                            nm = netMessage(C_NETWORK_ADD_JUNK, User.listOfUser[u].getConnexion())
-                            tempJunk.sendInfo(nm,u)
+                        if tempJunk.mustSendToUser(idChar):
+                            nm = netMessage(C_NETWORK_ADD_JUNK, usr.getConnexion())
+                            tempJunk.sendInfo(nm,idChar)
                             NetworkMessage.getInstance().addMessage(nm)
                             nbJunk+=1
 
-                    nm = netMessage(C_NETWORK_JUNK_SENT, User.listOfUser[u].getConnexion())
+                    nm = netMessage(C_NETWORK_JUNK_SENT, usr.getConnexion())
                     NetworkMessage.getInstance().addMessage(nm)
+                NetworkTCPServer.getInstance().removeMessage(msg)
 
     def run(self):
         while not self.stopThread:
+            # print len(Bullet.listOfBullet)
             User.lock.acquire()
             # ~ print User.listOfUser
             for usr in User.listOfUser:
@@ -430,6 +442,7 @@ class Zone(threading.Thread):
         self.loadZoneAsteroidFromBdd()
         self.loadZoneStationFromBdd()
         self.loadZoneNPCFromBDD()
+        self.loadZoneJunkFromBdd()
 
 
     def loadZoneNPCFromBDD(self):

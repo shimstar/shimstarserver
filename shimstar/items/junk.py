@@ -2,6 +2,7 @@ import os, sys
 import random
 from pandac.PandaModules import Point3, Vec3, Vec4
 from shimstar.bdd.dbconnector import *
+from shimstar.items.item import *
 
 
 class junk:
@@ -85,7 +86,7 @@ class junk:
         cursor.execute(query)
         result_set = cursor.fetchall()
         for row in result_set:
-            temp = ShimstarItem(int(row[0]))
+            temp = ShimItem(int(row[0]))
             if self.items.has_key(temp.getOwner()) != True:
                 self.items[temp.getOwner()] = []
             self.items[temp.getOwner()].append(temp)
@@ -191,7 +192,8 @@ class junk:
             self.node.removeNode()
         del junk.junks[self]
 
-    def sendPos(self,nm,idUser):
+    def sendInfo(self,nm,idUser):
+        nm.addInt(self.id)
         nm.addFloat(self.pos.getX())
         nm.addFloat(self.pos.getY())
         nm.addFloat(self.pos.getZ())
@@ -199,10 +201,12 @@ class junk:
         listOfItem=[]
         for usr in self.items.keys():
             if usr==idUser:
-                nbItemForUser+=1
-                listOfItem.append(self.items[user])
+                for it in self.items[usr]:
+                    nbItemForUser+=1
+                    listOfItem.append(it)
 
         nm.addInt(nbItemForUser)
+
         for it in listOfItem:
             nm.addInt(it.getTypeItem())
             nm.addInt(it.getTemplate())
@@ -211,6 +215,7 @@ class junk:
         return nm
 
     def mustSendToUser(self,idUser):
+        print "Junk::mustSendToUser " + str(self.items) + "/" + str(self.items.keys()) + str(idUser)
         for usr in self.items.keys():
             if usr==idUser:
                 return True
