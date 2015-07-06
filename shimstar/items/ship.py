@@ -545,7 +545,7 @@ class Ship(ShimItem, threading.Thread):
         self.bodyNP.setCollideMask(BitMask32.allOn())
         self.bodyNP.setPythonTag("obj", self)
         self.bodyNP.setPythonTag("pnode", visNP)
-        world.attachRigidBody(self.bodyNP.node())
+        self.world.attachRigidBody(self.bodyNP.node())
         visNP.reparentTo(self.bodyNP)
         self.state = 1
         if self.weapon is not None:
