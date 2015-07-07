@@ -246,7 +246,7 @@ class Ship(ShimItem, threading.Thread):
                     self.damageHistory[who.getId()] += hp
                 else:
                     self.damageHistory[who.getId()] = hp
-        print "takeDamage " + str(self.damageHistory)
+        # print "takeDamage " + str(self.damageHistory)
 
     def loadFromTemplate(self):
         """

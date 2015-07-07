@@ -113,7 +113,7 @@ class Bullet(threading.Thread):
         return self.bodyNP.getHpr()
 
     def destroy(self):
-        print "bullet::destroy " + str(self.id)
+        # print "bullet::destroy " + str(self.id)
         if self.bodyNP != None:
             if self.world is not None:
                 self.world.removeRigidBody(self.bodyNP.node())
