@@ -204,7 +204,13 @@ class NetworkTCPServer():
             msgTab.append(iduser)
             temp = message(msgID, msgTab)
             self.listOfMessage.append(temp)
-
+        elif msgID == C_NETWORK_CHARACTER_ADD_TO_INVENTORY_FROM_JUNK:
+            msgTab = []
+            msgTab.append(int(myIterator.getUint32()))
+            msgTab.append(int(myIterator.getUint32()))
+            msgTab.append(int(myIterator.getUint32()))
+            temp = message(msgID, msgTab)
+            self.listOfMessage.append(temp)
         elif msgID == C_NETWORK_CHARACTER_MOUSE:
             iduser = int(myIterator.getUint32())
             mousePosX = float(myIterator.getStdfloat())

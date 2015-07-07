@@ -190,6 +190,33 @@ class Zone(threading.Thread):
                 NetworkTCPServer.getInstance().removeMessage(msg)
 
     def runUpdateChar(self):
+        tempMsg = NetworkTCPServer.getInstance().getListOfMessageById(C_NETWORK_CHARACTER_ADD_TO_INVENTORY_FROM_JUNK)
+        if len(tempMsg) > 0:
+            for msg in tempMsg:
+                netMsg = msg.getMessage()
+                usrId = int(netMsg[0])
+                junkId = int(netMsg[1])
+                itemId = int(netMsg[2])
+                if User.listOfUser.has_key(usrId):
+                    ch = User.listOfUser[usrId].getCurrentCharacter()
+                    User.lock.acquire()
+                    ship = ch.getShip()
+
+                    junkSelected = junk.getJunkById(junkId)
+
+                    if junkSelected is not None and ship is not None:
+                        itemToTransfert = junkSelected.removeItemFromJunk(ch.getId(),itemId)
+                        if itemToTransfert is not None:
+                            ship.addToInventory(itemToTransfert)
+                            nm = netMessage(C_NETWORK_CHARACTER_ADD_TO_INVENTORY_FROM_JUNK, User.listOfUser[usrId].getConnexion())
+                            nm.addInt(usrId)
+                            nm.addInt(junkId)
+                            nm.addInt(itemId)
+                            NetworkMessage.getInstance().addMessage(nm)
+                    User.lock.release()
+                NetworkTCPServer.getInstance().removeMessage(msg)
+
+
         tempMsg = NetworkTCPServer.getInstance().getListOfMessageById(C_NETWORK_START_MINING)
         if len(tempMsg) > 0:
             for msg in tempMsg:

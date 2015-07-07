@@ -17,8 +17,7 @@ class junk:
         self.pos = pos
         self.hpr = (0, 0, 0)
         self.node = None
-        self.items = {'toto': 'toti'}
-        self.items.clear()
+        self.items = {}
         self.zone = zone
         self.loadFromBdd()
         self.name = self.name + str(junk.numberOfJunk)
@@ -26,6 +25,21 @@ class junk:
         junk.numberOfJunk += 1
         junk.junks.append(self)
 
+
+    def removeItemFromJunk(self,idChar,idItem):
+        itemToRemove = None
+        for idOwnerChar in self.items:
+            if idOwnerChar == idChar:
+                itemsToChar=self.items[idChar]
+                itemToRemove=None
+                for it in itemsToChar:
+                    if it.getId() == idItem:
+                        itemToRemove = it
+                        break
+                itemsToChar.remove(itemToRemove)
+                self.items[idChar]=itemsToChar
+                break
+        return itemToRemove
 
     def saveToBDD(self):
         """
@@ -105,7 +119,7 @@ class junk:
         self.zone = zoneId
 
     @staticmethod
-    def getJunk(id):
+    def getJunkById(id):
         for j in junk.junks:
             if j.id == id:
                 return j
@@ -215,7 +229,6 @@ class junk:
         return nm
 
     def mustSendToUser(self,idUser):
-        print "Junk::mustSendToUser " + str(self.items) + "/" + str(self.items.keys()) + str(idUser)
         for usr in self.items.keys():
             if usr==idUser:
                 return True

@@ -85,7 +85,6 @@ class Ship(ShimItem, threading.Thread):
         it.setContainerType("star007_ship")
         it.setContainer(self.id)
 
-
     def setMouseWheel(self, s):
         self.mouseWheel = s
 
