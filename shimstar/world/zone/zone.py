@@ -284,6 +284,7 @@ class Zone(threading.Thread):
         User.lock.release()
 
     def runBulletCollision(self):
+
         Bullet.lock.acquire()
         bulletToRemove = []
         for b in Bullet.listOfBullet:
@@ -337,7 +338,8 @@ class Zone(threading.Thread):
                             if isinstance(objCollided.getOwner(), character) != True:
                                 nm = netMessage(C_NETWORK_REMOVE_NPC, User.listOfUser[u].getConnexion())
                                 self.lockListNpc.acquire()
-                                self.npc.remove(objCollided.getOwner())
+                                if objCollided.getOwner() in self.npc:
+                                    self.npc.remove(objCollided.getOwner())
                                 objCollided.getOwner().destroy()
                                 self.lockListNpc.release()
                             else:
@@ -349,9 +351,10 @@ class Zone(threading.Thread):
                             nm.addInt(objCollided.getOwner().getId())
                             NetworkMessage.getInstance().addMessage(nm)
 
-                            if tempJunk.mustSendToUser(u):
+                            ch=User.listOfUser[u].getCurrentCharacter()
+                            if tempJunk.mustSendToUser(ch.getId()):
                                 nm = netMessage(C_NETWORK_ADD_JUNK, User.listOfUser[u].getConnexion())
-                                tempJunk.sendInfo(nm,u)
+                                tempJunk.sendInfo(nm,ch.getId())
                                 NetworkMessage.getInstance().addMessage(nm)
 
                         User.lock.release()
