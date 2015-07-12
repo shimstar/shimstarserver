@@ -7,7 +7,7 @@ class behavior(object):
 	def __init__(self,npc):
 		self.npc=npc
 		self.ship=npc.ship
-		self.pointerToGo = loader.loadModelCopy("models/arrow.egg")
+		self.pointerToGo = loader.loadModel("models/arrow.egg")
 		#~ print "behavior::init__"  + str(self.ship) + "/" + str(self.ship.
 		self.pointerToGo.setPos(self.ship.getPos())
 		self.pointerToGo.setQuat(self.ship.getQuat())
