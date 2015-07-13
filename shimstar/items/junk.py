@@ -38,7 +38,12 @@ class junk:
                         break
                 if itemToRemove is not None:
                     itemsToChar.remove(itemToRemove)
-                    self.items[idChar]=itemsToChar
+                    if len(itemsToChar) == 0:
+                        del self.items[idChar]
+                        if len(self.items)==0:
+                            self.destroy()
+                    else:
+                        self.items[idChar]=itemsToChar
                 break
         return itemToRemove
 
