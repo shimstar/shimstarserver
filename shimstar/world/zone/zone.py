@@ -167,7 +167,28 @@ class Zone(threading.Thread):
             self.runBulletCollision()
             self.runNewUser()
             self.runOutUser()
+            self.runJunk()
         print "thread zone is ending"
+
+    def runJunk(self):
+        tempMsg = NetworkTCPServer.getInstance().getListOfMessageById(C_NETWORK_DESTROY_JUNK)
+        if len(tempMsg) > 0:
+            for msg in tempMsg:
+                netMsg = msg.getMessage()
+                usr = int(netMsg[0])
+                junkId = int(netMsg[1])
+                print "Junk to Destroy "
+                if User.listOfUser.has_key(usr):
+                    User.lock.acquire()
+                    nm = netMessage(C_NETWORK_DESTROY_JUNK, User.listOfUser[usr].getConnexion())
+                    nm.addInt(junkId)
+                    NetworkMessage.getInstance().addMessage(nm)
+
+                    tempJunk = junk.getJunkById(junkId)
+                    if tempJunk is not None :
+                        tempJunk.destroyFromUser(User.listOfUser[usr].getCurrentCharacter().getId())
+                    User.lock.release()
+                NetworkTCPServer.getInstance().removeMessage(msg)
 
     def runOutUser(self):
         tempMsg = NetworkTCPServer.getInstance().getListOfMessageById(C_NETWORK_USER_CHANGE_ZONE)

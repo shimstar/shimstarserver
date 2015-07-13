@@ -157,20 +157,6 @@ class NetworkTCPServer():
             tempUser.setConnexion(connexion)
             tempUser.setCurrentCharacter(idchar)
             print "user connected to zone"
-        #~ elif msgID==C_NETWORK_DEATH_CHAR:
-        #~ idusr=int(myIterator.getUint32())
-        #~ print "networkzonetcpserver :: msgId = C_NETWORK_DEATH_CHAR " + str(idusr)
-        #~ userFound=None
-        #~ User.lock.acquire()
-        #~ for usr in User.listOfUser:
-        #~ if usr==idusr:
-        #~ print "networkzonetcpserver :: msgId = C_NETWORK_DEATH_CHAR found " + str(usr) + "=" + str(idusr)
-        #~ userFound=User.listOfUser[usr]
-        #~ print "networkzonetcpserver :: msgId = C_NETWORK_DEATH_CHAR blahblah " + str(idusr) + "/" + str(userFound)
-        #~ User.lock.release()
-        #~ if userFound!=None:
-        #~ print "networkzonetcpserver :: msgId = C_NETWORK_DEATH_CHAR want to destroy " + str(usr)
-        #~ User.listOfUser[usr].destroy()
 
         elif msgID == C_NETWORK_ASKING_NPC:
             iduser = int(myIterator.getUint32())
@@ -202,6 +188,13 @@ class NetworkTCPServer():
             iduser = int(myIterator.getUint32())
             msgTab = []
             msgTab.append(iduser)
+            temp = message(msgID, msgTab)
+            self.listOfMessage.append(temp)
+        elif msgID == C_NETWORK_DESTROY_JUNK:
+            iduser = int(myIterator.getUint32())
+            msgTab = []
+            msgTab.append(iduser)
+            msgTab.append( int(myIterator.getUint32()))
             temp = message(msgID, msgTab)
             self.listOfMessage.append(temp)
         elif msgID == C_NETWORK_CHARACTER_ADD_TO_INVENTORY_FROM_JUNK:

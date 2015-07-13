@@ -119,6 +119,23 @@ class junk:
     def setZone(self, zoneId):
         self.zone = zoneId
 
+    def destroyFromUser(self,idChar):
+        """
+        An user can destroy its own junk, but a user junk is a part of a global server junk
+        This method will just destroy item into the junk for the user
+        :param idChar:
+        :return:
+        """
+        if self.items.has_key(idChar):
+            listItem=self.items[idChar]
+            for it in listItem:
+                it.setOwner(0)
+                it.delete()
+            del self.items[idChar]
+            if len(self.items)==0:
+                self.destroy()
+
+
     @staticmethod
     def getJunkById(id):
         for j in junk.junks:
@@ -202,10 +219,7 @@ class junk:
             destructor
         """
         self.deleteFromBdd()
-        if self.node != None:
-            self.node.detachNode()
-            self.node.removeNode()
-        del junk.junks[self]
+        junk.junks.remove(self)
 
     def sendInfo(self,nm,idUser):
         nm.addInt(self.id)
