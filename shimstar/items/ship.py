@@ -84,6 +84,7 @@ class Ship(ShimItem, threading.Thread):
         self.itemInInventory.append(it)
         it.setContainerType("star007_ship")
         it.setContainer(self.id)
+        it.saveToBDD()
 
     def removeFromInventory(self,itID):
         itFound = None
