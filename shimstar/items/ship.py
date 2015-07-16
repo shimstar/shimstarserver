@@ -85,6 +85,19 @@ class Ship(ShimItem, threading.Thread):
         it.setContainerType("star007_ship")
         it.setContainer(self.id)
 
+    def removeFromInventory(self,itID):
+        itFound = None
+        print self.itemInInventory
+        for it in self.itemInInventory:
+            if it.getId() == itID:
+                itFound = it
+                break
+        print "removeFromInventory " + str(itFound)
+        if itFound is not None:
+            itFound.delete()
+            self.itemInInventory.remove(itFound)
+            self.saveToBDD()
+
     def setMouseWheel(self, s):
         self.mouseWheel = s
 
@@ -458,7 +471,6 @@ class Ship(ShimItem, threading.Thread):
         cursor.execute(query)
         cursor.close()
 
-
     def saveToBDD(self):
         instanceDbConnector = shimDbConnector.getInstance()
         if self.id > 0:
@@ -492,7 +504,11 @@ class Ship(ShimItem, threading.Thread):
             cursor.execute(query)
             self.id = int(cursor.lastrowid)
             cursor.close()
+        instanceDbConnector.commit()
+        self.saveItemInBDD()
 
+    def saveItemInBDD(self):
+        instanceDbConnector = shimDbConnector.getInstance()
         for it in self.itemInInventory:
             if it.getId() > 0:
                 query = "UPDATE STAR006_ITEM SET STAR006_location = '" + str(
