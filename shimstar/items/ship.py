@@ -85,6 +85,7 @@ class Ship(ShimItem, threading.Thread):
         it.setContainerType("star007_ship")
         it.setContainer(self.id)
         it.saveToBDD()
+        print "ship::adInventory " + str(it) + "//" + str(it.getId())
 
     def removeFromInventory(self,itID):
         itFound = None
@@ -589,6 +590,10 @@ class Ship(ShimItem, threading.Thread):
         it.setContainer(self.id)
         it.setContainerType("star007_ship")
         slot.setItem(None)
+        if slot.getItem() is not None and slot.getItem().getTypeItem() == C_ITEM_ENGINE:
+            self.engine = slot.getItem()
+        if slot.getItem() is not None and slot.getItem().getTypeItem() == C_ITEM_WEAPON:
+            self.weapon = slot.getItem()
 
 
     def installItem(self, slotId, itemId):
@@ -600,6 +605,7 @@ class Ship(ShimItem, threading.Thread):
 
         if slotToInstall is not None:
             itemToInstall = None
+            print "iteminInventory " + str(self.itemInInventory)
             for i in self.itemInInventory:
                 if i.getId() == itemId:
                     itemToInstall = i
@@ -607,3 +613,9 @@ class Ship(ShimItem, threading.Thread):
             if itemToInstall is not None:
                 self.itemInInventory.remove(itemToInstall)
                 slotToInstall.setItem(itemToInstall)
+
+                if slotToInstall.getItem() is not None and slotToInstall.getItem().getTypeItem() == C_ITEM_ENGINE:
+                    self.engine = slotToInstall.getItem()
+                if slotToInstall.getItem() is not None and slotToInstall.getItem().getTypeItem() == C_ITEM_WEAPON:
+                    self.weapon = slotToInstall.getItem()
+                self.saveToBDD()

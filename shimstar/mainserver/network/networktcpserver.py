@@ -198,6 +198,10 @@ class NetworkTCPServer():
             for u in User.listOfUser:
                 if u == int(idUser):
                     User.listOfUser[u].getCurrentCharacter().getShip().removeFromInventory(idIt)
+                    nm = netMessage(C_NETWORK_CHARACTER_SELL_ITEM, connexion)
+                    nm.addInt(idIt)
+                    NetworkMessage.getInstance().addMessage(nm)
+
         elif msgID == C_NETWORK_CHARACTER_BUY_ITEM:
             idUser = int(myIterator.getUint32())
             idIt = int(myIterator.getUint32())
@@ -205,7 +209,13 @@ class NetworkTCPServer():
             for u in User.listOfUser:
                 if u == int(idUser):
                     it = ShimItem(0,idIt)
+                    it.saveToBDD()
                     User.listOfUser[u].getCurrentCharacter().getShip().addToInventory(it)
+                    nm = netMessage(C_NETWORK_CHARACTER_BUY_ITEM, connexion)
+                    nm.addInt(it.getTypeItem())
+                    nm.addInt(it.getTemplate())
+                    nm.addInt(it.getId())
+                    NetworkMessage.getInstance().addMessage(nm)
         elif msgID == C_NETWORK_CHARACTER_UNINSTALL_SLOT:
             idUser = int(myIterator.getUint32())
             User.lock.acquire()
