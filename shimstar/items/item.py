@@ -28,14 +28,14 @@ class ShimItem(object):
 			self.loadFromBdd()
 		else:
 			self.loadFromTemplate()
-		
+
 	def getNb(self):
 		return self.nb
-		
+
 	def setNb(self,nb):
 		self.nb=nb
-	
-			
+
+
 	def loadFromBdd(self):
 		query="SELECT star006_template_star004,star006_container_starnnn,star006_containertype,star006_owner_star001,star006_location,star006_nb "
 		query+=" FROM star006_item "
@@ -44,7 +44,7 @@ class ShimItem(object):
 		instanceDbConnector=shimDbConnector.getInstance()
 		cursor=instanceDbConnector.getConnection().cursor()
 		cursor.execute(query)
-		
+
 		result_set = cursor.fetchall ()
 		for row in result_set:
 			self.template=int(row[0])
@@ -56,7 +56,7 @@ class ShimItem(object):
 		cursor.close()
 		shimDbConnector.lock.release()
 		self.loadFromTemplate()
-		
+
 	def loadFromTemplate(self):
 		query="SELECT star004_name, star004_type_star003, star004_energy, star004_img,star004_cost,star004_sell,star004_space,star004_mass,star004_stackable,star004_specific_starxxx "
 		query+=" FROM star004_item_template "
@@ -79,10 +79,10 @@ class ShimItem(object):
 			self.itemSpecific=int(row[9])
 		cursor.close()
 		shimDbConnector.lock.release()
-		
+
 	def getOwner(self):
 		return self.owner
-		
+
 	def delete(self):
 		query="DELETE FROM STAR006_item WHERE STAR006_id ='"+ str(self.id) +"'"
 		shimDbConnector.lock.acquire()
@@ -91,7 +91,7 @@ class ShimItem(object):
 		cursor.execute(query)
 		cursor.close()
 		shimDbConnector.lock.release()
-		
+
 	def saveToBDD(self):
 		shimDbConnector.lock.acquire()
 		if self.id==0:
@@ -107,67 +107,67 @@ class ShimItem(object):
 		if self.id==0:
 			self.id=int(cursor.lastrowid)
 		cursor.close()
-	
+
 		instanceDbConnector.commit()
 		shimDbConnector.lock.release()
-		
+
 	def setContainer(self,id):
 		self.container=id
-		
+
 	def setMission(self,idMission):
 		self.mission=idMission
-		
+
 	def getContainerType(self):
 		return self.containertype
-		
+
 	def setContainerType(self,tc):
 		self.containertype=tc
-		
+
 	def getContainer(self):
 		return self.container
-		
+
 	def setOwner(self,id):
 		self.owner=id
-		
+
 	def getId(self):
 		return self.id
-		
+
 	def setId(self,id):
 		self.id=id
-		
+
 	def getTypeItem(self):
 		return self.typeItem
-		
+
 	def getPlace(self):
 		return self.place
-	
+
 	def getLocation(self):
 		return self.location
-		
+
 	def setPlace(self,place):
 		self.place=place
-		
+
 	def setLocation(self,location):
 		self.location=location
-		
+
 	def getName(self):
 		return self.name
-		
+
 	def getImg(self):
 		return self.img
-		
+
 	def getEnergy(self):
 		return self.energy
-		
+
 	def getCost(self):
 		return self.cost
-		
+
 	def getSell(self):
 		return self.sell
-	
+
 	def getTemplate(self):
 		return self.template
-		
+
 	def getStackable(self):
 		return self.stackable
 		
