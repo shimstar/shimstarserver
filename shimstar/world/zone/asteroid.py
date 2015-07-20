@@ -16,6 +16,7 @@ class Asteroid(DirectObject):
         self.bodyNP = None
         self.text = ""
         self.mass = 0
+        self.scale = 1
         self.minerals = {}
         self.idTemplate = 0
         self.world = world
@@ -46,7 +47,7 @@ class Asteroid(DirectObject):
             self.bodyNP.removeNode()
 
     def loadAsteroidFromBdd(self, world, worldNP):
-        query = "SELECT star014_zone_star011, star014_posx, star014_posy, star014_posz, star014_hprh,star014_hprp,star014_hprr, star013_egg, star013_mass,star014_template_star013"
+        query = "SELECT star014_zone_star011, star014_posx, star014_posy, star014_posz, star014_hprh,star014_hprp,star014_hprr, star013_egg, star013_mass,star014_template_star013, star014_scale"
         query += " FROM star014_asteroid A1 JOIN star013_asteroid_template A2 on A1.star014_template_star013 = A2.star013_id "
         query += " WHERE A1.star014_id = '" + str(self.id) + "'"
         shimDbConnector.lock.acquire()
@@ -62,6 +63,7 @@ class Asteroid(DirectObject):
             egg = row[7]
             self.mass = row[8]
             self.idTemplate = int(row[9])
+            self.scale = int(row[10])
             visNP = loader.loadModel(egg)
             geom = visNP.findAllMatches('**/+GeomNode').getPath(0).node().getGeom(0)
             shape = BulletConvexHullShape()
@@ -71,6 +73,7 @@ class Asteroid(DirectObject):
             self.bodyNP.node().addShape(shape)
             self.bodyNP.setPos(self.pos)
             self.bodyNP.setHpr(self.hpr)
+            self.bodyNP.setScale(self.scale)
             self.bodyNP.setCollideMask(BitMask32.allOn())
             self.bodyNP.setPythonTag("obj", self)
             self.bodyNP.setPythonTag("pnode", visNP)
