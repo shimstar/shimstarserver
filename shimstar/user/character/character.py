@@ -50,6 +50,25 @@ class character:
     def setIsMining(self, m):
         self.isMining = m
 
+    def sellItem(self,idIt):
+        if self.ship is not None:
+            it = self.ship.getItemInInventory(idIt)
+            self.coin += it.getSell()
+            self.ship.removeFromInventory(idIt)
+            self.saveCharacterToBDD()
+
+    def buyItem(self,idIt):
+        it = ShimItem(0,idIt)
+        if self.coin >= it.getCost():
+            self.coin -= it.getCost()
+            it.saveToBDD()
+            if self.ship is not None:
+                self.ship.addToInventory(it)
+                self.saveCharacterToBDD()
+                return it
+
+        return None
+
     def manageDeathFromMainServer(self):
         self.ship.deleteFromBdd()
         self.ship.destroy()
@@ -414,4 +433,3 @@ class character:
                     newItem.setMission(mi.getId())
                 #~ networkmessage.instance.addMessage(C_CHAR_UPDATE,str(self.userId) + "/" + str(self.id) + "/additem=" + str(newItem.getXml().toxml()),self.connexion)
             self.saveToBDD()
-			

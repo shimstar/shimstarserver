@@ -55,6 +55,14 @@ class Ship(ShimItem, threading.Thread):
 
         print "ship::__init__ id=" + str(self.id) + "/tempalte= " + str(self.template) + "/" + str(self.owner) + "/" + str(self)
 
+    def getItemInInventory(self,idItem):
+        itFound = None
+        for it in self.itemInInventory:
+            if it.getId() == idItem:
+                itFound = it
+                break
+
+        return itFound
 
     def getInventory(self):
         return self.itemInInventory
@@ -89,12 +97,10 @@ class Ship(ShimItem, threading.Thread):
 
     def removeFromInventory(self,itID):
         itFound = None
-        print self.itemInInventory
         for it in self.itemInInventory:
             if it.getId() == itID:
                 itFound = it
                 break
-        print "removeFromInventory " + str(itFound)
         if itFound is not None:
             itFound.delete()
             self.itemInInventory.remove(itFound)
@@ -381,32 +387,6 @@ class Ship(ShimItem, threading.Thread):
                 It uses the self.pyr saved keypressed
             """
 
-        # ~ if self.bodyNP!=None and self.bodyNP.isEmpty()==False:
-        # ~ if self.worldNP!=None:
-        #~ self.bodyNP.node().setActive(True)
-        #~ forwardVec=self.bodyNP.getQuat().getForward()
-
-        #~ v=Vec3(self.mousePosY*self.torque,0.0,float(self.mousePosX)*float(self.torque))
-        #~ v= self.worldNP.getRelativeVector(self.bodyNP,v)
-        #~ self.bodyNP.node().applyTorque(v)
-
-        #~ if self.engine!=None:
-        #~ if self.mouseWheel!=0:
-        #~ self.poussee+=self.mouseWheel
-        #~ if self.poussee<0:
-        #~ self.poussee=0
-        #~ elif self.poussee>=self.engine.getSpeedMax():
-        #~ self.poussee=self.engine.getSpeedMax()
-        #~ self.mouseWheel=0
-
-        #~ self.bodyNP.node().applyCentralForce(Vec3(forwardVec.getX()*self.poussee,forwardVec.getY()*self.poussee,forwardVec.getZ()*self.poussee))
-
-        #~ lv=self.bodyNP.node().getLinearVelocity()
-        #~ lv2=lv*self.frictionVelocity
-        #~ self.bodyNP.node().setLinearVelocity(lv2)
-        #~ av=self.bodyNP.node().getAngularVelocity()
-        #~ av2=av*self.frictionAngular
-        #~ self.bodyNP.node().setAngularVelocity(av2)
         if self.bodyNP is not None and self.bodyNP.isEmpty() == False:
             if self.worldNP is not None:
                 self.bodyNP.node().setActive(True)
