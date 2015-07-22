@@ -16,6 +16,7 @@ from shimstar.bdd.checkconsistency import *
 class ShimStarServer():
     def __init__(self):
         CheckConsistency().run()
+        shimDbConnector().getInstance().resetConnection()
         NetworkTCPServer()
         #~ MainServer()
         taskMgr.add(self.event, "Poll main event", -36)

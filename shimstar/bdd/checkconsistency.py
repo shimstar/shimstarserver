@@ -14,7 +14,7 @@ class CheckConsistency:
 		self.runSlot()
 		self.runItemWOSlot()
 		self.runItemShip()
-		self.connexion.close()
+		# self.connexion.close()
 	
 	def runItemNpc(self):
 		print "Suppression des objets lies directement aux NPCs"
