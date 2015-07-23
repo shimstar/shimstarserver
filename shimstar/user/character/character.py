@@ -237,10 +237,11 @@ class character:
         if toStation:
             if self.ship is not None:
                 it=self.ship.getItemInInventory(idItem)
-                it.setContainerType("star022_station")
-                it.setContainer(idStation)
-                it.saveToBDD()
-                self.stationInv.append(it)
+                if it is not None:
+                    it.setContainerType("star022_station")
+                    it.setContainer(idStation)
+                    it.saveToBDD()
+                    self.stationInv.append(it)
         else:
             if len(self.stationInv) == 0:
                 self.loadInvStation(idStation)
