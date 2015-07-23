@@ -26,6 +26,7 @@ class character:
         self.miningAsteroid = None
         self.lastMiningTicks = 0
         self.missions = []
+        self.stationInv = []
         if self.id != 0:
             self.loadFromBDD()
 
@@ -50,23 +51,42 @@ class character:
     def setIsMining(self, m):
         self.isMining = m
 
-    def sellItem(self,idIt):
-        if self.ship is not None:
-            it = self.ship.getItemInInventory(idIt)
-            self.coin += it.getSell()
-            self.ship.removeFromInventory(idIt)
-            self.saveCharacterToBDD()
+    def sellItem(self,idIt,inv=1):
+        if inv == 1:
+            if self.ship is not None:
+                it = self.ship.getItemInInventory(idIt)
+                self.coin += it.getSell()
+                self.ship.removeFromInventory(idIt)
+                self.saveCharacterToBDD()
+        else:
+            itFound = None
+            for it in self.stationInv:
+                if it.getId() == idIt:
+                    itFound = it
+                    break
 
-    def buyItem(self,idIt):
+            if itFound is not None:
+                self.coin += itFound.getCoin()
+                self.stationInv.remove(itFound)
+                itFound.delete()
+
+
+    def buyItem(self,idIt,inv=1):
         it = ShimItem(0,idIt)
         if self.coin >= it.getCost():
             self.coin -= it.getCost()
             it.saveToBDD()
-            if self.ship is not None:
-                self.ship.addToInventory(it)
-                self.saveCharacterToBDD()
+            if inv == 1:
+                if self.ship is not None:
+                    self.ship.addToInventory(it)
+                    self.saveCharacterToBDD()
+                    return it
+            else:
+                it.setContainerType("star022_station")
+                it.setContainer(self.zoneId)
+                it.saveToBDD()
+                self.stationInv.append(it)
                 return it
-
         return None
 
     def manageDeathFromMainServer(self):
@@ -213,6 +233,23 @@ class character:
         cursor.close()
         shimDbConnector.lock.release()
 
+    def moveItemInvToStation(self,idItem,idStation,toStation=False):
+        if toStation:
+            if self.ship is not None:
+                it=self.ship.getItemInInventory(idItem)
+                it.setContainerType("star022_station")
+                it.setContainer(idStation)
+                it.saveToBDD()
+                self.stationInv.append(it)
+        else:
+            if len(self.stationInv) == 0:
+                self.loadInvStation(idStation)
+            for it in self.stationInv:
+                if it.getId() == idItem:
+                    if self.ship is not None:
+                        self.ship.addToInventory(it)
+
+
     def sendInfo(self, nm):
         nm.addInt(self.id)
         nm.addString(self.name)
@@ -231,10 +268,46 @@ class character:
         for d in self.readDialogs:
             nm.addInt(d)
 
+    def loadInvStation(self,idStation = 0):
+        self.stationInv=[]
+        query = "SELECT star004_type_star003,star006_id FROM star006_item item JOIN star004_item_template itemTemplate ON item.star006_template_star004 = itemTemplate.star004_id"
+        query+=" WHERE star006_containertype ='star022_station' and star006_owner_star001 =" + str(self.id)
+        if idStation == 0:
+            query += " and star006_container_starnnn='" + str(self.zoneId) + "'"
+        else:
+            query += " and star006_container_starnnn='" + str(self.idStation) + "'"
+        # print query
+        shimDbConnector.lock.acquire()
+        instanceDbConnector = shimDbConnector.getInstance()
+
+        cursor = instanceDbConnector.getConnection().cursor()
+        cursor.execute(query)
+        result_set = cursor.fetchall()
+        for row in result_set:
+            typeItem = row[0]
+            if typeItem == C_ITEM_ENGINE:
+                itemTemp = Engine(int(row[1]))
+            elif typeItem == C_ITEM_WEAPON:
+                itemTemp = Weapon(int(row[1]), self)
+            else:
+                itemTemp = ShimItem(int(row[1]))
+            self.stationInv.append(itemTemp)
+        cursor.close()
+        shimDbConnector.lock.release()
+
     def sendCompleteInfoForStation(self, nm):
         self.ship.sendInfo(nm)
         self.sendReadDialogs(nm)
         self.sendMission(nm)
+        self.loadInvStation()
+        nm.addInt(len(self.stationInv))
+        print "len stationInv" + str(len(self.stationInv))
+        if len(self.stationInv) > 0:
+            for i in self.stationInv:
+                nm.addInt(i.getTypeItem())
+                nm.addInt(i.getTemplate())
+                nm.addInt(i.getId())
+                nm.addInt(i.getNb())
 
     def sendCompleteInfo(self, nm):
         self.ship.sendInfo(nm)
