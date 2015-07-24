@@ -124,7 +124,7 @@ class NetworkTCPServer():
         connexion = netDatagram.getConnection()
         msgTab = []
         msgID = myIterator.getUint32()
-        print msgID
+        # print msgID
         if msgID == C_NETWORK_CONNECT:
             name = myIterator.getString()
             password = myIterator.getString()
