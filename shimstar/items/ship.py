@@ -6,6 +6,7 @@ from shimstar.zoneserver.network.networkzonetcpserver import *
 from shimstar.items.item import *
 from shimstar.items.engine import *
 from shimstar.items.weapon import *
+from shimstar.items.reactor import *
 from shimstar.items.slot import *
 from shimstar.core.constantes import *
 
@@ -375,6 +376,8 @@ class Ship(ShimItem, threading.Thread):
                 itemTemp = Engine(int(row[1]))
             elif typeItem == C_ITEM_WEAPON:
                 itemTemp = Weapon(int(row[1]), self)
+            elif itemTemp == C_ITEM_ENERGY:
+                itemTemp = Reactor(int(row[1]),self)
             else:
                 itemTemp = ShimItem(int(row[1]))
             self.itemInInventory.append(itemTemp)
