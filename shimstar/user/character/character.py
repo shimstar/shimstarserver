@@ -311,6 +311,7 @@ class character:
                 nm.addInt(i.getTemplate())
                 nm.addInt(i.getId())
                 nm.addInt(i.getNb())
+        nm.addInt(self.coin)
 
     def sendCompleteInfo(self, nm):
         self.ship.sendInfo(nm)
