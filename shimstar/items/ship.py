@@ -376,7 +376,7 @@ class Ship(ShimItem, threading.Thread):
                 itemTemp = Engine(int(row[1]))
             elif typeItem == C_ITEM_WEAPON:
                 itemTemp = Weapon(int(row[1]), self)
-            elif itemTemp == C_ITEM_ENERGY:
+            elif typeItem == C_ITEM_ENERGY:
                 itemTemp = Reactor(int(row[1]),self)
             else:
                 itemTemp = ShimItem(int(row[1]))
