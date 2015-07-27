@@ -283,7 +283,6 @@ class Ship(ShimItem, threading.Thread):
         query += " WHERE STAR005_id ='" + str(self.shipTemplate) + "'"
         cursor = instanceDbConnector.getConnection().cursor()
         cursor.execute(query)
-        # ~ print "ship::loadFRomTemplate ::" + str(query)
         result_set = cursor.fetchall()
         for row in result_set:
             self.maxhullpoints = int(row[1])
@@ -298,10 +297,10 @@ class Ship(ShimItem, threading.Thread):
         shimDbConnector.lock.release()
 
         if len(self.slots) == 0:
-            shimDbConnector.lock.release()
+            shimDbConnector.lock.acquire()
             cursor = instanceDbConnector.getConnection().cursor()
             query = "SELECT star009_id FROM star009_slot WHERE star009_ship_star005='" + str(self.shipTemplate) + "'"
-            # ~ print "ship::loadFromTemplate " + str(query)
+            print "ship::loadFromTemplate " + str(query)
             cursor.execute(query)
             result_set = cursor.fetchall()
             self.slots = []
@@ -588,7 +587,7 @@ class Ship(ShimItem, threading.Thread):
 
         if slotToInstall is not None:
             itemToInstall = None
-            print "iteminInventory " + str(self.itemInInventory)
+            # print "iteminInventory " + str(self.itemInInventory)
             for i in self.itemInInventory:
                 if i.getId() == itemId:
                     itemToInstall = i
