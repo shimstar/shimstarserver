@@ -55,6 +55,7 @@ class Slot:
         self.idShip = idShip
 
     def loadFromBDD(self):
+        shimDbConnector.lock.acquire()
         query = "SELECT star009_location_star008,star009_numero,star009_item_star006 FROM star009_slot where star009_id ='" + str(
             self.id) + "' "
         instanceDbConnector = shimDbConnector.getInstance()
@@ -112,14 +113,17 @@ class Slot:
             #~ self.item=radaritem(idItem)
             cursor.close()
             #~ print query
-            query = "SELECT star021_typeitem_star003 FROM star021_slot_typeitem WHERE star021_slot_star009='" + str(
-                self.id) + "'"
-            cursor = instanceDbConnector.getConnection().cursor()
-            cursor.execute(query)
-            result_set = cursor.fetchall()
-            for row in result_set:
-                self.types.append(int(row[0]))
-            cursor.close()
+        query = "SELECT star021_typeitem_star003 FROM star021_slot_typeitem WHERE star021_slot_star009='" + str(
+            self.id) + "'"
+        # print query
+        cursor = instanceDbConnector.getConnection().cursor()
+        cursor.execute(query)
+        result_set = cursor.fetchall()
+        for row in result_set:
+            self.types.append(int(row[0]))
+        cursor.close()
+
+        shimDbConnector.lock.release()
 
         # ~ print self.types
 
