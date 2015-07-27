@@ -2,7 +2,6 @@ import os, sys
 import MySQLdb
 from direct.stdpy import threading
 
-
 class shimDbConnector:
     instance = None
     lock = threading.Lock()
@@ -17,6 +16,9 @@ class shimDbConnector:
         self.pwd = "shimstar"
         self.db = "shimstar"
         # shimDbConnector.instance = self
+        self.connect()
+
+    def connect(self):
         self.connection = MySQLdb.connect(host=self.host, user=self.user, passwd=self.pwd, db=self.db)
         self.connection.autocommit(True)
         cursor = self.connection.cursor()
@@ -49,7 +51,6 @@ class shimDbConnector:
     def resetConnection(self):
         shimDbConnector.lock.acquire()
         self.connection.close()
-        self.connection = MySQLdb.connect(host=self.host, user=self.user, passwd=self.pwd, db=self.db)
+        self.connect()
         shimDbConnector.lock.release()
 		
-	
