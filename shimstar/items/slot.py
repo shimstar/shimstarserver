@@ -34,7 +34,10 @@ class Slot:
             nm.addInt(it.getTypeItem())
             nm.addInt(it.getTemplate())
             nm.addInt(it.getId())
+            status = 1 if it.isEnabled() else 0
+            nm.addInt(status)
         else:
+            nm.addInt(0)
             nm.addInt(0)
             nm.addInt(0)
             nm.addInt(0)

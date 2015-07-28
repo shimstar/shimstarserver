@@ -65,6 +65,42 @@ class Ship(ShimItem, threading.Thread):
 
         return itFound
 
+    def getSlots(self):
+        return self.slots
+
+    def checkItemStatus(self):
+        print "checkItemStatus"
+        listOfItem = []
+
+        for s in self.slots:
+            it = s.getItem()
+            if it is not None:
+                listOfItem.append(it)
+
+        energy = 0
+        energyCost = 0
+        for it in listOfItem:
+            if it.isEnabled():
+                if it.getTypeItem() == C_ITEM_ENERGY:
+                    energy=it.getEnergy()
+                else:
+                    energyCost=it.getEnergyCost()
+        print "checkItemStatus " + str(energy) + "/" + str(energyCost)
+        #TODO maybe disabled it functionnaly not vital
+        if energy < energyCost:
+            while energy < energyCost:
+                for it in listOfItem:
+                    if it.isEnabled():
+                        it.setEnabled(False)
+                        it.saveToBDD
+                        energyCost -= it.getEnergyCost()
+                        break
+        else:
+            for it in listOfItem:
+                if it.isEnabled != True:
+                    it.setEnabled(True)
+                    it.saveToBDD
+
     def getInventory(self):
         return self.itemInInventory
 
@@ -572,10 +608,13 @@ class Ship(ShimItem, threading.Thread):
         it.setContainer(self.id)
         it.setContainerType("star007_ship")
         slot.setItem(None)
-        if slot.getItem() is not None and slot.getItem().getTypeItem() == C_ITEM_ENGINE:
-            self.engine = slot.getItem()
-        if slot.getItem() is not None and slot.getItem().getTypeItem() == C_ITEM_WEAPON:
-            self.weapon = slot.getItem()
+        if it is not None and it == C_ITEM_ENGINE:
+            self.engine = None
+        if it is not None and it == C_ITEM_WEAPON:
+            self.weapon = None
+        it.setEnabled(True)
+        self.saveToBDD()
+        return it
 
 
     def installItem(self, slotId, itemId):
@@ -584,7 +623,6 @@ class Ship(ShimItem, threading.Thread):
             if s.getId() == int(slotId):
                 slotToInstall = s
                 break
-
         if slotToInstall is not None:
             itemToInstall = None
             # print "iteminInventory " + str(self.itemInInventory)
@@ -600,4 +638,7 @@ class Ship(ShimItem, threading.Thread):
                     self.engine = slotToInstall.getItem()
                 if slotToInstall.getItem() is not None and slotToInstall.getItem().getTypeItem() == C_ITEM_WEAPON:
                     self.weapon = slotToInstall.getItem()
+
+                self.checkItemStatus()
+
                 self.saveToBDD()

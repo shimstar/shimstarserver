@@ -245,17 +245,38 @@ class NetworkTCPServer():
             User.lock.acquire()
             for u in User.listOfUser:
                 if u == int(idUser):
-                    User.listOfUser[u].getCurrentCharacter().getShip().uninstallItemBySlotId(int(myIterator.getUint32()))
-                    User.listOfUser[u].getCurrentCharacter().getShip().saveToBDD()
+                    it = User.listOfUser[u].getCurrentCharacter().getShip().uninstallItemBySlotId(int(myIterator.getUint32()))
+                    if it is not None:
+                        status = 1 if it.isEnabled() else 0
+                        nm = netMessage(C_NETWORK_CHARACTER_ITEM_ENABLED, connexion)
+                        nm.addInt(1)
+                        nm.addInt(it.getId())
+                        nm.addInt(status)
+                        NetworkMessage.getInstance().addMessage(nm)
 
         elif msgID == C_NETWORK_CHARACTER_INSTALL_SLOT:
             idUser = int(myIterator.getUint32())
             User.lock.acquire()
             for u in User.listOfUser:
                 if u == int(idUser):
-                    User.listOfUser[u].getCurrentCharacter().getShip().installItem(int(myIterator.getUint32()),
+                    ship = User.listOfUser[u].getCurrentCharacter().getShip()
+                    ship.installItem(int(myIterator.getUint32()),
                         int(myIterator.getUint32()))
-                    User.listOfUser[u].getCurrentCharacter().getShip().saveToBDD()
+                    ship.saveToBDD()
+                    slots = ship.getSlots()
+                    listOfItem = []
+                    for s in slots:
+                        if s.getItem() is not None:
+                            listOfItem.append(s.getItem())
+
+                    nm = netMessage(C_NETWORK_CHARACTER_ITEM_ENABLED, connexion)
+                    nm.addInt(len(listOfItem))
+                    for it in listOfItem:
+                        status = 1 if it.isEnabled() else 0
+                        nm.addInt(it.getId())
+                        nm.addInt(status)
+                    NetworkMessage.getInstance().addMessage(nm)
+
         elif msgID == C_NETWORK_DEATH_CHAR:
             idUser = int(myIterator.getUint32())
             User.lock.acquire()
