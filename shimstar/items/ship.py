@@ -69,7 +69,6 @@ class Ship(ShimItem, threading.Thread):
         return self.slots
 
     def checkItemStatus(self):
-        print "checkItemStatus"
         listOfItem = []
 
         for s in self.slots:
@@ -82,24 +81,23 @@ class Ship(ShimItem, threading.Thread):
         for it in listOfItem:
             if it.isEnabled():
                 if it.getTypeItem() == C_ITEM_ENERGY:
-                    energy=it.getEnergy()
+                    energy+=it.getEnergy()
                 else:
-                    energyCost=it.getEnergyCost()
-        print "checkItemStatus " + str(energy) + "/" + str(energyCost)
+                    energyCost+=it.getEnergyCost()
         #TODO maybe disabled it functionnaly not vital
         if energy < energyCost:
             while energy < energyCost:
                 for it in listOfItem:
                     if it.isEnabled():
                         it.setEnabled(False)
-                        it.saveToBDD
+                        # it.saveToBDD
                         energyCost -= it.getEnergyCost()
                         break
         else:
             for it in listOfItem:
                 if it.isEnabled != True:
                     it.setEnabled(True)
-                    it.saveToBDD
+                    # it.saveToBDD
 
     def getInventory(self):
         return self.itemInInventory
@@ -616,29 +614,3 @@ class Ship(ShimItem, threading.Thread):
         self.saveToBDD()
         return it
 
-
-    def installItem(self, slotId, itemId):
-        slotToInstall = None
-        for s in self.slots:
-            if s.getId() == int(slotId):
-                slotToInstall = s
-                break
-        if slotToInstall is not None:
-            itemToInstall = None
-            # print "iteminInventory " + str(self.itemInInventory)
-            for i in self.itemInInventory:
-                if i.getId() == itemId:
-                    itemToInstall = i
-                    break
-            if itemToInstall is not None:
-                self.itemInInventory.remove(itemToInstall)
-                slotToInstall.setItem(itemToInstall)
-
-                if slotToInstall.getItem() is not None and slotToInstall.getItem().getTypeItem() == C_ITEM_ENGINE:
-                    self.engine = slotToInstall.getItem()
-                if slotToInstall.getItem() is not None and slotToInstall.getItem().getTypeItem() == C_ITEM_WEAPON:
-                    self.weapon = slotToInstall.getItem()
-
-                self.checkItemStatus()
-
-                self.saveToBDD()

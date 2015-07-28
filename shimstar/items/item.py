@@ -10,7 +10,7 @@ class ShimItem(object):
         self.typeItem = 0
         self.name = ""
         self.template = template
-        self.energy = 0
+        self.energyCost = 0
         self.owner = 0
         self.img = ""
         self.cost = 0
@@ -73,7 +73,7 @@ class ShimItem(object):
         for row in result_set:
             self.name = row[0]
             self.typeItem = int(row[1])
-            self.energy = int(row[2])
+            self.energyCost = int(row[2])
             self.img = row[3]
             self.cost = int(row[4])
             self.sell = int(row[5])
@@ -127,7 +127,6 @@ class ShimItem(object):
                 query+=",star006_enabled = 0"
             query += " WHERE STAR006_id='" + str(self.id) + "'"
         instanceDbConnector = shimDbConnector.getInstance()
-        # print query
         cursor = instanceDbConnector.getConnection().cursor()
         cursor.execute(query)
         if self.id == 0:
@@ -198,8 +197,8 @@ class ShimItem(object):
         return self.img
 
 
-    def getEnergy(self):
-        return self.energy
+    def getEnergyCost(self):
+        return self.energyCost
 
 
     def getCost(self):

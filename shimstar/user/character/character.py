@@ -32,6 +32,36 @@ class character:
 
     # ~ print self.ship
 
+    def installItem(self, slotId, itemId):
+        slotToInstall = None
+        for s in self.ship.getSlots():
+            if s.getId() == int(slotId):
+                slotToInstall = s
+                break
+        if slotToInstall is not None:
+            itemToInstall = None
+            # print "iteminInventory " + str(self.itemInInventory)
+            inv = self.ship.itemInInventory + self.stationInv
+            for i in inv :
+                if i.getId() == itemId:
+                    itemToInstall = i
+                    break
+            if itemToInstall is not None:
+                if itemToInstall in self.stationInv:
+                    self.stationInv.remove(itemToInstall)
+                else:
+                    self.ship.itemInInventory.remove(itemToInstall)
+                slotToInstall.setItem(itemToInstall)
+
+                if slotToInstall.getItem() is not None and slotToInstall.getItem().getTypeItem() == C_ITEM_ENGINE:
+                    self.ship.engine = slotToInstall.getItem()
+                if slotToInstall.getItem() is not None and slotToInstall.getItem().getTypeItem() == C_ITEM_WEAPON:
+                    self.ship.weapon = slotToInstall.getItem()
+
+                self.ship.checkItemStatus()
+
+                self.ship.saveToBDD()
+
     def grabMining(self):
         if self.isMining:
             if globalClock.getRealTime() - self.lastMiningTicks > 0.5:

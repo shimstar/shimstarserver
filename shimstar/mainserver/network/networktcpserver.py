@@ -260,7 +260,7 @@ class NetworkTCPServer():
             for u in User.listOfUser:
                 if u == int(idUser):
                     ship = User.listOfUser[u].getCurrentCharacter().getShip()
-                    ship.installItem(int(myIterator.getUint32()),
+                    User.listOfUser[u].getCurrentCharacter().installItem(int(myIterator.getUint32()),
                         int(myIterator.getUint32()))
                     ship.saveToBDD()
                     slots = ship.getSlots()

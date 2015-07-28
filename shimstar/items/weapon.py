@@ -52,29 +52,6 @@ class Weapon(ShimItem):
 			return bul
 		else:
 			return None
-		
-	def getXml(self,docXml=None):
-		if docXml==None:
-			docXml = xml.dom.minidom.Document()
-		itemXml=super(Weapon,self).getXml(docXml)
-		nameXml=docXml.createElement("name")
-		nameXml.appendChild(docXml.createTextNode(str(self.name)))
-		damageXml=docXml.createElement("damage")
-		damageXml.appendChild(docXml.createTextNode(str(self.damage)))
-		rangeXml=docXml.createElement("range")
-		rangeXml.appendChild(docXml.createTextNode(str(self.range)))
-		eggXml=docXml.createElement("egg")
-		eggXml.appendChild(docXml.createTextNode(str(self.egg)))
-		cadenceXml=docXml.createElement("cadence")
-		cadenceXml.appendChild(docXml.createTextNode(str(self.cadence)))
-		speedXml=docXml.createElement("speed")
-		speedXml.appendChild(docXml.createTextNode(str(self.speed)))
-		itemXml.appendChild(damageXml)
-		itemXml.appendChild(rangeXml)
-		itemXml.appendChild(eggXml)
-		itemXml.appendChild(cadenceXml)
-		itemXml.appendChild(speedXml)
-		return itemXml
 	
 	def getDamage(self):
 		return self.damage
