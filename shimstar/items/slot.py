@@ -4,6 +4,7 @@ from shimstar.core.constantes import *
 from shimstar.items.engine import *
 from shimstar.items.weapon import *
 from shimstar.items.reactor import *
+from shimstar.items.shield import *
 import xml.dom.minidom
 
 
@@ -99,6 +100,11 @@ class Slot:
                         self.item = Reactor(0, idItem)
                     else:
                         self.item = Reactor(idItem, self)
+                elif typeItem == C_ITEM_SHIELD:
+                    if self.template > 0:
+                        self.item = Shield(0, idItem)
+                    else:
+                        self.item = Shield(idItem, self)
             #~ elif typeItem==C_ITEM_MINING:
             #~ if self.template>0:
             #~ self.item=miningItem(0,idItem)

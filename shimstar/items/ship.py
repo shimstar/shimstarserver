@@ -7,6 +7,7 @@ from shimstar.items.item import *
 from shimstar.items.engine import *
 from shimstar.items.weapon import *
 from shimstar.items.reactor import *
+from shimstar.items.shield import *
 from shimstar.items.slot import *
 from shimstar.core.constantes import *
 
@@ -156,6 +157,16 @@ class Ship(ShimItem, threading.Thread):
     def getState(self):
         return self.state
 
+
+    def hasItems(self,typeItem):
+        listOfItem = []
+        for s in self.slots:
+            it = s.getItem()
+            if it is not None:
+                if it.getTypeItem() == typeItem:
+                    listOfItem.append(it)
+
+        return listOfItem
 
     def destroy(self):
         print "ship::destroy" + str(self.id)
@@ -408,6 +419,8 @@ class Ship(ShimItem, threading.Thread):
                 itemTemp = Weapon(int(row[1]), self)
             elif typeItem == C_ITEM_ENERGY:
                 itemTemp = Reactor(int(row[1]),self)
+            elif typeItem == C_ITEM_SHIELD:
+                itemTemp = Shield(int(row[1]),self)
             else:
                 itemTemp = ShimItem(int(row[1]))
             self.itemInInventory.append(itemTemp)
@@ -451,6 +464,11 @@ class Ship(ShimItem, threading.Thread):
                     self.bodyNP.node().getAngularVelocity().getX() * self.frictionAngular,
                     self.bodyNP.node().getAngularVelocity().getY() * self.frictionAngular,
                     self.bodyNP.node().getAngularVelocity().getZ() * self.frictionAngular))
+
+        listOfShield = self.hasItems(C_ITEM_SHIELD)
+        for sh in listOfShield:
+            sh.run()
+
 
 
     def getPoussee(self):
