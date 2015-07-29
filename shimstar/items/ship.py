@@ -178,7 +178,7 @@ class Ship(ShimItem, threading.Thread):
         if self.worldNP is None:
             return None
         else:
-            if self.weapon is not None:
+            if self.weapon is not None and self.weapon.isEnabled():
                 bul = self.weapon.shot(self.bodyNP.getPos(), self.bodyNP.getQuat(), self)
                 # ~ print "ship::shot" + str(bul)
                 if bul is not None:
@@ -432,7 +432,7 @@ class Ship(ShimItem, threading.Thread):
                 v = self.worldNP.getRelativeVector(self.bodyNP, v)
                 self.bodyNP.node().applyTorque(v)
 
-                if self.engine is not None:
+                if self.engine is not None and self.engine.isEnabled():
                     if self.pyr['a'] == 1:
                         if self.poussee < self.engine.getSpeedMax():
                             self.poussee += self.engine.getAcceleration()
