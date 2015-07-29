@@ -54,7 +54,6 @@ class Ship(ShimItem, threading.Thread):
             self.loadFromTemplate()
         super(Ship, self).__init__(id, self.template)
 
-        print "ship::__init__ id=" + str(self.id) + "/tempalte= " + str(self.template) + "/" + str(self.owner) + "/" + str(self)
 
     def getItemInInventory(self,idItem):
         itFound = None
@@ -128,7 +127,6 @@ class Ship(ShimItem, threading.Thread):
         it.setContainerType("star007_ship")
         it.setContainer(self.id)
         it.saveToBDD()
-        print "ship::adInventory " + str(it) + "//" + str(it.getId())
 
     def removeFromInventory(self,itID):
         itFound = None
@@ -334,7 +332,6 @@ class Ship(ShimItem, threading.Thread):
             shimDbConnector.lock.acquire()
             cursor = instanceDbConnector.getConnection().cursor()
             query = "SELECT star009_id FROM star009_slot WHERE star009_ship_star005='" + str(self.shipTemplate) + "'"
-            print "ship::loadFromTemplate " + str(query)
             cursor.execute(query)
             result_set = cursor.fetchall()
             self.slots = []
@@ -415,6 +412,8 @@ class Ship(ShimItem, threading.Thread):
                 itemTemp = ShimItem(int(row[1]))
             self.itemInInventory.append(itemTemp)
         cursor.close()
+
+        self.checkItemStatus()
 
 
     def runPhysics(self):
@@ -611,6 +610,7 @@ class Ship(ShimItem, threading.Thread):
         if it is not None and it == C_ITEM_WEAPON:
             self.weapon = None
         it.setEnabled(True)
+
+        self.checkItemStatus()
         self.saveToBDD()
-        return it
 

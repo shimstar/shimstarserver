@@ -84,7 +84,6 @@ class NetworkTCPServer():
                 User.lock.release()
                 if usrToDelete != None:
                     #~ usrToDelete.saveToBDD()
-                    #~ print "aaaaaaaaaaaaaaaaa"
                     usrToDelete.destroy()
                 #~ for usr in User.listOfUser:
                 #~ if usr!=usrToDelete:
@@ -130,7 +129,6 @@ class NetworkTCPServer():
             password = myIterator.getString()
             if User.userExists(name) == True:
                 tempUser = User.getUserInstantiatedByName(name)
-                print User.listOfUser
                 if tempUser == None:
                     tempUser = User(name=name)
 
@@ -245,14 +243,21 @@ class NetworkTCPServer():
             User.lock.acquire()
             for u in User.listOfUser:
                 if u == int(idUser):
-                    it = User.listOfUser[u].getCurrentCharacter().getShip().uninstallItemBySlotId(int(myIterator.getUint32()))
-                    if it is not None:
+                    ship = User.listOfUser[u].getCurrentCharacter().getShip()
+                    ship.uninstallItemBySlotId(int(myIterator.getUint32()))
+                    slots = ship.getSlots()
+                    listOfItem = []
+                    for s in slots:
+                        if s.getItem() is not None:
+                            listOfItem.append(s.getItem())
+
+                    nm = netMessage(C_NETWORK_CHARACTER_ITEM_ENABLED, connexion)
+                    nm.addInt(len(listOfItem))
+                    for it in listOfItem:
                         status = 1 if it.isEnabled() else 0
-                        nm = netMessage(C_NETWORK_CHARACTER_ITEM_ENABLED, connexion)
-                        nm.addInt(1)
                         nm.addInt(it.getId())
                         nm.addInt(status)
-                        NetworkMessage.getInstance().addMessage(nm)
+                    NetworkMessage.getInstance().addMessage(nm)
 
         elif msgID == C_NETWORK_CHARACTER_INSTALL_SLOT:
             idUser = int(myIterator.getUint32())
