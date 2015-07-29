@@ -417,7 +417,7 @@ class Zone(threading.Thread):
                 if User.listOfUser.has_key(usr):
                     ch = User.listOfUser[usr].getCurrentCharacter()
                     Bullet.lock.acquire()
-                    if ch.getShip() is not None and ch.getShip().getWeapon() is not None:
+                    if ch.getShip() is not None and ch.getShip().getWeapon() is not None and ch.getShip().getWeapon().isEnabled():
                         b = ch.getShip().getWeapon().addBullet(pos, quat)
                         Bullet.lock.release()
                         User.lock.acquire()
