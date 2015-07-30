@@ -1,5 +1,6 @@
 from direct.stdpy import threading
 from panda3d.bullet import *
+from wx.tools.Editra.src.extern.pygments.util import get_list_opt
 
 from shimstar.zoneserver.network.netmessage import *
 from shimstar.zoneserver.network.networkzonetcpserver import *
@@ -135,6 +136,12 @@ class Zone(threading.Thread):
                                 nm.addFloat(chr.ship.getPos().getY())
                                 nm.addFloat(chr.ship.getPos().getZ())
                                 nm.addInt(chr.ship.getPoussee())
+                                nm.addInt(chr.ship.getHullPoints())
+                                listOfShield = chr.ship.hasItems(C_ITEM_SHIELD)
+                                nm.addInt(len(listOfShield))
+                                for shi in listOfShield:
+                                    nm.addInt(shi.getId())
+                                    nm.addInt(shi.getHitPoints())
                                 #~ NetworkMessageUdp.getInstance().addMessage(nm)
                                 NetworkMessage.getInstance().addMessage(nm)
 
@@ -338,18 +345,26 @@ class Zone(threading.Thread):
                 elif isinstance(objCollided, Ship) == True:
                     objCollided.takeDamage(Bullet.listOfBullet[b].getDamage(), Bullet.listOfBullet[b].getShipOwner(),
                         isinstance(Bullet.listOfBullet[b].getShipOwner(), character))
-                    User.lock.acquire()
-                    for u in User.listOfUser:
-                        # ~ print "zone::run collision " + str(isinstance(objCollided.getOwner(),Character))
-                        if isinstance(objCollided.getOwner(), character) != True:
-                            nm = netMessage(C_NETWORK_TAKE_DAMAGE_NPC, User.listOfUser[u].getConnexion())
-                        else:
-                            nm = netMessage(C_NETWORK_TAKE_DAMAGE_CHAR, User.listOfUser[u].getConnexion())
-                        #~ print "zone::run objCollided.getOwner.getID == " + str(objCollided.getOwner().getId())
-                        nm.addInt(objCollided.getOwner().getId())
-                        nm.addInt(Bullet.listOfBullet[b].getDamage())
-                        NetworkMessage.getInstance().addMessage(nm)
-                    User.lock.release()
+                    # User.lock.acquire()
+                    # for u in User.listOfUser:
+                    #     # ~ print "zone::run collision " + str(isinstance(objCollided.getOwner(),Character))
+                    #     if isinstance(objCollided.getOwner(), character) != True:
+                    #         nm = netMessage(C_NETWORK_TAKE_DAMAGE_NPC, User.listOfUser[u].getConnexion())
+                    #     else:
+                    #         nm = netMessage(C_NETWORK_TAKE_DAMAGE_CHAR, User.listOfUser[u].getConnexion())
+                    #     #~ print "zone::run objCollided.getOwner.getID == " + str(objCollided.getOwner().getId())
+                    #     nm.addInt(objCollided.getOwner().getId())
+                    #     send hitpoints, and send hitpoints per shield
+                    #     nm.addInt(Bullet.listOfBullet[b].getDamage())
+                    #     nm.addInt(objCollided.getHullPoints())
+                    #     listOfShield = objCollided.hasItems(C_ITEM_SHIELD)
+                    #     nm.addInt(len(listOfShield))
+                    #     for sh in listOfShield:
+                    #         nm.addInt((sh.getId()))
+                    #         nm.addFloat((sh.))
+                    #     NetworkMessage.getInstance().addMessage(nm)
+                    #
+                    # User.lock.release()
                     if objCollided.getHullPoints() <= 0:
                         tempJunk=junk(0,objCollided.getPos(),self.id,4)
                         tempJunk.populateFromShip(objCollided)
