@@ -162,6 +162,12 @@ class Zone(threading.Thread):
                             nm.addFloat(n.ship.getPos().getX())
                             nm.addFloat(n.ship.getPos().getY())
                             nm.addFloat(n.ship.getPos().getZ())
+                            nm.addInt(n.ship.getHullPoints())
+                            listOfShield = n.ship.hasItems(C_ITEM_SHIELD)
+                            nm.addInt(len(listOfShield))
+                            for itShield in listOfShield:
+                                nm.addInt(itShield.getId())
+                                nm.addInt(itShield.getHitPoints())
                         #~ NetworkMessageUdp.getInstance().addMessage(nm)
                         NetworkMessage.getInstance().addMessage(nm)
                         NPC.lock.release()
