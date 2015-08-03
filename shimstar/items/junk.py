@@ -172,7 +172,7 @@ class junk:
             quadrant += prcent
             userPrcent[quadrant] = u
         for ite in items:
-            alea = random.randint(1, 100)
+            alea = random.randint(1, 150)
             choice = None
             for u in userPrcent.keys():
                 if u <= 100 and alea <= u:
