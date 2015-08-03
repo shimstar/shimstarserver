@@ -169,7 +169,6 @@ class Ship(ShimItem, threading.Thread):
         return listOfItem
 
     def destroy(self):
-        print "ship::destroy" + str(self.id)
         self.lock.acquire()
         if self.bodyNP is not None:
             if self.world is not None:
@@ -275,15 +274,6 @@ class Ship(ShimItem, threading.Thread):
             self.pyr['a'] = int(value)
         elif key == 'w':
             self.pyr['w'] = int(value)
-        # ~ elif key=='qq':
-        #~ self.pyr['p']=int(value)*4
-        #~ elif key=='dd':
-        #~ self.pyr['p']=-int(value)*4
-        #~ elif key=='zz':
-        #~ self.pyr['y']=-int(value)*4
-        #~ elif key=='ss':
-        #~ self.pyr['y']=int(value)*4
-
         if key == "lcontrol":
             if value == 0:
                 self.slowAngular = 1
