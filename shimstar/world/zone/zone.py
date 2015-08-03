@@ -331,7 +331,7 @@ class Zone(threading.Thread):
                 # ~ print objCollided
                 if isinstance(objCollided, Station) == True:
                     for u in User.listOfUser:
-                        nm = netMessage(C_NETWORK_EXPLOSION, User.listOfUser[u].getConnexion())
+                        nm = netMessage(C_NETWORK_EXPLOSION_SHIELD, User.listOfUser[u].getConnexion())
                         pos = Bullet.listOfBullet[b].getPos()
                         nm.addFloat(pos.getX())
                         nm.addFloat(pos.getY())
