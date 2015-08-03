@@ -215,17 +215,17 @@ class Ship(ShimItem, threading.Thread):
         nm.addInt(self.template)
         nm.addInt(self.hullpoints)
 
-        if self.owner.className == "character":
-            nm.addInt(len(self.itemInInventory))
-            if len(self.itemInInventory) > 0:
-                for i in self.itemInInventory:
-                    nm.addInt(i.getTypeItem())
-                    nm.addInt(i.getTemplate())
-                    nm.addInt(i.getId())
-                    nm.addInt(i.getNb())
-            nm.addInt(len(self.slots))
-            for s in self.slots:
-                s.sendInfo(nm)
+        # if self.owner.className == "character":
+        nm.addInt(len(self.itemInInventory))
+        if len(self.itemInInventory) > 0:
+            for i in self.itemInInventory:
+                nm.addInt(i.getTypeItem())
+                nm.addInt(i.getTemplate())
+                nm.addInt(i.getId())
+                nm.addInt(i.getNb())
+        nm.addInt(len(self.slots))
+        for s in self.slots:
+            s.sendInfo(nm)
 
 
     def mustSentPos(self, timer):
@@ -304,7 +304,18 @@ class Ship(ShimItem, threading.Thread):
 
             """
         # ~ print "ship::takedamage"
+        listOfShield = self.hasItems(C_ITEM_SHIELD)
+        for shi in listOfShield:
+            shHp = shi.getActualHitPoints()
+            if shHp - hp >=0:
+                shi.setActualHitPoints(shHp - hp)
+                hp = 0
+            else:
+                shi.setActualHitPoints(0)
+                hp -= shHp
+
         self.hullpoints -= hp
+        #TODO define if history take shield dommage as dommage?
         if who is not None:
             if character:
                 if self.damageHistory.has_key(who.getId()):

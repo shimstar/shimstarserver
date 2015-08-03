@@ -40,6 +40,9 @@ class Shield(ShimItem):
     def getHitPoints(self):
         return self.maxHitpoints
 
+    def setActualHitPoints(self , hp):
+        self.hitpoints = hp
+
     def getActualHitPoints(self):
         return self.hitpoints
 
