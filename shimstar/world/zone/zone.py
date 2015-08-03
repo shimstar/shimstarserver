@@ -1,6 +1,5 @@
 from direct.stdpy import threading
 from panda3d.bullet import *
-from wx.tools.Editra.src.extern.pygments.util import get_list_opt
 
 from shimstar.zoneserver.network.netmessage import *
 from shimstar.zoneserver.network.networkzonetcpserver import *
@@ -141,7 +140,7 @@ class Zone(threading.Thread):
                                 nm.addInt(len(listOfShield))
                                 for shi in listOfShield:
                                     nm.addInt(shi.getId())
-                                    nm.addInt(shi.getHitPoints())
+                                    nm.addInt(shi.getActualHitPoints())
                                 #~ NetworkMessageUdp.getInstance().addMessage(nm)
                                 NetworkMessage.getInstance().addMessage(nm)
 

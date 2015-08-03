@@ -303,26 +303,18 @@ class Ship(ShimItem, threading.Thread):
                 remove hitpoints from ship and save in the damageHistory
 
             """
-        # ~ print "ship::takedamage"
         listOfShield = self.hasItems(C_ITEM_SHIELD)
         for shi in listOfShield:
-            shHp = shi.getActualHitPoints()
-            if shHp - hp >=0:
-                shi.setActualHitPoints(shHp - hp)
-                hp = 0
-            else:
-                shi.setActualHitPoints(0)
-                hp -= shHp
+            hp = shi.takeDamage(hp)
 
         self.hullpoints -= hp
-        #TODO define if history take shield dommage as dommage?
-        if who is not None:
-            if character:
-                if self.damageHistory.has_key(who.getId()):
-                    self.damageHistory[who.getId()] += hp
-                else:
-                    self.damageHistory[who.getId()] = hp
-        # print "takeDamage " + str(self.damageHistory)
+        if hp > 0 :
+            if who is not None:
+                if character:
+                    if self.damageHistory.has_key(who.getId()):
+                        self.damageHistory[who.getId()] += hp
+                    else:
+                        self.damageHistory[who.getId()] = hp
 
     def loadFromTemplate(self):
         """

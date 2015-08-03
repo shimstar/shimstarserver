@@ -31,6 +31,7 @@ class Shield(ShimItem):
         for row in result_set:
             self.tempo = int(row[1])
             self.maxHitpoints = int(row[0])
+            self.hitpoints = self.maxHitpoints
         cursor.close()
         shimDbConnector.lock.release()
 
@@ -50,12 +51,19 @@ class Shield(ShimItem):
         return self.tempo
 				
     def takeDamage(self,hp):
+        tempReturn = hp
         self.hitpoints-=hp
-        self.hitpoints = self.hitpoints if self.hitpoints>0 else 0
+        if self.hitpoints > 0:
+            tempReturn = 0
+        else:
+            tempReturn = - self.hitpoints
+            self.hitpoints = 0
+        return tempReturn
 
     def run(self):
         if self.hitpoints<self.maxHitpoints:
             dt = globalClock.getRealTime() - self.lastTicks
             if dt >= 1:
+                self.lastTicks=globalClock.getRealTime()
                 self.hitpoints += self.tempo
                 self.hitpoints = self.hitpoints if self.hitpoints <= self.maxHitpoints else self.maxHitpoints
