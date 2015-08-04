@@ -52,6 +52,9 @@ class Bullet(threading.Thread):
             Vec3(forwardVec.getX() * self.speed, forwardVec.getY() * self.speed, forwardVec.getZ() * self.speed))
         Bullet.listOfBullet[self.id] = self
 
+    def getInitPos(self):
+        return self.initPos
+
     def mustSentPos(self, timer):
         """
          if the time elapsed between 2 messages sent to others players is over the sendticks, return true, otherwise return false
