@@ -193,6 +193,7 @@ class NetworkTCPServer():
             idUser = int(myIterator.getUint32())
             idIt = int(myIterator.getUint32())
             inv= int(myIterator.getUint32())
+            # qty = myIterator.getUint32()
             User.lock.acquire()
             for u in User.listOfUser:
                 if u == int(idUser):
@@ -201,26 +202,31 @@ class NetworkTCPServer():
                     nm.addInt(idIt)
                     nm.addInt(User.listOfUser[u].getCurrentCharacter().getCoin())
                     nm.addInt(inv)
+                    # nm.addInt(qty)
                     NetworkMessage.getInstance().addMessage(nm)
         elif msgID == C_NETWORK_CHARACTER_INV2STATION:
             iduser = myIterator.getUint32()
             iditem = myIterator.getUint32()
             idstation = myIterator.getUint32()
+            qty = myIterator.getUint32()
             for u in User.listOfUser:
                 if u == int(iduser):
-                    User.listOfUser[u].getCurrentCharacter().moveItemInvToStation(iditem,idstation,toStation=True)
+                    User.listOfUser[u].getCurrentCharacter().moveItemInvToStation(iditem,idstation,qty,toStation=True)
                     nm = netMessage(C_NETWORK_CHARACTER_INV2STATION, connexion)
                     nm.addInt(iditem)
+                    nm.addInt(qty)
                     NetworkMessage.getInstance().addMessage(nm)
         elif msgID == C_NETWORK_CHARACTER_STATION2INV:
             iduser = myIterator.getUint32()
             iditem = myIterator.getUint32()
             idstation = myIterator.getUint32()
+            qty = myIterator.getUint32()
             for u in User.listOfUser:
                 if u == int(iduser):
-                    User.listOfUser[u].getCurrentCharacter().moveItemInvToStation(iditem,idstation,toStation=False)
+                    User.listOfUser[u].getCurrentCharacter().moveItemInvToStation(iditem,idstation, qty,toStation=False)
                     nm = netMessage(C_NETWORK_CHARACTER_STATION2INV, connexion)
                     nm.addInt(iditem)
+                    nm.addInt(qty)
                     NetworkMessage.getInstance().addMessage(nm)
         elif msgID == C_NETWORK_CHARACTER_BUY_ITEM:
             idUser = int(myIterator.getUint32())

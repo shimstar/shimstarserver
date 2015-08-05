@@ -66,7 +66,11 @@ class character:
         if self.isMining:
             if globalClock.getRealTime() - self.lastMiningTicks > 0.5:
                 self.lastMiningTicks = globalClock.getRealTime()
-                return 10
+                collected = 0
+                listOfMiningItem = self.ship.hasItems(C_ITEM_MINING)
+                for l in listOfMiningItem:
+                    collected = l.getNb()
+                return collected
         return 0
 
     def setMiningAsteroid(self, a):
@@ -263,7 +267,7 @@ class character:
         cursor.close()
         shimDbConnector.lock.release()
 
-    def moveItemInvToStation(self,idItem,idStation,toStation=False):
+    def moveItemInvToStation(self,idItem,idStation, qty,toStation=False):
         if toStation:
             if self.ship is not None:
                 it=self.ship.getItemInInventory(idItem)
