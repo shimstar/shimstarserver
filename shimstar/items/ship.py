@@ -8,6 +8,7 @@ from shimstar.items.engine import *
 from shimstar.items.weapon import *
 from shimstar.items.reactor import *
 from shimstar.items.shield import *
+from shimstar.items.mining import *
 from shimstar.items.slot import *
 from shimstar.core.constantes import *
 
@@ -414,6 +415,8 @@ class Ship(ShimItem, threading.Thread):
                 itemTemp = Reactor(int(row[1]),self)
             elif typeItem == C_ITEM_SHIELD:
                 itemTemp = Shield(int(row[1]),self)
+            elif typeItem == C_ITEM_MINING:
+                itemTemp = Mining(int(row[1]),self)
             else:
                 itemTemp = ShimItem(int(row[1]))
             self.itemInInventory.append(itemTemp)
