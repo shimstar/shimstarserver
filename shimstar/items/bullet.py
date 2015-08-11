@@ -11,7 +11,7 @@ class Bullet(threading.Thread):
     listOfBullet = {}
     lock = threading.Lock()
 
-    def __init__(self, pos, quat, egg, range, speed, weapon):
+    def __init__(self, pos, quat, egg, range, speed, weapon,x,y,z):
         # ~ print "bullet::__init__"
         threading.Thread.__init__(self)
         self.id = Bullet.nbBullet
@@ -39,7 +39,9 @@ class Bullet(threading.Thread):
         dim = xDim
         if xDim < yDim:
             dim = yDim
-        self.bodyNP.setPos(weapon.ship.bodyNP, Vec3(0, dim + (dim / 5), 0))
+        # self.bodyNP.setPos(weapon.ship.bodyNP, Vec3(0, dim + (dim / 5), 0))
+        self.bodyNP.setPos(weapon.ship.bodyNP, Vec3(x, y, z))
+        # print "dim " + str(dim + (dim/5))
         #~ self.bodyNP.setPos(weapon.ship.bodyNP,Vec3(0,200,0))
         self.initPos = self.bodyNP.getPos()
         self.bodyNP.setCollideMask(BitMask32.allOn())

@@ -612,6 +612,7 @@ class Ship(ShimItem, threading.Thread):
         self.itemInInventory.append(it)
         it.setContainer(self.id)
         it.setContainerType("star007_ship")
+        it.slot = None
         slot.setItem(None)
 
         it.setEnabled(True)

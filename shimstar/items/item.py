@@ -20,7 +20,7 @@ class ShimItem(object):
         self.mission = 0
         self.space = 0
         self.id = id
-
+        self.slot = None
         self.enabled = True
         self.container = 0
         self.stackable = 0

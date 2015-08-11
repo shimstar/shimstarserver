@@ -18,6 +18,9 @@ class Slot:
         self.nb = 0
         self.idShip = 0
         self.item = None
+        self.x = 0
+        self.y = 0
+        self.z = 0
         if self.id > 0:
             self.loadFromBDD()
         else:
@@ -52,6 +55,7 @@ class Slot:
         if item is not None:
             item.setContainer(self.id)
             item.setContainerType("star009_slot")
+            item.slot = self
 
     def getId(self):
         return self.id
@@ -61,8 +65,10 @@ class Slot:
 
     def loadFromBDD(self):
         shimDbConnector.lock.acquire()
-        query = "SELECT star009_location_star008,star009_numero,star009_item_star006 FROM star009_slot where star009_id ='" + str(
+        query = "SELECT star009_location_star008,star009_numero,star009_item_star006,star009_x,star009_y,star009_z FROM star009_slot"
+        query += " where star009_id ='" + str(
             self.id) + "' "
+        print query
         instanceDbConnector = shimDbConnector.getInstance()
         cursor = instanceDbConnector.getConnection().cursor()
         cursor.execute(query)
@@ -71,6 +77,9 @@ class Slot:
             self.location = int(row[0])
             self.nb = int(row[1])
             idItem = int(row[2])
+            self.x = int(row[3])
+            self.y = int(row[4])
+            self.z = int(row[5])
         cursor.close()
         # ~ print "slot::loadFromBDD" + str(idItem)
         if idItem > 0:
@@ -111,23 +120,9 @@ class Slot:
                         self.item = Mining(0, idItem)
                     else:
                         self.item = Mining(idItem, self)
-            #~ elif typeItem==C_ITEM_MINING:
-            #~ if self.template>0:
-            #~ self.item=miningItem(0,idItem)
-            #~ else:
-            #~ self.item=miningItem(idItem)
-            #~ elif typeItem==C_ITEM_CONTAINER:
-            #~ if self.template>0:
-            #~ self.item=stockbay(0,idItem)
-            #~ else:
-            #~ self.item=stockbay(idItem)
-            #~ elif typeItem==C_ITEM_RADAR:
-            #~ if self.template>0:
-            #~ self.item=radaritem(0,idItem)
-            #~ else:
-            #~ self.item=radaritem(idItem)
+
             cursor.close()
-            #~ print query
+            self.item.slot=self
         query = "SELECT star021_typeitem_star003 FROM star021_slot_typeitem WHERE star021_slot_star009='" + str(
             self.id) + "'"
         # print query
@@ -165,13 +160,14 @@ class Slot:
                 query += "0"
             query += "' WHERE STAR009_id = '" + str(self.id) + "'"
         else:
-            query = "INSERT INTO star009_slot (star009_location_star008,star009_numero,star009_ship_star007,star009_item_star006)"
+            query = "INSERT INTO star009_slot (star009_location_star008,star009_numero,star009_ship_star007,star009_item_star006, star009_x,star009_y,star009_z)"
             query += " VALUES ('" + str(self.location) + "','" + str(self.nb) + "','" + str(self.idShip) + "','"
             if self.item is not None:
                 query += str(self.item.getId())
             else:
                 query += "0"
-            query += "')"
+            query += "','" + str(self.x) + "','" + str(self.y) + "','" + str(self.z) +"')"
+            print query
         instanceDbConnector = shimDbConnector.getInstance()
         cursor = instanceDbConnector.getConnection().cursor()
         cursor.execute(query)
