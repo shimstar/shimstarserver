@@ -12,7 +12,7 @@ class NetworkMainServer(threading.Thread):
 	def __init__(self):
 		threading.Thread.__init__(self)
 		self.port=7777
-		self.ip="127.0.0.1"
+		self.ip=C_IP_MAINSERVER
 		self.stopThread=False
 		self.timeout_in_miliseconds=3000  # 3 seconds
 		self.listOfMessage=[] 
