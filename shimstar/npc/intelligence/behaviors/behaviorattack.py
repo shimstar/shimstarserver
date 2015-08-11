@@ -100,75 +100,79 @@ class BehaviorAttack(behavior):
             self.pointerToGo.setPos(posShooter)
             posTarget = self.target.getPos()
             targetVelocityVect = self.target.node().getLinearVelocity()
-            speedShooter = self.ship.getWeapon().getSpeed()
-            speedTarget = sqrt(
-                targetVelocityVect.getX() * targetVelocityVect.getX() + targetVelocityVect.getY() * targetVelocityVect.getY() + targetVelocityVect.getZ() * targetVelocityVect.getZ())
-            if speedTarget == 0:
-                self.pointerToGo.lookAt(self.target.getPos())
-            else:
-                diameterPoint1 = posShooter + (posTarget - posShooter) * (
-                speedShooter / ( speedShooter + speedTarget))  # internal diameter point
-                diameterPoint2 = posShooter + (posTarget - posShooter) * (speedShooter / (
-                speedShooter - speedTarget))  # external diameter point TODO: manage the case where speeds are equal (right now, we have a division by 0 exception)
-                dp1X = diameterPoint1.getX()
-                dp1Y = diameterPoint1.getY()
-                dp1Z = diameterPoint1.getZ()
-                dp2X = diameterPoint2.getX()
-                dp2Y = diameterPoint2.getY()
-                dp2Z = diameterPoint2.getZ()
-                dpDiffX = dp1X - dp2X
-                dpDiffY = dp1Y - dp2Y
-                dpDiffZ = dp1Z - dp2Z
-                touchSphereCenter = (diameterPoint1 + diameterPoint2) / 2  # middle
-                touchSphereRadius = 0.5 * sqrt(dpDiffX * dpDiffX + dpDiffY * dpDiffY + dpDiffZ * dpDiffZ)
-                # we now want to find the intersection between the sphere and the Target ship movement
-                # we translate coordinates so that the sphere is centered on the origin (this simplifies the equation). Movement vector remains unchanged.
-                # sphere equation can now be written as:
-                # x*x + y*y + z*z = radius*radius
-                translatedPosTarget = posTarget - touchSphereCenter
-                translatedDirTarget = targetVelocityVect
-                # movement line is now:
-                # (x, y, z) = pos + t*dir (with t unknown)
-                pX = translatedPosTarget.getX()
-                pY = translatedPosTarget.getY()
-                pZ = translatedPosTarget.getZ()
-                dX = translatedDirTarget.getX()
-                dY = translatedDirTarget.getY()
-                dZ = translatedDirTarget.getZ()
-                # we have to solve:
-                # (pX+t*dX)**2 + (pY+t*dY)**2 + (pZ+t*dZ)**2 = radius**2
-                # this can be written as:
-                # coefA*(t*t) + coefB*(t) + coefC = 0
-                # with:
-                coefA = dX * dX + dY * dY + dZ * dZ
-                coefB = (dX * pX + dY * pY + dZ * pZ) * 2
-                coefC = pX * pX + pY * pY + pZ * pZ - touchSphereRadius * touchSphereRadius
-                coefDelta = coefB * coefB - 4 * coefA * coefC
-                # if the bullet is faster than the target, delta should always be positive. TODO: manage exceptions
-                sol1T = 0
-                sol2T = 0
-                if coefA != 0:
-                    try:
-                        sol1T = (-coefB + sqrt(abs(coefDelta))) / (2 * coefA)
-                        sol2T = (-coefB - sqrt(abs(coefDelta))) / (2 * coefA)
-                    except:
-                        print "behaviorAttack::runShotTo " + str(coefB) + "//" + str(coefA) + "//" + str(coefDelta)
-                        print sys.exc_info()[0]
+            weapons = self.ship.hasItems(C_ITEM_WEAPON)
+            if len(weapons) > 0 :
+                # TODO : Manage many weapons in NPC behaviour
+                speedShooter = weapons[0].getSpeed()
+                # speedShooter = self.ship.getWeapon().getSpeed()
+                speedTarget = sqrt(
+                    targetVelocityVect.getX() * targetVelocityVect.getX() + targetVelocityVect.getY() * targetVelocityVect.getY() + targetVelocityVect.getZ() * targetVelocityVect.getZ())
+                if speedTarget == 0:
+                    self.pointerToGo.lookAt(self.target.getPos())
                 else:
+                    diameterPoint1 = posShooter + (posTarget - posShooter) * (
+                    speedShooter / ( speedShooter + speedTarget))  # internal diameter point
+                    diameterPoint2 = posShooter + (posTarget - posShooter) * (speedShooter / (
+                    speedShooter - speedTarget))  # external diameter point TODO: manage the case where speeds are equal (right now, we have a division by 0 exception)
+                    dp1X = diameterPoint1.getX()
+                    dp1Y = diameterPoint1.getY()
+                    dp1Z = diameterPoint1.getZ()
+                    dp2X = diameterPoint2.getX()
+                    dp2Y = diameterPoint2.getY()
+                    dp2Z = diameterPoint2.getZ()
+                    dpDiffX = dp1X - dp2X
+                    dpDiffY = dp1Y - dp2Y
+                    dpDiffZ = dp1Z - dp2Z
+                    touchSphereCenter = (diameterPoint1 + diameterPoint2) / 2  # middle
+                    touchSphereRadius = 0.5 * sqrt(dpDiffX * dpDiffX + dpDiffY * dpDiffY + dpDiffZ * dpDiffZ)
+                    # we now want to find the intersection between the sphere and the Target ship movement
+                    # we translate coordinates so that the sphere is centered on the origin (this simplifies the equation). Movement vector remains unchanged.
+                    # sphere equation can now be written as:
+                    # x*x + y*y + z*z = radius*radius
+                    translatedPosTarget = posTarget - touchSphereCenter
+                    translatedDirTarget = targetVelocityVect
+                    # movement line is now:
+                    # (x, y, z) = pos + t*dir (with t unknown)
+                    pX = translatedPosTarget.getX()
+                    pY = translatedPosTarget.getY()
+                    pZ = translatedPosTarget.getZ()
+                    dX = translatedDirTarget.getX()
+                    dY = translatedDirTarget.getY()
+                    dZ = translatedDirTarget.getZ()
+                    # we have to solve:
+                    # (pX+t*dX)**2 + (pY+t*dY)**2 + (pZ+t*dZ)**2 = radius**2
+                    # this can be written as:
+                    # coefA*(t*t) + coefB*(t) + coefC = 0
+                    # with:
+                    coefA = dX * dX + dY * dY + dZ * dZ
+                    coefB = (dX * pX + dY * pY + dZ * pZ) * 2
+                    coefC = pX * pX + pY * pY + pZ * pZ - touchSphereRadius * touchSphereRadius
+                    coefDelta = coefB * coefB - 4 * coefA * coefC
+                    # if the bullet is faster than the target, delta should always be positive. TODO: manage exceptions
                     sol1T = 0
                     sol2T = 0
-                # only one solution for (t) is positive. This is the one we want because it corresponds to the point in the same direction as the ship movement (the other solution is backward)
-                maxT = 0
-                if sol1T > sol2T:
-                    maxT = sol1T
-                else:
-                    maxT = sol2T
-                #as defined above:
-                translatedIntersect = translatedPosTarget + translatedDirTarget * maxT
-                #we translate back to the original coordinates
-                finalIntersect = translatedIntersect + touchSphereCenter
-                self.pointerToGo.lookAt(finalIntersect.getX(), finalIntersect.getY(), finalIntersect.getZ())
-                #~ print str(finalIntersect.getX()) + "/" + str (finalIntersect.getY()) + str(finalIntersect.getZ())
+                    if coefA != 0:
+                        try:
+                            sol1T = (-coefB + sqrt(abs(coefDelta))) / (2 * coefA)
+                            sol2T = (-coefB - sqrt(abs(coefDelta))) / (2 * coefA)
+                        except:
+                            print "behaviorAttack::runShotTo " + str(coefB) + "//" + str(coefA) + "//" + str(coefDelta)
+                            print sys.exc_info()[0]
+                    else:
+                        sol1T = 0
+                        sol2T = 0
+                    # only one solution for (t) is positive. This is the one we want because it corresponds to the point in the same direction as the ship movement (the other solution is backward)
+                    maxT = 0
+                    if sol1T > sol2T:
+                        maxT = sol1T
+                    else:
+                        maxT = sol2T
+                    #as defined above:
+                    translatedIntersect = translatedPosTarget + translatedDirTarget * maxT
+                    #we translate back to the original coordinates
+                    finalIntersect = translatedIntersect + touchSphereCenter
+                    self.pointerToGo.lookAt(finalIntersect.getX(), finalIntersect.getY(), finalIntersect.getZ())
+                    #~ print str(finalIntersect.getX()) + "/" + str (finalIntersect.getY()) + str(finalIntersect.getZ())
             self.ship.lock.release()
 
     def avoidTargeted(self):

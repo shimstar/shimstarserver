@@ -434,26 +434,33 @@ class Zone(threading.Thread):
                 charact = int(netMsg[1])
                 pos = Point3(float(netMsg[2]), float(netMsg[3]), float(netMsg[4]))
                 quat = (float(netMsg[5]), float(netMsg[6]), float(netMsg[7]), float(netMsg[8]))
+                weaponId = int(netMsg[9])
                 if User.listOfUser.has_key(usr):
                     ch = User.listOfUser[usr].getCurrentCharacter()
-                    Bullet.lock.acquire()
-                    if ch.getShip() is not None and ch.getShip().getWeapon() is not None and ch.getShip().getWeapon().isEnabled():
-                        b = ch.getShip().getWeapon().addBullet(pos, quat)
-                        Bullet.lock.release()
-                        User.lock.acquire()
-                        for u in User.listOfUser:
-                            nm = netMessage(C_NETWORK_NEW_CHAR_SHOT, User.listOfUser[u].getConnexion())
-                            nm.addInt(usr)
-                            nm.addInt(b.getId())
-                            nm.addFloat(b.getPos().getX())
-                            nm.addFloat(b.getPos().getY())
-                            nm.addFloat(b.getPos().getZ())
-                            nm.addFloat(b.getQuat().getR())
-                            nm.addFloat(b.getQuat().getI())
-                            nm.addFloat(b.getQuat().getJ())
-                            nm.addFloat(b.getQuat().getK())
-                            NetworkMessage.getInstance().addMessage(nm)
-                        User.lock.release()
+
+                    if ch.getShip() is not None: # and ch.getShip().getWeapon() is not None and ch.getShip().getWeapon().isEnabled():
+                        weapons = ch.getShip().hasItems(C_ITEM_WEAPON)
+                        for w in weapons :
+                            if w.getId() == weaponId:
+                                Bullet.lock.acquire()
+                                b = w.addBullet(pos,quat)
+                            # b = ch.getShip().getWeapon().addBullet(pos, quat)
+                                Bullet.lock.release()
+                                User.lock.acquire()
+                                for u in User.listOfUser:
+                                    nm = netMessage(C_NETWORK_NEW_CHAR_SHOT, User.listOfUser[u].getConnexion())
+                                    nm.addInt(usr)
+                                    nm.addInt(b.getId())
+                                    nm.addFloat(b.getPos().getX())
+                                    nm.addFloat(b.getPos().getY())
+                                    nm.addFloat(b.getPos().getZ())
+                                    nm.addFloat(b.getQuat().getR())
+                                    nm.addFloat(b.getQuat().getI())
+                                    nm.addFloat(b.getQuat().getJ())
+                                    nm.addFloat(b.getQuat().getK())
+                                    nm.addInt(w.getId())
+                                    NetworkMessage.getInstance().addMessage(nm)
+                                User.lock.release()
             # ~ NetworkZoneUDPServer.getInstance().removeMessage(msg)
             NetworkTCPServer.getInstance().removeMessage(msg)
 

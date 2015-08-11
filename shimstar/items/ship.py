@@ -24,12 +24,10 @@ class Ship(ShimItem, threading.Thread):
         self.slots = []
         self.world = None
         self.itemInInventory = []
-        self.engine = None
         self.owner = None
         self.torque = 0
         self.frictionAngular = 0
         self.frictionVelocity = 0
-        self.weapon = None
         self.lastSentTicks = 0
         self.template = template
         self.shipTemplate = template
@@ -159,12 +157,12 @@ class Ship(ShimItem, threading.Thread):
         return self.state
 
 
-    def hasItems(self,typeItem):
+    def hasItems(self,typeItem,enabled = True):
         listOfItem = []
         for s in self.slots:
             it = s.getItem()
             if it is not None:
-                if it.getTypeItem() == typeItem:
+                if it.getTypeItem() == typeItem and it.isEnabled():
                     listOfItem.append(it)
 
         return listOfItem
@@ -189,9 +187,10 @@ class Ship(ShimItem, threading.Thread):
         if self.worldNP is None:
             return None
         else:
-            if self.weapon is not None and self.weapon.isEnabled():
-                bul = self.weapon.shot(self.bodyNP.getPos(), self.bodyNP.getQuat(), self)
-                # ~ print "ship::shot" + str(bul)
+            weapons = self.hasItems(C_ITEM_WEAPON)
+
+            for w in weapons:
+                bul = w.shot(self.bodyNP.getPos(), self.bodyNP.getQuat(), self)
                 if bul is not None:
                     nm = netMessage(C_NETWORK_NEW_NPC_SHOT, None)
                     nm.addInt(self.owner.id)
@@ -343,10 +342,8 @@ class Ship(ShimItem, threading.Thread):
             for row in result_set:
                 tempSlot = Slot(0, row[0])
                 self.slots.append(tempSlot)
-                if tempSlot.getItem() is not None and tempSlot.getItem().getTypeItem() == C_ITEM_ENGINE:
-                    self.engine = tempSlot.getItem()
                 if tempSlot.getItem() is not None and tempSlot.getItem().getTypeItem() == C_ITEM_WEAPON:
-                    self.weapon = tempSlot.getItem()
+                    tempSlot.getItem().setShip(self)
 
             cursor.close()
             shimDbConnector.lock.release()
@@ -391,11 +388,8 @@ class Ship(ShimItem, threading.Thread):
             tempSlot = Slot(row[0])
             self.slots.append(tempSlot)
 
-            if tempSlot.getItem() is not None and isinstance(tempSlot.getItem(), Engine):
-                self.engine = tempSlot.getItem()
             if tempSlot.getItem() is not None and isinstance(tempSlot.getItem(), Weapon):
-                self.weapon = tempSlot.getItem()
-                self.weapon.setShip(self)
+                tempSlot.getItem().setShip(self)
         cursor.close()
 
         #~ print "ship::loadFromBdd weapon " + str(self.weapon)
@@ -441,13 +435,15 @@ class Ship(ShimItem, threading.Thread):
                 v = self.worldNP.getRelativeVector(self.bodyNP, v)
                 self.bodyNP.node().applyTorque(v)
 
-                if self.engine is not None and self.engine.isEnabled():
+                engines = self.hasItems(C_ITEM_ENGINE)
+
+                for en in engines:
                     if self.pyr['a'] == 1:
-                        if self.poussee < self.engine.getSpeedMax():
-                            self.poussee += self.engine.getAcceleration()
+                        if self.poussee < en.getSpeedMax():
+                            self.poussee += en.getAcceleration()
                     if self.pyr['w'] == 1:
                         if self.poussee > 0:
-                            self.poussee -= self.engine.getAcceleration()
+                            self.poussee -= en.getAcceleration()
 
                 self.bodyNP.node().applyCentralForce(
                     Vec3(forwardVec.getX() * self.poussee, forwardVec.getY() * self.poussee,
@@ -594,16 +590,14 @@ class Ship(ShimItem, threading.Thread):
         self.world.attachRigidBody(self.bodyNP.node())
         visNP.reparentTo(self.bodyNP)
         self.state = 1
-        if self.weapon is not None:
-            self.weapon.setShip(self)
+
+        weapons = self.hasItems(C_ITEM_WEAPON)
+        for w in weapons:
+            w.setShip(self)
 
 
     def setPos(self, pos):
         self.bodyNP.setPos(pos)
-
-
-    def getWeapon(self):
-        return self.weapon
 
 
     def uninstallItemBySlotId(self, slotId):
@@ -619,10 +613,7 @@ class Ship(ShimItem, threading.Thread):
         it.setContainer(self.id)
         it.setContainerType("star007_ship")
         slot.setItem(None)
-        if it is not None and it == C_ITEM_ENGINE:
-            self.engine = None
-        if it is not None and it == C_ITEM_WEAPON:
-            self.weapon = None
+
         it.setEnabled(True)
 
         self.checkItemStatus()
