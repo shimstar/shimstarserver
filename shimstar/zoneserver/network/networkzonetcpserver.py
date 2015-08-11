@@ -113,7 +113,7 @@ class NetworkTCPServer():
                     for usr in User.listOfUser:
                         if User.listOfUser[usr] != usrToDelete:
                             nm = netMessage(C_NETWORK_USER_OUTGOING, User.listOfUser[usr].getConnexion())
-                            nm.addInt(usrToDelete.getId())
+                            nm.addUInt(usrToDelete.getId())
                             NetworkMessage.getInstance().addMessage(nm)
                         #~ NetworkMessage.getInstance().addMessage(C_NETWORK_USER_OUTGOING,str(usrToDelete.getId()),User.listOfUser[usr].getConnexion())
                     User.lock.release()

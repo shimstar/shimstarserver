@@ -286,22 +286,22 @@ class character:
 
 
     def sendInfo(self, nm):
-        nm.addInt(self.id)
+        nm.addUInt(self.id)
         nm.addString(self.name)
         nm.addString(self.face)
-        nm.addInt(self.zoneId)
+        nm.addUInt(self.zoneId)
 
     def sendMission(self, nm):
-        nm.addInt(len(self.missions))
+        nm.addUInt(len(self.missions))
         for m in self.missions:
-            nm.addInt(m.getId())
-            nm.addInt(m.getStatus())
+            nm.addUInt(m.getId())
+            nm.addUInt(m.getStatus())
 
     def sendReadDialogs(self, nm):
         self.getReadDialogs()
-        nm.addInt(len(self.readDialogs))
+        nm.addUInt(len(self.readDialogs))
         for d in self.readDialogs:
-            nm.addInt(d)
+            nm.addUInt(d)
 
     def loadInvStation(self,idStation = 0):
         self.stationInv=[]
@@ -337,21 +337,21 @@ class character:
         self.sendReadDialogs(nm)
         self.sendMission(nm)
         self.loadInvStation()
-        nm.addInt(len(self.stationInv))
+        nm.addUInt(len(self.stationInv))
         print "len stationInv" + str(len(self.stationInv))
         if len(self.stationInv) > 0:
             for i in self.stationInv:
-                nm.addInt(i.getTypeItem())
-                nm.addInt(i.getTemplate())
-                nm.addInt(i.getId())
-                nm.addInt(i.getNb())
-        nm.addInt(self.coin)
+                nm.addUInt(i.getTypeItem())
+                nm.addUInt(i.getTemplate())
+                nm.addUInt(i.getId())
+                nm.addUInt(i.getNb())
+        nm.addUInt(self.coin)
 
     def sendCompleteInfo(self, nm):
         self.ship.sendInfo(nm)
         self.sendMission(nm)
 
-        # ~ nm.addInt(self.ship.getTemplate())
+        # ~ nm.addUInt(self.ship.getTemplate())
 
     def setCurrent(self, current, nm=None):
         """

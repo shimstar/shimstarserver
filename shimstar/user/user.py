@@ -131,15 +131,15 @@ class User(threading.Thread):
         User.lock.release()
 
     def sendInfo(self, nm):
-        nm.addInt(self.id)
+        nm.addUInt(self.id)
         nm.addString(self.name)
-        nm.addInt(len(self.listOfCharacter))
+        nm.addUInt(len(self.listOfCharacter))
         if len(self.listOfCharacter) > 0:
             for chr in self.listOfCharacter:
                 chr.sendInfo(nm)
 
     def sendInfoOtherPlayer(self, nm):
-        nm.addInt(self.id)
+        nm.addUInt(self.id)
         nm.addString(self.name)
         currentChar = self.getCurrentCharacter()
         currentChar.sendInfo(nm)

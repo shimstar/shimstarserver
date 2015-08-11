@@ -125,8 +125,8 @@ class Zone(threading.Thread):
                                 usrToSend = User.listOfUser[u]
                                 # ~ nm=netMessageUDP(C_NETWORK_CHARACTER_UPDATE_POS,usrToSend.getIp(),usrToSend.getUdpPort())
                                 nm = netMessage(C_NETWORK_CHARACTER_UPDATE_POS, usrToSend.getConnexion())
-                                nm.addInt(usrObj.getId())
-                                nm.addInt(chr.getId())
+                                nm.addUInt(usrObj.getId())
+                                nm.addUInt(chr.getId())
                                 nm.addFloat(chr.ship.bodyNP.getQuat().getR())
                                 nm.addFloat(chr.ship.bodyNP.getQuat().getI())
                                 nm.addFloat(chr.ship.bodyNP.getQuat().getJ())
@@ -134,13 +134,13 @@ class Zone(threading.Thread):
                                 nm.addFloat(chr.ship.getPos().getX())
                                 nm.addFloat(chr.ship.getPos().getY())
                                 nm.addFloat(chr.ship.getPos().getZ())
-                                nm.addInt(chr.ship.getPoussee())
-                                nm.addInt(chr.ship.getHullPoints())
+                                nm.addUInt(chr.ship.getPoussee())
+                                nm.addUInt(chr.ship.getHullPoints())
                                 listOfShield = chr.ship.hasItems(C_ITEM_SHIELD)
-                                nm.addInt(len(listOfShield))
+                                nm.addUInt(len(listOfShield))
                                 for shi in listOfShield:
-                                    nm.addInt(shi.getId())
-                                    nm.addInt(shi.getActualHitPoints())
+                                    nm.addUInt(shi.getId())
+                                    nm.addUInt(shi.getActualHitPoints())
                                 #~ NetworkMessageUdp.getInstance().addMessage(nm)
                                 NetworkMessage.getInstance().addMessage(nm)
 
@@ -151,9 +151,9 @@ class Zone(threading.Thread):
                         NPC.lock.acquire()
                         # ~ nm=netMessageUDP(C_NETWORK_NPC_UPDATE_POS,User.listOfUser[u].getIp(),User.listOfUser[u].getUdpPort())
                         nm = netMessage(C_NETWORK_NPC_UPDATE_POS, User.listOfUser[u].getConnexion())
-                        nm.addInt(len(self.npc))
+                        nm.addUInt(len(self.npc))
                         for n in self.npc:
-                            nm.addInt(n.getId())
+                            nm.addUInt(n.getId())
                             nm.addFloat(n.ship.bodyNP.getQuat().getR())
                             nm.addFloat(n.ship.bodyNP.getQuat().getI())
                             nm.addFloat(n.ship.bodyNP.getQuat().getJ())
@@ -161,12 +161,12 @@ class Zone(threading.Thread):
                             nm.addFloat(n.ship.getPos().getX())
                             nm.addFloat(n.ship.getPos().getY())
                             nm.addFloat(n.ship.getPos().getZ())
-                            nm.addInt(n.ship.getHullPoints())
+                            nm.addUInt(n.ship.getHullPoints())
                             listOfShield = n.ship.hasItems(C_ITEM_SHIELD)
-                            nm.addInt(len(listOfShield))
+                            nm.addUInt(len(listOfShield))
                             for itShield in listOfShield:
-                                nm.addInt(itShield.getId())
-                                nm.addInt(itShield.getHitPoints())
+                                nm.addUInt(itShield.getId())
+                                nm.addUInt(itShield.getHitPoints())
                         #~ NetworkMessageUdp.getInstance().addMessage(nm)
                         NetworkMessage.getInstance().addMessage(nm)
                         NPC.lock.release()
@@ -193,7 +193,7 @@ class Zone(threading.Thread):
                 if User.listOfUser.has_key(usr):
                     User.lock.acquire()
                     nm = netMessage(C_NETWORK_DESTROY_JUNK, User.listOfUser[usr].getConnexion())
-                    nm.addInt(junkId)
+                    nm.addUInt(junkId)
                     NetworkMessage.getInstance().addMessage(nm)
 
                     tempJunk = junk.getJunkById(junkId)
@@ -213,7 +213,7 @@ class Zone(threading.Thread):
                     User.lock.acquire()
                     for us in User.listOfUser:
                         nm = netMessage(C_NETWORK_USER_OUTGOING, User.listOfUser[us].getConnexion())
-                        nm.addInt(usr)
+                        nm.addUInt(usr)
                         NetworkMessage.getInstance().addMessage(nm)
                     User.lock.release()
                     if User.listOfUser.has_key(usr) == True:
@@ -242,9 +242,9 @@ class Zone(threading.Thread):
                         if itemToTransfert is not None:
                             ship.addToInventory(itemToTransfert)
                             nm = netMessage(C_NETWORK_CHARACTER_ADD_TO_INVENTORY_FROM_JUNK, User.listOfUser[usrId].getConnexion())
-                            nm.addInt(usrId)
-                            nm.addInt(junkId)
-                            nm.addInt(itemId)
+                            nm.addUInt(usrId)
+                            nm.addUInt(junkId)
+                            nm.addUInt(itemId)
                             NetworkMessage.getInstance().addMessage(nm)
                     User.lock.release()
                 NetworkTCPServer.getInstance().removeMessage(msg)
@@ -308,10 +308,10 @@ class Zone(threading.Thread):
                                         ch.getShip().addToInventory(hasItem)
                                     nm = netMessage(C_NETWORK_CHARACTER_ADD_TO_INVENTORY,
                                                     User.listOfUser[u].getConnexion())
-                                    nm.addInt(C_ITEM_MINERAL)
-                                    nm.addInt(idmineral)
-                                    nm.addInt(idItem)
-                                    nm.addInt(nbMineral)
+                                    nm.addUInt(C_ITEM_MINERAL)
+                                    nm.addUInt(idmineral)
+                                    nm.addUInt(idItem)
+                                    nm.addUInt(nbMineral)
                                     NetworkMessage.getInstance().addMessage(nm)
 
         User.lock.release()
@@ -358,14 +358,14 @@ class Zone(threading.Thread):
                     #     else:
                     #         nm = netMessage(C_NETWORK_TAKE_DAMAGE_CHAR, User.listOfUser[u].getConnexion())
                     #     #~ print "zone::run objCollided.getOwner.getID == " + str(objCollided.getOwner().getId())
-                    #     nm.addInt(objCollided.getOwner().getId())
+                    #     nm.addUInt(objCollided.getOwner().getId())
                     #     send hitpoints, and send hitpoints per shield
-                    #     nm.addInt(Bullet.listOfBullet[b].getDamage())
-                    #     nm.addInt(objCollided.getHullPoints())
+                    #     nm.addUInt(Bullet.listOfBullet[b].getDamage())
+                    #     nm.addUInt(objCollided.getHullPoints())
                     #     listOfShield = objCollided.hasItems(C_ITEM_SHIELD)
-                    #     nm.addInt(len(listOfShield))
+                    #     nm.addUInt(len(listOfShield))
                     #     for sh in listOfShield:
-                    #         nm.addInt((sh.getId()))
+                    #         nm.addUInt((sh.getId()))
                     #         nm.addFloat((sh.))
                     #     NetworkMessage.getInstance().addMessage(nm)
                     #
@@ -386,10 +386,10 @@ class Zone(threading.Thread):
                             else:
                                 if objCollided.getOwner().getId() == User.listOfUser[u].getCurrentCharacter().getId():
                                     nm2 = netMessage(C_NETWORK_DEATH_CHAR, User.listOfUser[u].getConnexion())
-                                    nm2.addInt(objCollided.getOwner().getLastStation())
+                                    nm2.addUInt(objCollided.getOwner().getLastStation())
                                     NetworkMessage.getInstance().addMessage(nm2)
                                 nm = netMessage(C_NETWORK_REMOVE_CHAR, User.listOfUser[u].getConnexion())
-                            nm.addInt(objCollided.getOwner().getId())
+                            nm.addUInt(objCollided.getOwner().getId())
                             NetworkMessage.getInstance().addMessage(nm)
 
                             ch=User.listOfUser[u].getCurrentCharacter()
@@ -402,7 +402,7 @@ class Zone(threading.Thread):
                     User.lock.acquire()
                     for u in User.listOfUser:
                         nm = netMessage(C_NETWORK_REMOVE_SHOT, User.listOfUser[u].getConnexion())
-                        nm.addInt(Bullet.listOfBullet[b].getId())
+                        nm.addUInt(Bullet.listOfBullet[b].getId())
                         NetworkMessage.getInstance().addMessage(nm)
                         nm = netMessage(C_NETWORK_EXPLOSION, User.listOfUser[u].getConnexion())
                         pos = Bullet.listOfBullet[b].getPos()
@@ -418,7 +418,7 @@ class Zone(threading.Thread):
             for u in User.listOfUser:
                 if Bullet.listOfBullet.has_key(b):
                     nm = netMessage(C_NETWORK_REMOVE_SHOT, User.listOfUser[u].getConnexion())
-                    nm.addInt(Bullet.listOfBullet[b].getId())
+                    nm.addUInt(Bullet.listOfBullet[b].getId())
                     NetworkMessage.getInstance().addMessage(nm)
                     Bullet.removeBullet(b)
             User.lock.release()
@@ -449,8 +449,8 @@ class Zone(threading.Thread):
                                 User.lock.acquire()
                                 for u in User.listOfUser:
                                     nm = netMessage(C_NETWORK_NEW_CHAR_SHOT, User.listOfUser[u].getConnexion())
-                                    nm.addInt(usr)
-                                    nm.addInt(b.getId())
+                                    nm.addUInt(usr)
+                                    nm.addUInt(b.getId())
                                     nm.addFloat(b.getPos().getX())
                                     nm.addFloat(b.getPos().getY())
                                     nm.addFloat(b.getPos().getZ())
@@ -458,7 +458,7 @@ class Zone(threading.Thread):
                                     nm.addFloat(b.getQuat().getI())
                                     nm.addFloat(b.getQuat().getJ())
                                     nm.addFloat(b.getQuat().getK())
-                                    nm.addInt(w.getId())
+                                    nm.addUInt(w.getId())
                                     NetworkMessage.getInstance().addMessage(nm)
                                 User.lock.release()
             # ~ NetworkZoneUDPServer.getInstance().removeMessage(msg)

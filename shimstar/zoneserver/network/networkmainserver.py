@@ -26,11 +26,11 @@ class NetworkMainServer(threading.Thread):
 			self.cReader.addConnection(self.myConnection)  # receive messages from server
 			self.myConnection.setNoDelay(True)
 			nm=netMessage(C_NETWORK_CONFIG_ZONE)
-			nm.addInt(C_ID_ZONE)
+			nm.addUInt(C_ID_ZONE)
 			nm.addString(C_IP_ZONE)
-			nm.addInt(C_PORT_ZONE)
-			nm.addInt(C_PORT_UDP_ZONE)
-			nm.addInt(C_PORT_UDP_ZONE2)
+			nm.addUInt(C_PORT_ZONE)
+			nm.addUInt(C_PORT_UDP_ZONE)
+			nm.addUInt(C_PORT_UDP_ZONE2)
 			self.sendMessage(nm)
 		
 	@staticmethod

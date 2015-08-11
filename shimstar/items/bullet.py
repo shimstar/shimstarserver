@@ -31,14 +31,14 @@ class Bullet(threading.Thread):
         self.bodyNP.node().addShape(shape)
         self.bodyNP.node().setMass(0.0001)
         self.bodyNP.setQuat(quat)
-        pt1, pt2 = self.weapon.ship.bodyNP.getTightBounds()
-        xDim = pt2.getX() - pt1.getX()
-        yDim = pt2.getY() - pt1.getY()
-
-        #~ print "bullet dims " +  str(xDim) + "/" + str(yDim)
-        dim = xDim
-        if xDim < yDim:
-            dim = yDim
+        # pt1, pt2 = self.weapon.ship.bodyNP.getTightBounds()
+        # xDim = pt2.getX() - pt1.getX()
+        # yDim = pt2.getY() - pt1.getY()
+        #
+        #
+        # dim = xDim
+        # if xDim < yDim:
+        #     dim = yDim
         # self.bodyNP.setPos(weapon.ship.bodyNP, Vec3(0, dim + (dim / 5), 0))
         self.bodyNP.setPos(weapon.ship.bodyNP, Vec3(x, y, z))
         # print "dim " + str(dim + (dim/5))

@@ -134,24 +134,24 @@ class NetworkTCPServer():
 
                     if (tempUser.getPwd() == password):
                         nm = netMessage(C_NETWORK_CONNECT, connexion)
-                        nm.addInt(C_CONNEXION_OK)
+                        nm.addUInt(C_CONNEXION_OK)
                         tempUser.sendInfo(nm)
                         NetworkMessage.getInstance().addMessage(nm)
                         tempUser.setConnexion(connexion)
                     #~ User.listOfUser
                     else:
                         nm = netMessage(C_NETWORK_CONNECT, connexion)
-                        nm.addInt(C_CONNEXION_WRONGPWD)
+                        nm.addUInt(C_CONNEXION_WRONGPWD)
                         NetworkMessage.getInstance().addMessage(nm)
                         tempUser.destroy()
                 else:
                     nm = netMessage(C_NETWORK_CONNECT, connexion)
-                    nm.addInt(C_CONNEXION_ALREADYCONNECTED)
+                    nm.addUInt(C_CONNEXION_ALREADYCONNECTED)
                     NetworkMessage.getInstance().addMessage(nm)
                 #~ tempUser.destroy()
             else:
                 nm = netMessage(C_NETWORK_CONNECT, connexion)
-                nm.addInt(C_CONNEXION_NOACCOUNT)
+                nm.addUInt(C_CONNEXION_NOACCOUNT)
                 NetworkMessage.getInstance().addMessage(nm)
         elif msgID == C_NETWORK_CONFIG_ZONE:
             id = myIterator.getUint32()
@@ -170,9 +170,9 @@ class NetworkTCPServer():
                 ip, port, portUdp, portUdp2 = zm.getConfig()
                 nm = netMessage(C_NETWORK_INFO_ZONE, connexion)
                 nm.addString(ip)
-                nm.addInt(port)
-                nm.addInt(portUdp)
-                nm.addInt(portUdp2)
+                nm.addUInt(port)
+                nm.addUInt(portUdp)
+                nm.addUInt(portUdp2)
                 NetworkMessage.getInstance().addMessage(nm)
         elif msgID == C_NETWORK_USER_CHOOSE_HERO:
             iduser = myIterator.getUint32()
@@ -199,10 +199,10 @@ class NetworkTCPServer():
                 if u == int(idUser):
                     User.listOfUser[u].getCurrentCharacter().sellItem(idIt,inv)
                     nm = netMessage(C_NETWORK_CHARACTER_SELL_ITEM, connexion)
-                    nm.addInt(idIt)
-                    nm.addInt(User.listOfUser[u].getCurrentCharacter().getCoin())
-                    nm.addInt(inv)
-                    # nm.addInt(qty)
+                    nm.addUInt(idIt)
+                    nm.addUInt(User.listOfUser[u].getCurrentCharacter().getCoin())
+                    nm.addUInt(inv)
+                    # nm.addUInt(qty)
                     NetworkMessage.getInstance().addMessage(nm)
         elif msgID == C_NETWORK_CHARACTER_INV2STATION:
             iduser = myIterator.getUint32()
@@ -213,8 +213,8 @@ class NetworkTCPServer():
                 if u == int(iduser):
                     User.listOfUser[u].getCurrentCharacter().moveItemInvToStation(iditem,idstation,qty,toStation=True)
                     nm = netMessage(C_NETWORK_CHARACTER_INV2STATION, connexion)
-                    nm.addInt(iditem)
-                    nm.addInt(qty)
+                    nm.addUInt(iditem)
+                    nm.addUInt(qty)
                     NetworkMessage.getInstance().addMessage(nm)
         elif msgID == C_NETWORK_CHARACTER_STATION2INV:
             iduser = myIterator.getUint32()
@@ -225,8 +225,8 @@ class NetworkTCPServer():
                 if u == int(iduser):
                     User.listOfUser[u].getCurrentCharacter().moveItemInvToStation(iditem,idstation, qty,toStation=False)
                     nm = netMessage(C_NETWORK_CHARACTER_STATION2INV, connexion)
-                    nm.addInt(iditem)
-                    nm.addInt(qty)
+                    nm.addUInt(iditem)
+                    nm.addUInt(qty)
                     NetworkMessage.getInstance().addMessage(nm)
         elif msgID == C_NETWORK_CHARACTER_BUY_ITEM:
             idUser = int(myIterator.getUint32())
@@ -238,11 +238,11 @@ class NetworkTCPServer():
                     it = User.listOfUser[u].getCurrentCharacter().buyItem(idIt,inv)
                     if it is not None :
                         nm = netMessage(C_NETWORK_CHARACTER_BUY_ITEM, connexion)
-                        nm.addInt(it.getTypeItem())
-                        nm.addInt(it.getTemplate())
-                        nm.addInt(it.getId())
-                        nm.addInt(User.listOfUser[u].getCurrentCharacter().getCoin())
-                        nm.addInt(inv)
+                        nm.addUInt(it.getTypeItem())
+                        nm.addUInt(it.getTemplate())
+                        nm.addUInt(it.getId())
+                        nm.addUInt(User.listOfUser[u].getCurrentCharacter().getCoin())
+                        nm.addUInt(inv)
                         NetworkMessage.getInstance().addMessage(nm)
         elif msgID == C_NETWORK_CHARACTER_UNINSTALL_SLOT:
             idUser = int(myIterator.getUint32())
@@ -258,11 +258,11 @@ class NetworkTCPServer():
                             listOfItem.append(s.getItem())
 
                     nm = netMessage(C_NETWORK_CHARACTER_ITEM_ENABLED, connexion)
-                    nm.addInt(len(listOfItem))
+                    nm.addUInt(len(listOfItem))
                     for it in listOfItem:
                         status = 1 if it.isEnabled() else 0
-                        nm.addInt(it.getId())
-                        nm.addInt(status)
+                        nm.addUInt(it.getId())
+                        nm.addUInt(status)
                     NetworkMessage.getInstance().addMessage(nm)
 
         elif msgID == C_NETWORK_CHARACTER_INSTALL_SLOT:
@@ -281,11 +281,11 @@ class NetworkTCPServer():
                             listOfItem.append(s.getItem())
 
                     nm = netMessage(C_NETWORK_CHARACTER_ITEM_ENABLED, connexion)
-                    nm.addInt(len(listOfItem))
+                    nm.addUInt(len(listOfItem))
                     for it in listOfItem:
                         status = 1 if it.isEnabled() else 0
-                        nm.addInt(it.getId())
-                        nm.addInt(status)
+                        nm.addUInt(it.getId())
+                        nm.addUInt(status)
                     NetworkMessage.getInstance().addMessage(nm)
 
         elif msgID == C_NETWORK_DEATH_CHAR:
@@ -325,7 +325,7 @@ class NetworkTCPServer():
             if userFound != None:
                 userFound.deleteCharacter(idChar)
                 nm = netMessage(C_USER_DELETE_CHAR, connexion)
-                nm.addInt(idChar)
+                nm.addUInt(idChar)
                 NetworkMessage.getInstance().addMessage(nm)
 
         elif msgID == C_CREATE_USER:
@@ -380,7 +380,7 @@ class NetworkTCPServer():
         alreadyExist = User.userExists(usr)
         if alreadyExist == True:
             nm = netMessage(C_CREATE_USER, connexion)
-            nm.addInt(0)
+            nm.addUInt(0)
             NetworkMessage.getInstance().addMessage(nm)
         else:
             tempUser = User(name=usr, new=True)
@@ -389,7 +389,7 @@ class NetworkTCPServer():
             tempUser.destroy()
             User.destroyUserById(0)
             nm = netMessage(C_CREATE_USER, connexion)
-            nm.addInt(1)
+            nm.addUInt(1)
             NetworkMessage.getInstance().addMessage(nm)
 
 

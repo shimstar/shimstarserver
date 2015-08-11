@@ -193,8 +193,8 @@ class Ship(ShimItem, threading.Thread):
                 bul = w.shot(self.bodyNP.getPos(), self.bodyNP.getQuat(), self)
                 if bul is not None:
                     nm = netMessage(C_NETWORK_NEW_NPC_SHOT, None)
-                    nm.addInt(self.owner.id)
-                    nm.addInt(bul.getId())
+                    nm.addUInt(self.owner.id)
+                    nm.addUInt(bul.getId())
                     nm.addFloat(bul.getPos().getX())
                     nm.addFloat(bul.getPos().getY())
                     nm.addFloat(bul.getPos().getZ())
@@ -210,19 +210,19 @@ class Ship(ShimItem, threading.Thread):
 
     def sendInfo(self, nm):
         # ~ print "ship::sendInfo " + str(self.template)
-        nm.addInt(self.id)
-        nm.addInt(self.template)
-        nm.addInt(self.hullpoints)
+        nm.addUInt(self.id)
+        nm.addUInt(self.template)
+        nm.addUInt(self.hullpoints)
 
         # if self.owner.className == "character":
-        nm.addInt(len(self.itemInInventory))
+        nm.addUInt(len(self.itemInInventory))
         if len(self.itemInInventory) > 0:
             for i in self.itemInInventory:
-                nm.addInt(i.getTypeItem())
-                nm.addInt(i.getTemplate())
-                nm.addInt(i.getId())
-                nm.addInt(i.getNb())
-        nm.addInt(len(self.slots))
+                nm.addUInt(i.getTypeItem())
+                nm.addUInt(i.getTemplate())
+                nm.addUInt(i.getId())
+                nm.addUInt(i.getNb())
+        nm.addUInt(len(self.slots))
         for s in self.slots:
             s.sendInfo(nm)
 

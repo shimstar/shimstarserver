@@ -30,22 +30,26 @@ class Slot:
 
 
     def sendInfo(self, nm):
-        nm.addInt(self.getId())
-        nm.addInt(len(self.types))
+        nm.addUInt(self.getId())
+        nm.addUInt(len(self.types))
         for t in self.types:
-            nm.addInt(t)
+            nm.addUInt(t)
         it = self.getItem()
         if it is not None:
-            nm.addInt(it.getTypeItem())
-            nm.addInt(it.getTemplate())
-            nm.addInt(it.getId())
+            nm.addUInt(it.getTypeItem())
+            nm.addUInt(it.getTemplate())
+            nm.addUInt(it.getId())
             status = 1 if it.isEnabled() else 0
-            nm.addInt(status)
+            nm.addUInt(status)
         else:
-            nm.addInt(0)
-            nm.addInt(0)
-            nm.addInt(0)
-            nm.addInt(0)
+            nm.addUInt(0)
+            nm.addUInt(0)
+            nm.addUInt(0)
+            nm.addUInt(0)
+
+        nm.addInt(self.x)
+        nm.addInt(self.y)
+        nm.addInt(self.z)
 
     def getTypes(self):
         return self.types
@@ -68,7 +72,7 @@ class Slot:
         query = "SELECT star009_location_star008,star009_numero,star009_item_star006,star009_x,star009_y,star009_z FROM star009_slot"
         query += " where star009_id ='" + str(
             self.id) + "' "
-        print query
+        # print query
         instanceDbConnector = shimDbConnector.getInstance()
         cursor = instanceDbConnector.getConnection().cursor()
         cursor.execute(query)
@@ -167,7 +171,7 @@ class Slot:
             else:
                 query += "0"
             query += "','" + str(self.x) + "','" + str(self.y) + "','" + str(self.z) +"')"
-            print query
+            # print query
         instanceDbConnector = shimDbConnector.getInstance()
         cursor = instanceDbConnector.getConnection().cursor()
         cursor.execute(query)

@@ -50,9 +50,9 @@ class NPC():
         pass
 
     def sendInfo(self, nm):
-        nm.addInt(self.id)
+        nm.addUInt(self.id)
         nm.addString(self.name)
-        nm.addInt(self.template)
+        nm.addUInt(self.template)
         self.ship.sendInfo(nm)
 
     def getClassName(self):

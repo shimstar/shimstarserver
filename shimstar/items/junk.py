@@ -227,7 +227,7 @@ class junk:
         junk.junks.remove(self)
 
     def sendInfo(self,nm,idUser):
-        nm.addInt(self.id)
+        nm.addUInt(self.id)
         nm.addFloat(self.pos.getX())
         nm.addFloat(self.pos.getY())
         nm.addFloat(self.pos.getZ())
@@ -239,12 +239,12 @@ class junk:
                     nbItemForUser+=1
                     listOfItem.append(it)
 
-        nm.addInt(nbItemForUser)
+        nm.addUInt(nbItemForUser)
 
         for it in listOfItem:
-            nm.addInt(it.getTypeItem())
-            nm.addInt(it.getTemplate())
-            nm.addInt(it.getId())
+            nm.addUInt(it.getTypeItem())
+            nm.addUInt(it.getTemplate())
+            nm.addUInt(it.getId())
 
         return nm
 
