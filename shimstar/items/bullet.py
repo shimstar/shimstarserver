@@ -41,7 +41,8 @@ class Bullet(threading.Thread):
         #     dim = yDim
         # self.bodyNP.setPos(weapon.ship.bodyNP, Vec3(0, dim + (dim / 5), 0))
         self.bodyNP.setPos(weapon.ship.bodyNP, Vec3(x, y, z))
-        # print "dim " + str(dim + (dim/5))
+        # self.bodyNP.setPos(weapon.ship.bodyNP.getPos())
+       # print "dim " + str(dim + (dim/5))
         #~ self.bodyNP.setPos(weapon.ship.bodyNP,Vec3(0,200,0))
         self.initPos = self.bodyNP.getPos()
         self.bodyNP.setCollideMask(BitMask32.allOn())
