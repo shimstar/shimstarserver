@@ -120,7 +120,7 @@ class Bullet(threading.Thread):
 
     def destroy(self):
         # print "bullet::destroy " + str(self.id)
-        if self.bodyNP != None:
+        if self.bodyNP is not None:
             if self.world is not None:
                 self.world.removeRigidBody(self.bodyNP.node())
             self.bodyNP.detachNode()
