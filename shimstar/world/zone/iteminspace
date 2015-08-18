@@ -6,6 +6,7 @@ from pandac.PandaModules import *
 from panda3d.bullet import *
 
 class ItemInSpace:
+    listItem=[]
     def __init__(self,id=0,idTemplate=0):
         self.pos = (0,0,0)
         self.hpr = (0,0,0)
@@ -30,6 +31,12 @@ class ItemInSpace:
             self.loadFromBdd()
         else:
             self.loadTemplateFromBdd()
+
+        ItemInSpace.listItem.append(self)
+
+    @staticmethod
+    def getListItemInSpace():
+        return ItemInSpace.listItem
 
     def loadEgg(self, world, worldNP):
         self.world = world
@@ -84,6 +91,9 @@ class ItemInSpace:
                 self.world.removeRigidBody(self.bodyNP.node())
             self.bodyNP.detachNode()
             self.bodyNP.removeNode()
+
+        if self in ItemInSpace.listItem:
+            ItemInSpace.listItem.remove(self)
 
 
     def setZoneId(self,zoneid):

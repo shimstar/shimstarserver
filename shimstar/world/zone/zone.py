@@ -13,6 +13,7 @@ from shimstar.npc.npc import *
 from shimstar.items.mineral import *
 from shimstar.items.junk import *
 
+
 C_STEP_SIZE = 1.0 / 60.0
 
 
@@ -522,6 +523,19 @@ class Zone(threading.Thread):
         self.loadZoneStationFromBdd()
         self.loadZoneNPCFromBDD()
         self.loadZoneJunkFromBdd()
+        self.loadItemFromBdd()
+
+    def loadItemFromBdd(self):
+        query = "SELECT star068_id FROM star068_iteminspace WHERE star068_zone_star011 ='" + str(self.id) + "'"
+        shimDbConnector.lock.acquire()
+        instanceDbConnector = shimDbConnector.getInstance()
+        cursor = instanceDbConnector.getConnection().cursor()
+        cursor.execute(query)
+        result_set = cursor.fetchall()
+        for row in result_set:
+            temp = ItemInSpace(int(row[0]))
+            temp.loadEgg(self.world,self.worldNP)
+        shimDbConnector.lock.release()
 
 
     def loadZoneNPCFromBDD(self):
