@@ -23,7 +23,7 @@ class ItemInSpace:
         self.eggFar = ""
         self.hullpoints = 0
         self.maxHullpoints = 0
-        self.node = None
+        self.bodyNP = None
         self.world = None
         self.worldNP = None
 
@@ -49,7 +49,7 @@ class ItemInSpace:
         body = BulletRigidBodyNode(self.name)
         self.bodyNP = worldNP.attachNewNode(body)
         self.bodyNP.node().addShape(shape)
-        self.bodyNP.node().setMass(1.0)
+        self.bodyNP.node().setMass(self.masse)
         self.bodyNP.setPos(self.pos)
         self.bodyNP.setHpr(self.hpr)
         self.bodyNP.setCollideMask(BitMask32.allOn())
