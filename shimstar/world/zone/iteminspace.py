@@ -17,7 +17,7 @@ class ItemInSpace:
         self.img = ""
         self.name = ""
         self.scale = 1
-        self.typeItem = ""
+        self.typeItem = 0
         self.egg = ""
         self.eggMiddle = ""
         self.eggFar = ""
@@ -147,7 +147,7 @@ class ItemInSpace:
         cursor.close()
         shimDbConnector.lock.release()
 
-    def loadFromTemplate(self):
+    def loadTemplateFromBdd(self):
         query = "SELECT star069_name, star069_type_star003,star069_img, star069_masse,star069_egg,star069_egg_middle,star069_egg_far,star069_scale,star069_hullpoints"
         query+= " from star069_iteminspace_template "
         query+= " where star069_id = " + str(self.templateId)

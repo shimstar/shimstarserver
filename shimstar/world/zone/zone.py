@@ -12,6 +12,7 @@ from shimstar.world.zone.station import *
 from shimstar.npc.npc import *
 from shimstar.items.mineral import *
 from shimstar.items.junk import *
+from shimstar.world.zone.iteminspace import *
 
 
 C_STEP_SIZE = 1.0 / 60.0
@@ -44,13 +45,15 @@ class Zone(threading.Thread):
                 usrId = int(netMsg[0])
                 usr = User.getUserById(usrId)
                 if usr != None:
+                    # if len(self.npc)>0:
+                    nm = netMessage(C_NETWORK_SEND_NPC_LOADINGZONE, usr.getConnexion())
+                    nm.addUInt(len(self.npc))
                     for temp in self.npc:
                         if temp.ship != None and temp.ship.getHullPoints() > 0:
-                            nm = netMessage(C_NETWORK_NPC_INCOMING, usr.getConnexion())
                             temp.sendInfo(nm)
-                            NetworkMessage.getInstance().addMessage(nm)
-                    nm = netMessage(C_NETWORK_NPC_SENT, usr.getConnexion())
                     NetworkMessage.getInstance().addMessage(nm)
+                        # nm = netMessage(C_NETWORK_NPC_SENT, usr.getConnexion())
+                    # NetworkMessage.getInstance().addMessage(nm)
                 NetworkTCPServer.getInstance().removeMessage(msg)
 
         tempMsg = NetworkTCPServer.getInstance().getListOfMessageById(C_NETWORK_ASKING_CHAR)
@@ -74,14 +77,17 @@ class Zone(threading.Thread):
                 usr = User.getUserById(usrId)
 
                 if usr != None:
-                    for othrUsr in User.listOfUser:
-                        if othrUsr != usrId:
-                            nm = netMessage(C_NETWORK_CHAR_INCOMING, usr.getConnexion())
-                            User.listOfUser[othrUsr].sendInfoOtherPlayer(nm)
-                            NetworkMessage.getInstance().addMessage(nm)
-                            nm = netMessage(C_NETWORK_CHAR_INCOMING, User.listOfUser[othrUsr].getConnexion())
-                            usr.sendInfoOtherPlayer(nm)
-                            NetworkMessage.getInstance().addMessage(nm)
+                    if len(User.listOfUser)>1:
+                        # nm.addUInt(len(User.listOfUser)-1)
+                        for othrUsr in User.listOfUser:
+                            if othrUsr != usrId:
+                                nm = netMessage(C_NETWORK_OTHERCHAR_LOADINGZONE, usr.getConnexion())
+                                User.listOfUser[othrUsr].sendInfoOtherPlayer(nm)
+                                NetworkMessage.getInstance().addMessage(nm)
+                                nm2 = netMessage(C_NETWORK_CHAR_INCOMING, User.listOfUser[othrUsr].getConnexion())
+                                usr.sendInfoOtherPlayer(nm2)
+                                NetworkMessage.getInstance().addMessage(nm2)
+                        # NetworkMessage.getInstance().addMessage(nm)
 
                     nm = netMessage(C_NETWORK_CHAR_SENT, usr.getConnexion())
                     NetworkMessage.getInstance().addMessage(nm)
@@ -105,6 +111,25 @@ class Zone(threading.Thread):
                             nbJunk+=1
 
                     nm = netMessage(C_NETWORK_JUNK_SENT, usr.getConnexion())
+                    NetworkMessage.getInstance().addMessage(nm)
+                NetworkTCPServer.getInstance().removeMessage(msg)
+
+
+        tempMsg = NetworkTCPServer.getInstance().getListOfMessageById(C_NETWORK_ASKING_ITEMINSPACE)
+        if len(tempMsg) > 0:
+            for msg in tempMsg:
+                print "C_NETWORK_ASKING_ITEMINSPACE"
+                netMsg = msg.getMessage()
+                usrId = int(netMsg[0])
+                usr = User.getUserById(usrId)
+                if usr != None:
+                    idChar=usr.getCurrentCharacter().getId()
+                    for tempItem in ItemInSpace.listItem:
+                        nm = netMessage(C_NETWORK_ADD_ITEMINSPACE, usr.getConnexion())
+                        tempItem.sendInfo(nm)
+                        NetworkMessage.getInstance().addMessage(nm)
+
+                    nm = netMessage(C_NETWORK_ITEMINSPACE_SENT, usr.getConnexion())
                     NetworkMessage.getInstance().addMessage(nm)
                 NetworkTCPServer.getInstance().removeMessage(msg)
 

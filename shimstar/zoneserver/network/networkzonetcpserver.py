@@ -178,6 +178,12 @@ class NetworkTCPServer():
             msgTab.append(iduser)
             temp = message(msgID, msgTab)
             self.listOfMessage.append(temp)
+        elif msgID == C_NETWORK_ASKING_ITEMINSPACE:
+            iduser = int(myIterator.getUint32())
+            msgTab = []
+            msgTab.append(iduser)
+            temp = message(msgID, msgTab)
+            self.listOfMessage.append(temp)
         elif msgID == C_NETWORK_ASKING_OTHER_CHAR:
             iduser = int(myIterator.getUint32())
             msgTab = []
