@@ -66,7 +66,7 @@ class ItemInSpace:
 
     def sendInfo(self,nm):
         nm.addUInt(self.id)
-        nm.addUInt(self.template)
+        nm.addUInt(self.templateId)
         nm.addUInt(self.hullpoints)
         if self.bodyNP is not None and  not self.bodyNP.isEmpty():
             nm.addFloat(self.bodyNP.getPos().getX())
@@ -119,9 +119,8 @@ class ItemInSpace:
         query="SELECT star068_posx,star068_posy,star068_posz,star068_hprh,star068_hprp,star068_hprr, star068_scale, star068_template_star069,star068_zone_star011"
         query+=" ,star069_name, star069_type_star003,star069_img, star069_masse,star069_egg,star069_egg_middle,star069_egg_far"
         query+=" , star068_hullpoints, star069_hullpoints"
-        query+=" FROM star068_iteminspace join star069_iteminspace_template on star068_template_star004 = star069_id"
+        query+=" FROM star068_iteminspace join star069_iteminspace_template on star068_template_star069 = star069_id"
         query+=" WHERE star068_id = " + str(self.id)
-
         shimDbConnector.lock.acquire()
         instanceDbConnector=shimDbConnector.getInstance()
 
